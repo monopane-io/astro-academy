@@ -27,7 +27,10 @@ const pagesSeen: { url: string; html: string }[] = [];
 function watch(page: Page) {
 	page.on("request", (request) => requests.push(request.url()));
 	page.on("load", async () => {
-		pagesSeen.push({ url: page.url(), html: await page.content() });
+		// A page that is left the moment it loads (a redirect after a form post)
+		// cannot be read: it is skipped, and the page it led to is read instead.
+		const html = await page.content().catch(() => null);
+		if (html !== null) pagesSeen.push({ url: page.url(), html });
 	});
 }
 
