@@ -9,7 +9,7 @@ import {
 /**
  * Demo sign-in: type a name and an email address and you are in. Nothing is
  * checked, so anyone can sign in as anyone. It exists so a first deploy works
- * without an email provider. Do not run a real academy on it.
+ * without an email provider. Do not run a real site on it.
  *
  * Demo identities are prefixed `demo:` so they can never be mistaken for a
  * verified address after you switch to magic links.

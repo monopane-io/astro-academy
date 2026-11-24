@@ -1,5 +1,5 @@
 /**
- * Quizzes as the academy shows them. Questions arrive from Monopane without
+ * Quizzes as the site shows them. Questions arrive from Monopane without
  * their answer keys (see listLessonActivities), are drawn as a plain HTML
  * form, and the answers are posted back to Monopane to be graded.
  */

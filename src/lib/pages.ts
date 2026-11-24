@@ -3,9 +3,9 @@
  * returns its `response` if there is one (a redirect, or "Page not found"),
  * and otherwise draws `data`.
  *
- * Everything about how the academy behaves is in this file and the ones it
+ * Everything about how the site behaves is in this file and the ones it
  * imports; everything about how it looks is in src/pages, src/layouts,
- * src/components and src/styles. To restyle the academy, or rebuild it on
+ * src/components and src/styles. To restyle the site, or rebuild it on
  * another UI library, change the second group and leave this alone.
  */
 import { env } from "cloudflare:workers";

@@ -7,7 +7,7 @@
  * Safe to run twice: it finds what already exists by slug and title and only
  * adds what is missing, then makes sure the right things are published.
  *
- * It needs a key that can write content, which the academy's own key cannot:
+ * It needs a key that can write content, which the site's own key cannot:
  *   MONOPANE_SETUP_API_KEY  the key you created in the console
  *   MONOPANE_TENANT_ID      the project to seed
  *   MONOPANE_API_URL       optional, defaults to https://api.monopane.io

@@ -1,5 +1,5 @@
 /**
- * The academy's settings, read from the Worker's environment.
+ * The site's settings, read from the Worker's environment.
  *
  * Three are required: MONOPANE_API_KEY, MONOPANE_TENANT_ID and SESSION_SECRET.
  * This file has no imports on purpose, so it can be tested anywhere.
@@ -11,7 +11,7 @@ export interface Config {
 	apiKey: string;
 	tenantId: string;
 	sessionSecret: string;
-	/** Monopane environment the academy reads from. */
+	/** Monopane environment the site reads from. */
 	environment: string;
 	apiUrl: string;
 	authMode: AuthMode;
@@ -22,7 +22,7 @@ export interface Config {
 	emailFrom: string | null;
 }
 
-/** Thrown when the academy cannot run as configured. `problems` are safe to show. */
+/** Thrown when the site cannot run as configured. `problems` are safe to show. */
 export class SetupError extends Error {
 	constructor(readonly problems: string[]) {
 		super(problems.join(" "));
@@ -77,7 +77,7 @@ export function readConfig(env: RawEnv): Config {
 		environment: text(env, "MONOPANE_ENVIRONMENT") || "production",
 		apiUrl: (text(env, "MONOPANE_API_URL") || "https://api.monopane.io").replace(/\/+$/, ""),
 		authMode,
-		siteName: text(env, "SITE_NAME") || "Academy",
+		siteName: text(env, "SITE_NAME") || "Site",
 		tagline: text(env, "SITE_TAGLINE") || "Courses to help you get the most out of the product.",
 		resendApiKey,
 		emailFrom,

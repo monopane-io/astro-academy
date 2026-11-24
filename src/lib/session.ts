@@ -5,7 +5,7 @@
  */
 import type { User } from "./auth/types";
 
-export const SESSION_COOKIE = "academy_session";
+export const SESSION_COOKIE = "site_session";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days, in seconds
 
 const encoder = new TextEncoder();

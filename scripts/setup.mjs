@@ -7,7 +7,7 @@
  *
  * It does two things you would otherwise do by hand:
  *
- *   1. Creates the academy's own API key in Monopane, limited to the seven
+ *   1. Creates the site's own API key in Monopane, limited to the seven
  *      scopes the site uses. (The console creates unrestricted keys only, so
  *      the scoped key is made through the API with your setup key.)
  *   2. Generates SESSION_SECRET.
@@ -53,20 +53,20 @@ if (!apiKey) {
 	client.setConfig({ baseUrl, auth: () => setupKey });
 	const result = await createApiKey({
 		path: { tenantId },
-		body: { name: "Academy site", mode: "live", scopes: SCOPES },
+		body: { name: "Site", mode: "live", scopes: SCOPES },
 	});
 	if (!result.data) {
 		const message = result.error?.error?.message ?? `HTTP ${result.response?.status ?? "error"}`;
-		console.error(`Monopane would not create the academy's key: ${message}`);
+		console.error(`Monopane would not create the site's key: ${message}`);
 		console.error("MONOPANE_SETUP_API_KEY must be an unrestricted key for MONOPANE_TENANT_ID.");
 		process.exit(1);
 	}
 	apiKey = result.data.rawKey;
 	appendFileSync(
 		".dev.vars",
-		`\n# The academy's own key (seven scopes). Created by npm run setup.\nMONOPANE_API_KEY=${apiKey}\n`,
+		`\n# The site's own key (seven scopes). Created by npm run setup.\nMONOPANE_API_KEY=${apiKey}\n`,
 	);
-	added.push(`MONOPANE_API_KEY (new key "Academy site", scopes: ${SCOPES.join(", ")})`);
+	added.push(`MONOPANE_API_KEY (new key "Site", scopes: ${SCOPES.join(", ")})`);
 }
 
 if (!sessionSecret) {

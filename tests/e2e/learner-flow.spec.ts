@@ -277,7 +277,7 @@ test("the learner flow, from sign-in to a verified credential", async ({ page, b
 test("nothing secret reached the browser", async () => {
 	expect(pagesSeen.length).toBeGreaterThan(10);
 
-	// The browser only ever talked to the academy itself.
+	// The browser only ever talked to the site itself.
 	const apiHost = new URL(API_URL).host;
 	const offSite = requests.filter((url) => new URL(url).host === apiHost);
 	expect(offSite, "the browser must never call the Monopane API").toEqual([]);

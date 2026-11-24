@@ -26,7 +26,7 @@ describe("readConfig", () => {
 			environment: "production",
 			apiUrl: "https://api.monopane.io",
 			authMode: "demo",
-			siteName: "Academy",
+			siteName: "Site",
 			tagline: "Courses to help you get the most out of the product.",
 			resendApiKey: null,
 			emailFrom: null,

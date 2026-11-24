@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Deploys this academy's build to Monopane hosting. Run by
+ * Deploys this site's build to Monopane hosting. Run by
  * .github/workflows/monopane.yml after `npm run build`, on every push:
  *
  *   node scripts/deploy.mjs
@@ -234,7 +234,7 @@ async function main() {
 				annotation(
 					"notice",
 					"Not deployed to Monopane",
-					`${result.message}\nIf you host this academy yourself, delete .github/workflows/monopane.yml to stop this step.`,
+					`${result.message}\nIf you host this site yourself, delete .github/workflows/monopane.yml to stop this step.`,
 				),
 			);
 			return;

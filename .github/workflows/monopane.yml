@@ -1,4 +1,4 @@
-# Deploys this academy to Monopane hosting on every push to any branch:
+# Deploys this site to Monopane hosting on every push to any branch:
 # the site's production branch goes live at the site's address, any other
 # branch becomes a preview with its own address.
 #
@@ -8,7 +8,7 @@
 # never builds with this repository's identity.
 #
 # If this repository is not connected to a Monopane site, the job ends
-# successfully with a notice. If you host the academy yourself, delete this
+# successfully with a notice. If you host the site yourself, delete this
 # file to turn it off.
 #
 # To use another Monopane API address, set the repository variable

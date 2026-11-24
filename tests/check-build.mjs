@@ -9,7 +9,7 @@
  *      API or a quiz answer field.
  *   3. No JavaScript is shipped at all, so every page works as plain HTML.
  *      A site built on a UI library that runs in the browser turns this one
- *      check off with `"academy": { "clientJavaScript": true }` in
+ *      check off with `"site": { "clientJavaScript": true }` in
  *      package.json; what it ships is still searched under 2.
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -20,7 +20,7 @@ const dist = fileURLToPath(new URL("../dist", import.meta.url));
 const client = join(dist, "client");
 const apiKey = process.env.MONOPANE_API_KEY ?? "";
 const settings = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
-const allowClientJavaScript = settings.academy?.clientJavaScript === true;
+const allowClientJavaScript = settings.site?.clientJavaScript === true;
 
 function files(dir) {
 	return readdirSync(dir).flatMap((name) => {

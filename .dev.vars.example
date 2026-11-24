@@ -10,7 +10,7 @@ MONOPANE_TENANT_ID=
 MONOPANE_SETUP_API_KEY=
 
 # `npm run setup` adds the next two for you:
-#   MONOPANE_API_KEY   the academy's own key, limited to seven scopes
+#   MONOPANE_API_KEY   the site's own key, limited to seven scopes
 #   SESSION_SECRET     signs the sign-in cookie
 
 # Optional. The defaults are shown.

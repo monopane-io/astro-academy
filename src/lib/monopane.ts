@@ -1,5 +1,5 @@
 /**
- * Everything the academy asks of Monopane, in one file. Pages call these
+ * Everything the site asks of Monopane, in one file. Pages call these
  * functions and never the SDK directly, so this is the only place that holds
  * the API key, and the only file to read to see what the site depends on.
  *
@@ -39,7 +39,7 @@ import {
 import type { Identity } from "./auth/types";
 import { type Config, SetupError } from "./config";
 
-/** The scopes the academy's API key needs. Listed in the README. */
+/** The scopes the site's API key needs. Listed in the README. */
 export const REQUIRED_SCOPES = [
 	"content:read",
 	"learners:read",
@@ -119,7 +119,7 @@ const byPosition = (a: { position: number }, b: { position: number }) => a.posit
 
 /**
  * Confirm, once, that the API key works for this tenant and has every scope
- * the academy uses. Throws a SetupError that names what is missing.
+ * the site uses. Throws a SetupError that names what is missing.
  */
 export function checkApiKey(): Promise<void> {
 	if (!keyChecked) {

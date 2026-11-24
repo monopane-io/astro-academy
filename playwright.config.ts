@@ -1,8 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
 /**
- * End-to-end tests drive a running academy the way a learner would. They need
- * the academy at ACADEMY_URL (default http://127.0.0.1:4321), in demo mode,
+ * End-to-end tests drive a running site the way a learner would. They need
+ * the site at SITE_URL (default http://127.0.0.1:4321), in demo mode,
  * pointed at a Monopane tenant that has been seeded with `npm run seed`.
  */
 export default defineConfig({
@@ -12,7 +12,7 @@ export default defineConfig({
 	retries: 0,
 	reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
 	use: {
-		baseURL: process.env.ACADEMY_URL ?? "http://127.0.0.1:4321",
+		baseURL: process.env.SITE_URL ?? "http://127.0.0.1:4321",
 		trace: "retain-on-failure",
 	},
 });

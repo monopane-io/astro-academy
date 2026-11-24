@@ -4,7 +4,7 @@ import { type Config, SetupError } from "../../src/lib/config";
 import { REQUIRED_SCOPES, checkApiKey, configure } from "../../src/lib/monopane";
 
 /**
- * The start-up check: the academy asks Monopane what its key may do and
+ * The start-up check: the site asks Monopane what its key may do and
  * refuses to run, naming what is missing, if that is not enough.
  */
 
