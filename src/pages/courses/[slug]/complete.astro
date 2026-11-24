@@ -1,0 +1,51 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { completePage } from "../../../lib/pages";
+
+const { config } = Astro.locals;
+const { response, data } = await completePage(Astro);
+if (response) return response;
+const { course, certificate } = data;
+---
+
+<Base title={`${course.title}: certificate`}>
+	<p class="breadcrumb"><a href={course.href}>{course.title}</a></p>
+	{
+		certificate ? (
+			<>
+				<h1 class="no-print">You completed {course.title}</h1>
+				<div class="certificate" data-credential>
+					<p class="issuer">{config.siteName}</p>
+					<p>This certifies that</p>
+					<p class="recipient">{data.learnerName}</p>
+					<p>has completed</p>
+					<p class="course">{course.title}</p>
+					<p>on {certificate.issuedOn}</p>
+					<p class="credential-code" data-credential-code>
+						{certificate.code}
+					</p>
+				</div>
+				<p class="no-print">
+					Anyone can check this certificate at{" "}
+					<a href={certificate.verifyPath}>{certificate.verifyUrl}</a>
+				</p>
+				<p class="muted no-print">
+					To keep a copy, use your browser's Print command and choose "Save as PDF".
+				</p>
+			</>
+		) : (
+			<>
+				<h1>Not finished yet</h1>
+				<p>
+					You get a certificate when every activity in {course.title} is done and every quiz is
+					passed.
+				</p>
+				<p>
+					<a class="button" href={course.href}>
+						Go back to the course
+					</a>
+				</p>
+			</>
+		)
+	}
+</Base>

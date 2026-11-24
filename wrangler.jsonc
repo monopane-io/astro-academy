@@ -1,0 +1,21 @@
+{
+	// Change "name" to rename the Worker (and its workers.dev address).
+	"name": "astro-academy",
+	"compatibility_date": "2026-11-01",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": { "enabled": true },
+
+	// Settings that are not secret. Secrets (MONOPANE_API_KEY, SESSION_SECRET,
+	// RESEND_API_KEY) are set with `npx wrangler secret put <NAME>`, never here.
+	"vars": {
+		// "demo": anyone can sign in with any name and email. Not for production.
+		// "magic-link": sign-in by a link emailed to the learner.
+		"AUTH_MODE": "demo",
+		"SITE_NAME": "Academy",
+		"SITE_TAGLINE": "Courses to help you get the most out of the product."
+	},
+
+	// Holds magic-link tokens until they are used or expire. It has no ID on
+	// purpose: `wrangler deploy` creates the namespace the first time.
+	"kv_namespaces": [{ "binding": "MAGIC_LINKS" }]
+}

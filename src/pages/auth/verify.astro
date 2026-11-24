@@ -1,0 +1,34 @@
+---
+import Base from "../../layouts/Base.astro";
+import { verifyLinkPage } from "../../lib/pages";
+
+/** Where an emailed sign-in link lands. See verifyLinkPage for why it shows a button. */
+const { response, data } = await verifyLinkPage(Astro);
+if (response) return response;
+---
+
+<Base title="Sign in">
+	<h1>Sign in</h1>
+	{
+		data.failed ? (
+			<>
+				<p class="message error" role="alert" data-link-failed>
+					This sign-in link has been used or has expired.
+				</p>
+				<p>
+					<a href="/sign-in">Ask for a new link</a>
+				</p>
+			</>
+		) : (
+			<form method="post">
+				<input type="hidden" name="token" value={data.token} />
+				<p>Press the button to finish signing in.</p>
+				<p class="form-actions">
+					<button class="button" type="submit">
+						Finish signing in
+					</button>
+				</p>
+			</form>
+		)
+	}
+</Base>

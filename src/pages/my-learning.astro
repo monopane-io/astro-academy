@@ -1,0 +1,79 @@
+---
+import Base from "../layouts/Base.astro";
+import { myLearningPage } from "../lib/pages";
+
+/** The learner's own page: what they are enrolled in, how far along, and their credentials. */
+const { response, data } = await myLearningPage(Astro);
+if (response) return response;
+const { inProgress, completed } = data;
+---
+
+<Base title="My learning">
+	<h1>My learning</h1>
+
+	{
+		inProgress.length + completed.length === 0 && (
+			<>
+				<p class="message">You are not enrolled in anything yet.</p>
+				<p>
+					<a class="button" href="/">
+						Browse courses
+					</a>
+				</p>
+			</>
+		)
+	}
+
+	{
+		inProgress.length > 0 && (
+			<section data-in-progress>
+				<h2>In progress</h2>
+				<ul class="learning">
+					{inProgress.map(({ course, progress, nextHref, started }) => (
+						<li>
+							<div>
+								<h2>
+									<a href={course.href}>{course.title}</a>
+								</h2>
+								<div class="meter">
+									<span>
+										{progress.done} of {progress.total} activities done
+									</span>
+									<progress value={progress.done} max={Math.max(progress.total, 1)} />
+								</div>
+							</div>
+							{nextHref && (
+								<a class="button" href={nextHref}>
+									{started ? "Continue" : "Start"}
+								</a>
+							)}
+						</li>
+					))}
+				</ul>
+			</section>
+		)
+	}
+
+	{
+		completed.length > 0 && (
+			<section data-completed>
+				<h2>Completed</h2>
+				<ul class="learning">
+					{completed.map(({ course, completedOn, certificateHref }) => (
+						<li>
+							<div>
+								<h2>
+									<a href={course.href}>{course.title}</a>
+								</h2>
+								{completedOn && <p class="muted">Completed on {completedOn}</p>}
+							</div>
+							<a class="button quiet" href={certificateHref}>
+								See your certificate
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		)
+	}
+</Base>

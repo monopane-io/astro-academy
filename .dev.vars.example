@@ -1,0 +1,18 @@
+# Copy this file to .dev.vars and fill in the first two values.
+# .dev.vars holds secrets: it is ignored by git, and must stay that way.
+
+# Your project's ID, from the Monopane console (Settings, "Project ID").
+MONOPANE_TENANT_ID=
+
+# An API key created in the console (API keys, "Create key"). It can do
+# anything in the project, so it is used only on your machine, by
+# `npm run setup` and `npm run seed`. It is never deployed.
+MONOPANE_SETUP_API_KEY=
+
+# `npm run setup` adds the next two for you:
+#   MONOPANE_API_KEY   the academy's own key, limited to seven scopes
+#   SESSION_SECRET     signs the sign-in cookie
+
+# Optional. The defaults are shown.
+# MONOPANE_ENVIRONMENT=production
+# MONOPANE_API_URL=https://api.monopane.io

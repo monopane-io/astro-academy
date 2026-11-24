@@ -1,0 +1,76 @@
+---
+import "../styles/global.css";
+
+interface Props {
+	title: string;
+	description?: string | null;
+	/** Use the full page width (catalogue, lesson player) instead of a text column. */
+	wide?: boolean;
+}
+
+const { title, description, wide = false } = Astro.props;
+const { config, user } = Astro.locals;
+const demo = config.authMode === "demo";
+const path = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title === config.siteName ? title : `${title} | ${config.siteName}`}</title>
+		{description && <meta name="description" content={description} />}
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+	</head>
+	<body>
+		{
+			demo && (
+				<div class="notice" role="note" data-demo-notice>
+					<p>
+						Demo sign-in is on: anyone can sign in as anyone. Not for production. Switch to email
+						sign-in before you invite learners (see the README).
+					</p>
+				</div>
+			)
+		}
+		<header class="site-header">
+			<div class="site-header-inner">
+				<a class="site-name" href="/">{config.siteName}</a>
+				<nav class="site-nav" aria-label="Main">
+					<a href="/" aria-current={path === "/" ? "page" : undefined}>Courses</a>
+					{
+						user && (
+							<a href="/my-learning" aria-current={path === "/my-learning" ? "page" : undefined}>
+								My learning
+							</a>
+						)
+					}
+				</nav>
+				<div class="account">
+					{
+						user ? (
+							<>
+								<span data-signed-in-as>{user.name}</span>
+								<form method="post" action="/sign-out">
+									<button class="link-button" type="submit">
+										Sign out
+									</button>
+								</form>
+							</>
+						) : (
+							<a href="/sign-in">Sign in</a>
+						)
+					}
+				</div>
+			</div>
+		</header>
+		<slot name="band" />
+		<main class:list={["site-main", { wide }]}>
+			<slot />
+		</main>
+		<footer class="site-footer">
+			<p>{config.siteName}</p>
+		</footer>
+	</body>
+</html>

@@ -1,0 +1,54 @@
+---
+import Base from "../layouts/Base.astro";
+import { signInPage } from "../lib/pages";
+
+const { response, data } = await signInPage(Astro);
+if (response) return response;
+---
+
+<Base title="Sign in">
+	<h1>Sign in</h1>
+	{
+		data.linkSent ? (
+			<p class="message success" data-link-sent>
+				If that address can receive email, a sign-in link is on its way. It works once and expires
+				in 15 minutes.
+			</p>
+		) : (
+			<>
+				{data.mode === "demo" ? (
+					<p>Enter a name and an email address to try the academy. Nothing is sent to you.</p>
+				) : (
+					<p>Enter your email address and we will send you a link that signs you in.</p>
+				)}
+				{data.error && (
+					<p class="message error" role="alert">
+						{data.error}
+					</p>
+				)}
+				<form method="post">
+					<div class="field">
+						<label for="name">Your name</label>
+						<input id="name" name="name" type="text" autocomplete="name" value={data.name} />
+					</div>
+					<div class="field">
+						<label for="email">Email address</label>
+						<input
+							id="email"
+							name="email"
+							type="email"
+							autocomplete="email"
+							required
+							value={data.email}
+						/>
+					</div>
+					<p class="form-actions">
+						<button class="button" type="submit">
+							{data.mode === "demo" ? "Sign in" : "Email me a sign-in link"}
+						</button>
+					</p>
+				</form>
+			</>
+		)
+	}
+</Base>

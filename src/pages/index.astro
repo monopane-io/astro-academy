@@ -1,0 +1,45 @@
+---
+import CourseTile from "../components/CourseTile.astro";
+import Base from "../layouts/Base.astro";
+import { homePage } from "../lib/pages";
+
+const { config } = Astro.locals;
+const { response, data } = await homePage(Astro);
+if (response) return response;
+---
+
+<Base title={config.siteName} description={config.tagline} wide>
+	<div class="hero" slot="band">
+		<div class="hero-inner">
+			<h1>{config.siteName}</h1>
+			<p>{config.tagline}</p>
+		</div>
+	</div>
+
+	<h2>{data.tag ? `Courses: ${data.tag}` : "Courses"}</h2>
+	{
+		data.filters.length > 0 && (
+			<nav class="filters" aria-label="Filter courses by topic">
+				{data.filters.map((filter) => (
+					<a class="tag" href={filter.href} aria-current={filter.current ? "true" : undefined}>
+						{filter.name}
+					</a>
+				))}
+			</nav>
+		)
+	}
+	{
+		data.courses.length === 0 ? (
+			<p class="message">
+				No courses are published yet. Publish a course in Monopane and it appears here within a
+				minute.
+			</p>
+		) : (
+			<ul class="tiles">
+				{data.courses.map((course) => (
+					<CourseTile course={course} />
+				))}
+			</ul>
+		)
+	}
+</Base>

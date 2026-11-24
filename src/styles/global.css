@@ -1,0 +1,868 @@
+/*
+ * The academy's look, in one file: layout, components, and the variables they
+ * are written against. To restyle it, start with the variables below (colours,
+ * fonts, corner radius, the bar and band across the top, the course tiles).
+ *
+ * Nothing here depends on a framework, and no fonts or scripts are loaded
+ * from other sites.
+ */
+:root {
+	--paper: #ffffff;
+	--wash: #f2f5f8; /* the page behind tiles and panels */
+	--ink: #10243a; /* text */
+	--muted: #51637a; /* secondary text */
+	--line: #d6dee8; /* rules and borders */
+	--accent: #0a6d78; /* links, buttons, the progress track */
+	--accent-ink: #ffffff; /* text on the accent */
+	--done: #17794c; /* completed, passed */
+	--alert: #a6321f; /* failed, errors */
+	--notice-bg: #fff3cf; /* the demo-mode notice */
+	--notice-ink: #5c4300;
+
+	/* Readings are set in a serif; headings and the interface in the system sans. */
+	--font-reading: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+	--font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	--font-heading: var(--font-ui);
+	--heading-weight: 750;
+
+	--measure: 40rem; /* width of a column of text */
+	--wide: 68rem; /* width of the catalogue and the lesson player */
+	--radius: 8px;
+
+	/* The bar across the top, the band on the home page, and course tiles. */
+	--header-bg: #10243a;
+	--header-ink: #ffffff;
+	--header-line: #10243a;
+	--hero-bg: #10243a;
+	--hero-ink: #ffffff;
+	--tile-bg: var(--paper);
+	--tile-line: #e3e9f0;
+	--tile-radius: 12px;
+	--tile-shadow: 0 1px 2px rgb(16 36 58 / 0.06), 0 8px 24px rgb(16 36 58 / 0.07);
+	--cover-a: #0a6d78; /* the two tones of a course tile's cover */
+	--cover-b: #f0b23a;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--wash);
+	color: var(--ink);
+	font: 1rem / 1.5 var(--font-ui);
+}
+
+a {
+	color: var(--accent);
+	text-underline-offset: 0.15em;
+}
+
+:focus-visible {
+	outline: 3px solid var(--accent);
+	outline-offset: 2px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+	font-family: var(--font-heading);
+	font-weight: var(--heading-weight);
+	line-height: 1.2;
+	margin: 0;
+	text-wrap: balance;
+}
+
+h1 {
+	font-size: 2.25rem;
+	letter-spacing: -0.02em;
+}
+
+h2 {
+	font-size: 1.5rem;
+}
+
+h3 {
+	font-size: 1.2rem;
+}
+
+p {
+	margin: 0;
+}
+
+.muted {
+	color: var(--muted);
+}
+
+/* --- Page frame ---------------------------------------------------------- */
+
+.notice {
+	background: var(--notice-bg);
+	color: var(--notice-ink);
+	font-size: 0.9rem;
+	padding: 0.5rem 1.25rem;
+}
+
+.notice p {
+	max-width: var(--measure);
+	margin: 0 auto;
+}
+
+.site-header {
+	background: var(--header-bg);
+	color: var(--header-ink);
+	border-bottom: 1px solid var(--header-line);
+}
+
+.site-header-inner,
+.site-main,
+.site-footer {
+	max-width: calc(var(--measure) + 2.5rem);
+	margin: 0 auto;
+	padding-inline: 1.25rem;
+}
+
+.site-header-inner,
+.site-main.wide,
+.site-footer {
+	max-width: calc(var(--wide) + 2.5rem);
+}
+
+.site-header-inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.5rem 2rem;
+	padding-block: 1.1rem;
+}
+
+.site-name {
+	font-family: var(--font-heading);
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: inherit;
+	text-decoration: none;
+}
+
+.site-nav {
+	display: flex;
+	gap: 1.5rem;
+	font-size: 0.95rem;
+}
+
+.site-header a {
+	color: inherit;
+}
+
+.site-nav a {
+	text-decoration: none;
+}
+
+.site-nav a[aria-current="page"] {
+	text-decoration: underline;
+	text-underline-offset: 0.4em;
+	text-decoration-thickness: 2px;
+}
+
+.account {
+	display: flex;
+	align-items: baseline;
+	gap: 1rem;
+	margin-left: auto;
+	font-size: 0.95rem;
+}
+
+.site-header .link-button {
+	color: inherit;
+}
+
+.site-main {
+	padding-block: 2.5rem 4rem;
+}
+
+.site-main > * + * {
+	margin-top: 1.5rem;
+}
+
+.site-footer {
+	padding-block: 1.5rem 3rem;
+	border-top: 1px solid var(--line);
+	color: var(--muted);
+	font-size: 0.9rem;
+}
+
+.lede {
+	font-family: var(--font-reading);
+	font-size: 1.2rem;
+	line-height: 1.55;
+	color: var(--muted);
+}
+
+.breadcrumb {
+	font-size: 0.95rem;
+}
+
+/* --- Buttons and forms --------------------------------------------------- */
+
+.button {
+	display: inline-block;
+	font: inherit;
+	font-weight: 600;
+	padding: 0.6rem 1.1rem;
+	border: 1px solid var(--accent);
+	border-radius: var(--radius);
+	background: var(--accent);
+	color: var(--accent-ink);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.button.quiet {
+	background: transparent;
+	color: var(--accent);
+}
+
+.link-button {
+	font: inherit;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--accent);
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+	cursor: pointer;
+}
+
+.field {
+	display: grid;
+	gap: 0.35rem;
+	max-width: 24rem;
+}
+
+.field + .field {
+	margin-top: 1rem;
+}
+
+.field label,
+.question legend {
+	font-weight: 600;
+}
+
+input[type="text"],
+input[type="email"],
+textarea {
+	font: inherit;
+	width: 100%;
+	padding: 0.55rem 0.7rem;
+	border: 1px solid var(--muted);
+	border-radius: var(--radius);
+	background: var(--paper);
+	color: var(--ink);
+}
+
+.form-actions {
+	margin-top: 1.5rem;
+}
+
+.message {
+	padding: 0.75rem 1rem;
+	border-left: 4px solid var(--accent);
+	background: var(--wash);
+}
+
+.message.error {
+	border-left-color: var(--alert);
+}
+
+.message.success {
+	border-left-color: var(--done);
+}
+
+/* --- Home: the band and the course tiles ---------------------------------- */
+
+.hero {
+	background: var(--hero-bg);
+	color: var(--hero-ink);
+}
+
+.hero-inner {
+	max-width: calc(var(--wide) + 2.5rem);
+	margin: 0 auto;
+	padding: 3rem 1.25rem;
+}
+
+.hero h1 {
+	font-size: 2.6rem;
+	max-width: 22ch;
+}
+
+.hero p {
+	margin-top: 0.75rem;
+	font-size: 1.15rem;
+	max-width: 46ch;
+	opacity: 0.85;
+}
+
+.tiles {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+	gap: 1.5rem;
+}
+
+.site-main > .tiles {
+	margin-top: 1.25rem;
+}
+
+.tile {
+	display: flex;
+	flex-direction: column;
+	background: var(--tile-bg);
+	border: 1px solid var(--tile-line);
+	border-radius: var(--tile-radius);
+	box-shadow: var(--tile-shadow);
+	overflow: hidden;
+}
+
+/* The course's picture, or a cover drawn in CSS when it has none. */
+.tile-cover {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 7;
+	object-fit: cover;
+	background: radial-gradient(circle at 85% 20%, var(--cover-b) 0 22%, transparent 23%),
+		linear-gradient(135deg, var(--cover-a), var(--cover-b));
+}
+
+.tags,
+.filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+}
+
+.tag {
+	display: inline-block;
+	padding: 0.1rem 0.6rem;
+	border-radius: 999px;
+	background: var(--wash);
+	border: 1px solid var(--line);
+	color: var(--muted);
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+a.tag:hover,
+.tag[aria-current="true"] {
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+.filters .tag {
+	padding: 0.3rem 0.8rem;
+	font-size: 0.9rem;
+	background: var(--paper);
+}
+
+.course-cover {
+	display: block;
+	width: 100%;
+	max-height: 18rem;
+	object-fit: cover;
+	border-radius: var(--tile-radius);
+}
+
+.facts-line {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 1rem;
+	color: var(--muted);
+	font-size: 0.95rem;
+}
+
+.tile-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 1.1rem 1.25rem 1.25rem;
+	flex: 1;
+}
+
+.tile-title {
+	font-family: var(--font-heading);
+	font-weight: var(--heading-weight);
+	font-size: 1.25rem;
+	line-height: 1.25;
+}
+
+.tile-title a {
+	color: var(--ink);
+	text-decoration: none;
+}
+
+.tile-title a:hover {
+	text-decoration: underline;
+}
+
+.tile p {
+	color: var(--muted);
+	font-size: 0.95rem;
+}
+
+.tile-foot {
+	margin-top: auto;
+	padding-top: 0.75rem;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.4rem 1rem;
+	font-size: 0.9rem;
+}
+
+.badge {
+	display: inline-block;
+	padding: 0.1rem 0.55rem;
+	border-radius: 999px;
+	border: 1px solid currentColor;
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: var(--accent);
+}
+
+.badge.done {
+	color: var(--done);
+}
+
+/* --- Course outline: the track ------------------------------------------- */
+/* Lessons hang off a vertical line; a filled marker means the lesson is done. */
+
+.outline-section + .outline-section {
+	margin-top: 2rem;
+}
+
+.outline-section h2 + p {
+	margin-top: 0.25rem;
+}
+
+.outline-section .track {
+	margin-top: 1rem;
+}
+
+.track {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.track li {
+	position: relative;
+	padding: 0 0 1.1rem 2rem;
+}
+
+.track li::before {
+	/* the line */
+	content: "";
+	position: absolute;
+	left: 0.5rem;
+	top: 0.45rem;
+	bottom: -0.45rem;
+	width: 2px;
+	background: var(--line);
+}
+
+.track li:last-child::before {
+	display: none;
+}
+
+.track li::after {
+	/* the marker */
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0.3rem;
+	width: 1.1rem;
+	height: 1.1rem;
+	border: 2px solid var(--muted);
+	border-radius: 50%;
+	background: var(--paper);
+}
+
+.track li.started::after {
+	border-color: var(--accent);
+	background: linear-gradient(to right, var(--accent) 50%, var(--paper) 50%);
+}
+
+.track li.done::after {
+	border-color: var(--done);
+	background: var(--done);
+}
+
+.track li.done::before {
+	background: var(--done);
+}
+
+.track .lesson-title {
+	font-weight: 600;
+}
+
+.track .lesson-state {
+	display: block;
+	font-size: 0.9rem;
+	color: var(--muted);
+}
+
+.meter {
+	display: grid;
+	gap: 0.4rem;
+}
+
+.meter progress {
+	width: 100%;
+	height: 0.6rem;
+	accent-color: var(--done);
+}
+
+/* --- Lesson -------------------------------------------------------------- */
+
+.activity {
+	padding-top: 2rem;
+	border-top: 1px solid var(--line);
+}
+
+.activity > * + * {
+	margin-top: 1rem;
+}
+
+.activity-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.25rem 1rem;
+}
+
+.state {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--muted);
+}
+
+.state.done {
+	color: var(--done);
+}
+
+.state.failed {
+	color: var(--alert);
+}
+
+.reading {
+	font-family: var(--font-reading);
+	font-size: 1.125rem;
+	line-height: 1.65;
+}
+
+.reading > * + * {
+	margin-top: 1em;
+}
+
+.reading ul,
+.reading ol {
+	padding-left: 1.4em;
+}
+
+.reading code {
+	font-size: 0.9em;
+	background: var(--wash);
+	padding: 0.1em 0.3em;
+	border-radius: 3px;
+}
+
+/* A video: an embedded player or the browser's own, always 16:9. */
+.video {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border: 0;
+	border-radius: var(--radius);
+	background: #000;
+}
+
+.question {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.question + .question {
+	margin-top: 1.5rem;
+}
+
+.question legend {
+	padding: 0;
+	margin-bottom: 0.5rem;
+}
+
+.question label {
+	display: flex;
+	gap: 0.6rem;
+	align-items: baseline;
+	padding: 0.2rem 0;
+}
+
+.question input[type="text"] {
+	max-width: 24rem;
+}
+
+.question .hint {
+	font-size: 0.9rem;
+	color: var(--muted);
+	margin-bottom: 0.4rem;
+}
+
+.lesson-nav {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 1rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--line);
+}
+
+/* --- Lesson player: the curriculum beside the lesson ----------------------- */
+
+.player {
+	display: grid;
+	grid-template-columns: minmax(0, 17rem) minmax(0, var(--measure));
+	gap: 3rem;
+	align-items: start;
+}
+
+.curriculum {
+	position: sticky;
+	top: 1rem;
+	font-size: 0.95rem;
+}
+
+.curriculum summary {
+	font-weight: 600;
+	cursor: pointer;
+	padding: 0.5rem 0;
+}
+
+.curriculum h2 {
+	font-family: var(--font-ui);
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: var(--muted);
+	margin: 1.25rem 0 0.6rem;
+}
+
+.curriculum .track li {
+	padding-bottom: 0.8rem;
+}
+
+.curriculum a {
+	color: var(--ink);
+	text-decoration: none;
+}
+
+.curriculum a:hover {
+	text-decoration: underline;
+}
+
+.curriculum [aria-current="page"] {
+	font-weight: 700;
+	color: var(--accent);
+}
+
+.player-main > * + * {
+	margin-top: 1.5rem;
+}
+
+@media (max-width: 52rem) {
+	.player {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1rem;
+	}
+
+	.curriculum {
+		position: static;
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
+		padding: 0 1rem;
+	}
+}
+
+/* --- My learning ---------------------------------------------------------- */
+
+.learning {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 1rem;
+}
+
+.learning li {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 0.75rem 2rem;
+	align-items: center;
+	padding: 1.25rem;
+	background: var(--tile-bg);
+	border: 1px solid var(--tile-line);
+	border-radius: var(--tile-radius);
+	box-shadow: var(--tile-shadow);
+}
+
+.learning h2 {
+	font-size: 1.25rem;
+}
+
+.learning h2 a {
+	color: var(--ink);
+	text-decoration: none;
+}
+
+.learning section + section,
+section[data-completed] {
+	margin-top: 2rem;
+}
+
+.site-main section > h2 {
+	margin-bottom: 1rem;
+}
+
+.learning .meter {
+	margin-top: 0.6rem;
+	font-size: 0.9rem;
+	color: var(--muted);
+}
+
+@media (max-width: 36rem) {
+	.learning li {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* --- Credential ---------------------------------------------------------- */
+
+.credential {
+	padding: 1.75rem;
+	border: 2px solid var(--ink);
+	border-radius: var(--radius);
+}
+
+/* The certificate a learner sees and can print. */
+.certificate {
+	padding: 3rem 2rem;
+	text-align: center;
+	background: var(--paper);
+	color: var(--ink);
+	border: 1px solid var(--ink);
+	outline: 1px solid var(--ink);
+	outline-offset: -0.6rem;
+}
+
+.certificate > * + * {
+	margin-top: 1rem;
+}
+
+.certificate .issuer {
+	font-weight: 600;
+}
+
+.certificate .recipient {
+	font-family: var(--font-reading);
+	font-size: 2.4rem;
+	line-height: 1.15;
+}
+
+.certificate .course {
+	font-family: var(--font-reading);
+	font-size: 1.4rem;
+	font-weight: 700;
+}
+
+.certificate .credential-code {
+	font-size: 1rem;
+}
+
+@media print {
+	.notice,
+	.site-header,
+	.site-footer,
+	.breadcrumb,
+	.no-print {
+		display: none !important;
+	}
+
+	.site-main {
+		padding: 0;
+	}
+
+	.certificate {
+		border-width: 2px;
+		break-inside: avoid;
+	}
+}
+
+.credential > * + * {
+	margin-top: 0.75rem;
+}
+
+.credential-code {
+	font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+	font-size: 1.25rem;
+	letter-spacing: 0.06em;
+}
+
+.facts {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 0.4rem 1.5rem;
+	margin: 0;
+}
+
+.facts dt {
+	color: var(--muted);
+}
+
+.facts dd {
+	margin: 0;
+	font-weight: 600;
+}
+
+@media (max-width: 30rem) {
+	h1,
+	.hero h1 {
+		font-size: 1.8rem;
+	}
+
+	.certificate .recipient {
+		font-size: 1.8rem;
+	}
+
+	.facts {
+		grid-template-columns: 1fr;
+		gap: 0;
+	}
+
+	.facts dd {
+		margin-bottom: 0.6rem;
+	}
+}

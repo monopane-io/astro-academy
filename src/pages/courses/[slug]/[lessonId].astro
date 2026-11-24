@@ -1,0 +1,272 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { lessonPage } from "../../../lib/pages";
+
+const { response, data } = await lessonPage(Astro);
+if (response) return response;
+const { course, lesson } = data;
+---
+
+<Base title={lesson.title} description={lesson.description} wide>
+	<p class="breadcrumb"><a href={course.href}>{course.title}</a></p>
+	<div class="player">
+		<aside class="curriculum" aria-label="Course contents">
+			<details open>
+				<summary>Course contents</summary>
+				{
+					data.outline.map((section) => (
+						<>
+							{section.moduleTitle && <h2>{section.moduleTitle}</h2>}
+							<ol class="track">
+								{section.lessons.map((item) => (
+									<li
+										class={item.status === "todo" ? "" : item.status}
+										data-lesson-state={item.status}
+									>
+										<a href={item.href} aria-current={item.current ? "page" : undefined}>
+											{item.title}
+										</a>
+									</li>
+								))}
+							</ol>
+						</>
+					))
+				}
+			</details>
+		</aside>
+
+		<div class="player-main">
+			<h1>{lesson.title}</h1>
+			{lesson.description && <p class="lede">{lesson.description}</p>}
+
+			{data.activities.length === 0 && <p class="message">This lesson has nothing in it yet.</p>}
+
+			{
+				data.activities.map((activity) => (
+					<section class="activity" id={activity.id} data-activity={activity.type}>
+						{activity.type === "quiz" && (
+							<>
+								<div class="activity-head">
+									<h2>{activity.title}</h2>
+									<span
+										class:list={[
+											"state",
+											{ done: activity.done, failed: activity.status === "failed" },
+										]}
+										data-state
+									>
+										{activity.status === "passed"
+											? "Passed"
+											: activity.status === "failed"
+												? "Not passed yet"
+												: "Not attempted"}
+									</span>
+								</div>
+
+								{activity.result && (
+									<p
+										class:list={["message", activity.result.passed ? "success" : "error"]}
+										role="status"
+										data-quiz-result={activity.result.passed ? "passed" : "failed"}
+									>
+										You scored {activity.result.score}
+										{activity.result.passed
+											? ". You passed."
+											: `. You need ${activity.result.needed} to pass. Change your answers and try again.`}
+									</p>
+								)}
+								{!activity.result && activity.done && activity.bestScore && (
+									<p class="muted">Your best score: {activity.bestScore}.</p>
+								)}
+
+								{activity.showForm && (
+									<form method="post" action={`${data.action}#${activity.id}`}>
+										<input type="hidden" name="activityId" value={activity.id} />
+										{activity.questions.map((question) => (
+											<fieldset class="question" data-question={question.type}>
+												<legend>
+													{question.text}
+													{question.correct !== null && (
+														<span class:list={["state", question.correct ? "done" : "failed"]}>
+															{question.correct ? " (correct)" : " (not correct)"}
+														</span>
+													)}
+												</legend>
+												{question.type === "multiple_choice" &&
+													question.options.map((option) => (
+														<label>
+															<input
+																type="radio"
+																name={question.field}
+																value={option}
+																checked={question.given.includes(option)}
+															/>
+															<span>{option}</span>
+														</label>
+													))}
+												{question.type === "multi_select" && (
+													<>
+														<p class="hint">Choose every answer that applies.</p>
+														{question.options.map((option) => (
+															<label>
+																<input
+																	type="checkbox"
+																	name={question.field}
+																	value={option}
+																	checked={question.given.includes(option)}
+																/>
+																<span>{option}</span>
+															</label>
+														))}
+													</>
+												)}
+												{question.type === "fill_in_blank" && (
+													<input
+														type="text"
+														name={question.field}
+														aria-label={question.text}
+														autocomplete="off"
+														value={question.given[0] ?? ""}
+													/>
+												)}
+												{question.type === "short_answer" && (
+													<textarea
+														name={question.field}
+														rows="3"
+														aria-label={question.text}
+														set:text={question.given[0] ?? ""}
+													/>
+												)}
+											</fieldset>
+										))}
+										{activity.canSubmit && (
+											<p class="form-actions">
+												<button class="button" type="submit">
+													{activity.submitLabel}
+												</button>
+											</p>
+										)}
+									</form>
+								)}
+							</>
+						)}
+
+						{activity.type === "video" && (
+							<>
+								<div class="activity-head">
+									<h2>{activity.title}</h2>
+									<span class:list={["state", { done: activity.done }]} data-state>
+										{activity.done ? "Watched" : "Not watched"}
+									</span>
+								</div>
+								{activity.duration && <p class="muted">{activity.duration}</p>}
+								{activity.description && <p>{activity.description}</p>}
+								{activity.player?.kind === "embed" && (
+									<iframe
+										class="video"
+										src={activity.player.src}
+										title={activity.title}
+										loading="lazy"
+										referrerpolicy="strict-origin-when-cross-origin"
+										allow="fullscreen; picture-in-picture; encrypted-media"
+										allowfullscreen
+									/>
+								)}
+								{activity.player?.kind === "file" && (
+									<video class="video" src={activity.player.src} controls preload="metadata" />
+								)}
+								{activity.player?.kind === "link" && (
+									<p>
+										<a href={activity.player.href} target="_blank" rel="noopener noreferrer">
+											Watch the video
+										</a>
+									</p>
+								)}
+								{!activity.player && (
+									<p class="message error">This video's address cannot be played.</p>
+								)}
+							</>
+						)}
+
+						{activity.type === "reading" && (
+							<>
+								<div class="activity-head">
+									<h2>{activity.title}</h2>
+									<span class:list={["state", { done: activity.done }]} data-state>
+										{activity.done ? "Done" : "Not done"}
+									</span>
+								</div>
+								{activity.minutes !== null && (
+									<p class="muted">About {activity.minutes} min to read.</p>
+								)}
+								<div class="reading" set:html={activity.html} />
+							</>
+						)}
+
+						{activity.type === "external_link" && (
+							<>
+								<div class="activity-head">
+									<h2>{activity.title}</h2>
+									<span class:list={["state", { done: activity.done }]} data-state>
+										{activity.done ? "Done" : "Not done"}
+									</span>
+								</div>
+								{activity.description && <p>{activity.description}</p>}
+								{activity.url && (
+									<p>
+										<a
+											href={activity.url}
+											target={activity.newTab ? "_blank" : undefined}
+											rel="noopener noreferrer"
+										>
+											{activity.url}
+										</a>
+									</p>
+								)}
+							</>
+						)}
+
+						{activity.type !== "quiz" && !activity.done && (
+							<form method="post" action={data.action}>
+								<input type="hidden" name="activityId" value={activity.id} />
+								<button class="button quiet" type="submit">
+									{activity.type === "video"
+										? "Mark as watched"
+										: activity.type === "reading"
+											? "Mark as read"
+											: "Mark as done"}
+								</button>
+							</form>
+						)}
+					</section>
+				))
+			}
+
+			{
+				data.courseCompleted && (
+					<p class="message success" data-course-complete>
+						You have completed {course.title}.{" "}
+						<a href={data.certificateHref}>See your certificate</a>
+					</p>
+				)
+			}
+
+			<nav class="lesson-nav" aria-label="Lessons">
+				{
+					data.previous ? (
+						<a href={data.previous.href}>Previous: {data.previous.title}</a>
+					) : (
+						<span />
+					)
+				}
+				{
+					data.following ? (
+						<a href={data.following.href}>Next: {data.following.title}</a>
+					) : (
+						<a href={course.href}>Back to the course</a>
+					)
+				}
+			</nav>
+		</div>
+	</div>
+</Base>

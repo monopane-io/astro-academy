@@ -1,0 +1,49 @@
+---
+import type { CourseCard } from "../lib/pages";
+
+interface Props {
+	course: CourseCard;
+}
+
+const { course } = Astro.props;
+---
+
+<li class="tile" data-course-tile>
+	{
+		course.imageUrl ? (
+			<img class="tile-cover" src={course.imageUrl} alt="" loading="lazy" decoding="async" />
+		) : (
+			<div class="tile-cover" aria-hidden="true" />
+		)
+	}
+	<div class="tile-body">
+		{
+			course.tags.length > 0 && (
+				<p class="tags">
+					{course.tags.map((tag) => (
+						<a class="tag" href={tag.href}>
+							{tag.name}
+						</a>
+					))}
+				</p>
+			)
+		}
+		<h3 class="tile-title">
+			<a href={course.href}>{course.title}</a>
+		</h3>
+		{course.description && <p>{course.description}</p>}
+		{
+			(course.duration || course.enrolled) && (
+				<div class="tile-foot">
+					{course.duration && (
+						<span class="muted" data-course-duration>
+							{course.duration}
+						</span>
+					)}
+					{course.enrolled === "completed" && <span class="badge done">Completed</span>}
+					{course.enrolled === "active" && <span class="badge">In progress</span>}
+				</div>
+			)
+		}
+	</div>
+</li>

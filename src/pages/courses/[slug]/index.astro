@@ -1,0 +1,94 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { coursePage } from "../../../lib/pages";
+
+const { response, data } = await coursePage(Astro);
+if (response) return response;
+const { course, progress } = data;
+---
+
+<Base title={course.title} description={course.description}>
+	<p class="breadcrumb"><a href="/">All courses</a></p>
+	<h1>{course.title}</h1>
+	{course.description && <p class="lede">{course.description}</p>}
+	{
+		(course.duration || course.tags.length > 0) && (
+			<p class="facts-line">
+				{course.duration && <span data-course-duration>{course.duration}</span>}
+				{course.tags.map((tag) => (
+					<a class="tag" href={tag.href}>
+						{tag.name}
+					</a>
+				))}
+			</p>
+		)
+	}
+	{course.imageUrl && <img class="course-cover" src={course.imageUrl} alt="" />}
+
+	{
+		progress && (
+			<div class="meter" data-course-progress>
+				<p>
+					{data.completed
+						? "You have completed this course."
+						: `${progress.done} of ${progress.total} activities done`}
+				</p>
+				<progress value={progress.done} max={Math.max(progress.total, 1)} />
+			</div>
+		)
+	}
+
+	{
+		data.completed ? (
+			<p>
+				<a class="button" href={data.certificateHref}>
+					See your certificate
+				</a>
+			</p>
+		) : data.enrolled && data.nextHref ? (
+			<p>
+				<a class="button" href={data.nextHref}>
+					{progress && progress.done > 0 ? "Continue" : "Start the course"}
+				</a>
+			</p>
+		) : !data.enrolled && data.hasLessons ? (
+			<form method="post">
+				<button class="button" type="submit">
+					Enrol in this course
+				</button>
+				{!data.signedIn && <p class="muted">You will be asked to sign in first.</p>}
+			</form>
+		) : null
+	}
+
+	{!data.hasLessons && <p class="message">This course has no published lessons yet.</p>}
+
+	{
+		data.outline.map((section) => (
+			<section class="outline-section">
+				{section.moduleTitle && <h2>{section.moduleTitle}</h2>}
+				{section.moduleDescription && <p class="muted">{section.moduleDescription}</p>}
+				<ol class="track">
+					{section.lessons.map((lesson) => (
+						<li
+							class={lesson.status === "todo" ? "" : lesson.status}
+							data-lesson-state={lesson.status}
+						>
+							{data.enrolled ? (
+								<a class="lesson-title" href={lesson.href}>
+									{lesson.title}
+								</a>
+							) : (
+								<span class="lesson-title">{lesson.title}</span>
+							)}
+							{data.enrolled && <span class="lesson-state">{lesson.statusLabel}</span>}
+							{!data.enrolled && lesson.description && (
+								<span class="lesson-state">{lesson.description}</span>
+							)}
+						</li>
+					))}
+				</ol>
+			</section>
+		))
+	}
+</Base>
