@@ -1,0 +1,51 @@
+# Deploys this academy to Monopane hosting on every push to any branch:
+# the site's production branch goes live at the site's address, any other
+# branch becomes a preview with its own address.
+#
+# The job proves which repository and commit it builds with GitHub's OIDC
+# token (id-token: write), so no key or secret is stored in the repository.
+# It runs on push only, not on pull_request, so a pull request from a fork
+# never builds with this repository's identity.
+#
+# If this repository is not connected to a Monopane site, the job ends
+# successfully with a notice. If you host the academy yourself, delete this
+# file to turn it off.
+#
+# To use another Monopane API address, set the repository variable
+# MONOPANE_API_URL (Settings > Secrets and variables > Actions > Variables).
+name: Monopane
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+# One deployment per branch at a time; a newer push waits for the one before.
+concurrency:
+  group: monopane-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Deploy to Monopane
+        env:
+          MONOPANE_API_URL: ${{ vars.MONOPANE_API_URL || 'https://api.monopane.io' }}
+        run: node scripts/deploy.mjs

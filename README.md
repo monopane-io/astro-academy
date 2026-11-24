@@ -19,6 +19,18 @@ What is in it:
 - [Node.js](https://nodejs.org) 22.12 or newer.
 - A [Cloudflare](https://dash.cloudflare.com/sign-up) account. The free plan is enough.
 
+## Hosting with Monopane
+
+Monopane can host the academy for you. Connect GitHub in the Monopane console and create a site from your copy of this repository. From then on, every push builds and goes live:
+
+- A push to the repository's default branch is deployed at your site's address, `<name>.monopane.dev`.
+- A push to any other branch becomes a preview with an address of its own. If the branch has an open pull request, Monopane comments the address on it.
+- Each commit gets a **Monopane** status that links to its deployment.
+
+The build runs in your repository with GitHub Actions (`.github/workflows/monopane.yml`), so Actions must be enabled for it (**Settings → Actions → General**). The workflow proves which repository and commit it builds with a token GitHub gives the job; no key or secret is stored in the repository. If the repository is not connected to a Monopane site, the workflow ends with a notice and deploys nothing. To turn it off, delete `.github/workflows/monopane.yml`.
+
+To host the academy yourself instead, on your own Cloudflare account, follow the steps below.
+
 ## From an invite to a deployed academy
 
 About 15 minutes. Steps 1 to 4 get it running on your machine; step 5 puts it online.
@@ -224,7 +236,7 @@ This starter does not use learner tokens; it has a server, so it does not need t
 ## Tests
 
 ```sh
-npm test            # unit tests: settings, session cookie, sign-in adapters, quizzes, videos
+npm test            # unit tests: settings, session cookie, sign-in adapters, quizzes, videos, deploy script
 npm run check       # type check
 npm run build && npm run test:build   # no key and no JavaScript in what is built
 npm run test:e2e    # the whole learner journey in a browser
