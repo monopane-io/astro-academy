@@ -165,10 +165,10 @@ describe("a deployment", () => {
 			"https://api.example.test/github/deployments": () =>
 				json(201, {
 					deployment,
-					uploadUrl: "/tenants/t/sites/s/deployments/dpl_1/upload",
+					uploadUrl: "/projects/t/sites/s/deployments/dpl_1/upload",
 					uploadToken: "mpu_x",
 				}),
-			"https://api.example.test/tenants/": () => json(200, { ...deployment, status: "ready" }),
+			"https://api.example.test/projects/": () => json(200, { ...deployment, status: "ready" }),
 		});
 		const result = await deploy({ env: ENV, doFetch: fn, dist, log: () => {} });
 		expect(result).toEqual({ deployed: true, deployment: { ...deployment, status: "ready" } });
@@ -183,7 +183,9 @@ describe("a deployment", () => {
 			"Bearer oidc-token",
 		);
 		const upload = calls[2];
-		expect(upload?.url).toBe("https://api.example.test/tenants/t/sites/s/deployments/dpl_1/upload");
+		expect(upload?.url).toBe(
+			"https://api.example.test/projects/t/sites/s/deployments/dpl_1/upload",
+		);
 		expect((upload?.init.headers as Record<string, string>).Authorization).toBe("Bearer mpu_x");
 		const form = upload?.init.body as FormData;
 		expect(JSON.parse(form.get("manifest") as string)).toMatchObject({ mainModule: "entry.mjs" });
@@ -211,10 +213,10 @@ describe("a deployment", () => {
 			"https://api.example.test/github/deployments": () =>
 				json(201, {
 					deployment: { id: "d", target: "production" },
-					uploadUrl: "/tenants/u",
+					uploadUrl: "/projects/u",
 					uploadToken: "t",
 				}),
-			"https://api.example.test/tenants/": () =>
+			"https://api.example.test/projects/": () =>
 				json(413, {
 					error: { code: "PAYLOAD_TOO_LARGE", message: "A build may be at most 25 MB" },
 				}),

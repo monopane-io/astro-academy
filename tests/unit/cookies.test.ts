@@ -3,9 +3,9 @@ import { join, relative } from "node:path";
 import type { AstroCookieSetOptions, AstroCookies } from "astro";
 import { describe, expect, it, vi } from "vitest";
 
-// Signing in creates the learner through the API; here it needs no network.
+// Signing in creates the user through the API; here it needs no network.
 vi.mock("../../src/lib/monopane", () => ({
-	findOrCreateLearner: vi.fn(async () => ({ id: "lrn_1" })),
+	findOrCreateUser: vi.fn(async () => ({ id: "usr_1" })),
 }));
 
 import type { AuthAdapter } from "../../src/lib/auth/types";
@@ -108,7 +108,7 @@ describe("the site's source", () => {
 				/cookies\.(set|delete)\(|set-cookie|document\.cookie/i.test(readFileSync(path, "utf8")),
 			)
 			.map((path) => relative(root, path).split("\\").join("/"));
-		// The learner's (above) and the admin's (admin.test.ts).
+		// The user's (above) and the admin's (admin.test.ts).
 		expect(touching.sort()).toEqual(["src/lib/admin/sign-in.ts", "src/lib/sign-in.ts"]);
 	});
 });

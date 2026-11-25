@@ -197,7 +197,7 @@ describe("the host's sign-in email", () => {
 			await monopaneSender({
 				apiUrl: "https://api.example",
 				apiKey: "mpk_live_x",
-				tenantId: "tnt_1",
+				projectId: "prj_1",
 				environment: "production",
 			}).send({
 				to: "ada@example.com",
@@ -211,7 +211,7 @@ describe("the host's sign-in email", () => {
 		}
 
 		expect(calls).toHaveLength(1);
-		expect(calls[0]?.url).toBe("https://api.example/tenants/tnt_1/sign-in-emails");
+		expect(calls[0]?.url).toBe("https://api.example/projects/prj_1/sign-in-emails");
 		expect(calls[0]?.init.method).toBe("POST");
 		expect(new Headers(calls[0]?.init.headers).get("Authorization")).toBe("Bearer mpk_live_x");
 		expect(JSON.parse(String(calls[0]?.init.body))).toEqual({
@@ -227,13 +227,15 @@ describe("the host's sign-in email", () => {
 			new Response('{"error":{"code":"LINK_NOT_HOSTED"}}', { status: 422 })) as typeof fetch;
 		try {
 			await expect(
-				monopaneSender({ apiUrl: "https://a", apiKey: "k", tenantId: "t", environment: "e" }).send({
-					to: "a@b.c",
-					subject: "",
-					text: "",
-					link: "https://x.example/",
-					siteName: "X",
-				}),
+				monopaneSender({ apiUrl: "https://a", apiKey: "k", projectId: "t", environment: "e" }).send(
+					{
+						to: "a@b.c",
+						subject: "",
+						text: "",
+						link: "https://x.example/",
+						siteName: "X",
+					},
+				),
 			).rejects.toThrow(/422.*LINK_NOT_HOSTED/);
 		} finally {
 			globalThis.fetch = original;

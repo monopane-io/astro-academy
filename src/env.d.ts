@@ -2,6 +2,8 @@
 
 interface Env {
 	MONOPANE_API_KEY?: string;
+	MONOPANE_PROJECT_ID?: string;
+	/** The older name of MONOPANE_PROJECT_ID. */
 	MONOPANE_TENANT_ID?: string;
 	SESSION_SECRET?: string;
 	MONOPANE_ENVIRONMENT?: string;

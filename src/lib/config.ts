@@ -1,7 +1,7 @@
 /**
  * The site's settings, read from the Worker's environment.
  *
- * Three are required: MONOPANE_API_KEY, MONOPANE_TENANT_ID and SESSION_SECRET.
+ * Three are required: MONOPANE_API_KEY, MONOPANE_PROJECT_ID and SESSION_SECRET.
  * This file has no imports on purpose, so it can be tested anywhere.
  */
 
@@ -12,7 +12,7 @@ export type EmailVia = "resend" | "monopane";
 
 export interface Config {
 	apiKey: string;
-	tenantId: string;
+	projectId: string;
 	sessionSecret: string;
 	/** Monopane environment the site reads from. */
 	environment: string;
@@ -47,8 +47,10 @@ export function readConfig(env: RawEnv): Config {
 	const apiKey = text(env, "MONOPANE_API_KEY");
 	if (!apiKey) problems.push("MONOPANE_API_KEY is not set.");
 
-	const tenantId = text(env, "MONOPANE_TENANT_ID");
-	if (!tenantId) problems.push("MONOPANE_TENANT_ID is not set.");
+	// MONOPANE_TENANT_ID is the older name of the same setting; a site that
+	// still has it set keeps working.
+	const projectId = text(env, "MONOPANE_PROJECT_ID") || text(env, "MONOPANE_TENANT_ID");
+	if (!projectId) problems.push("MONOPANE_PROJECT_ID is not set.");
 
 	const sessionSecret = text(env, "SESSION_SECRET");
 	if (!sessionSecret) problems.push("SESSION_SECRET is not set.");
@@ -86,7 +88,7 @@ export function readConfig(env: RawEnv): Config {
 
 	return {
 		apiKey,
-		tenantId,
+		projectId,
 		sessionSecret,
 		environment: text(env, "MONOPANE_ENVIRONMENT") || "production",
 		apiUrl: (text(env, "MONOPANE_API_URL") || "https://api.monopane.io").replace(/\/+$/, ""),

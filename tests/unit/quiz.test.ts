@@ -61,7 +61,7 @@ describe("answersFromForm", () => {
 		]);
 	});
 
-	it("answers every question, blank where the learner left one out", () => {
+	it("answers every question, blank where the user left one out", () => {
 		expect(answersFromForm(questions, form([]))).toEqual([
 			{ questionId: "q1", type: "multiple_choice", answer: "" },
 			{ questionId: "q2", type: "multi_select", answers: [] },

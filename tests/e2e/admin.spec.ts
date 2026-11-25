@@ -120,7 +120,7 @@ test("an admin signs in with Monopane and sees every course, drafts included", a
 	await expect(visitor.getByText("Unpublished")).toHaveCount(0);
 	expect((await stranger.request.get("/admin", { maxRedirects: 0 })).status()).toBe(302);
 	await stranger.close();
-	// Being an admin is not being a learner: the learner pages still ask for sign-in.
+	// Being an admin is not being a user: the user pages still ask for sign-in.
 	await page.goto("/my-learning");
 	await expect(page).toHaveURL(/\/sign-in\?next=/);
 

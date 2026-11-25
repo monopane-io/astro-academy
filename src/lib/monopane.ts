@@ -11,29 +11,29 @@ import {
 	type Credential,
 	type CredentialVerification,
 	type Enrollment,
-	type Learner,
 	type Lesson,
 	type Module,
 	type Progress,
 	type Submission,
 	type SubmissionAnswer,
+	type User,
 	client,
 	createCredential,
 	createEnrollment,
-	createLearner,
 	createProgress,
 	createSubmission,
+	createUser,
 	getCurrentApiKey,
 	getEnrollment,
 	listActivities,
 	listCourses,
-	listLearnerEnrollments,
-	listLearners,
 	listLessons,
 	listModules,
 	listProgress,
-	updateLearner,
+	listUserEnrollments,
+	listUsers,
 	updateProgress,
+	updateUser,
 	verifyCredential,
 } from "@monopane/sdk";
 import type { Identity } from "./auth/types";
@@ -42,28 +42,28 @@ import { type Config, SetupError } from "./config";
 /** The scopes the site's API key needs. Listed in the README. */
 export const REQUIRED_SCOPES = [
 	"content:read",
-	"learners:read",
-	"learners:write",
+	"users:read",
+	"users:write",
 	"enrollments:read",
 	"enrollments:write",
 	"progress:write",
 	"analytics:read",
 ] as const;
 
-/** Course content is the same for every learner, so it is kept this long. */
+/** Course content is the same for every user, so it is kept this long. */
 const CONTENT_CACHE_SECONDS = 60;
 
 let configured: Config | null = null;
 let keyChecked: Promise<void> | null = null;
 const cache = new Map<string, { expires: number; value: Promise<unknown> }>();
 
-/** Point the SDK at this deployment's tenant. Called once per request by the middleware. */
+/** Point the SDK at this deployment's project. Called once per request by the middleware. */
 export function configure(config: Config): void {
 	if (configured === config) return;
 	if (
 		configured &&
 		(configured.apiKey !== config.apiKey ||
-			configured.tenantId !== config.tenantId ||
+			configured.projectId !== config.projectId ||
 			configured.apiUrl !== config.apiUrl ||
 			configured.environment !== config.environment)
 	) {
@@ -78,14 +78,14 @@ export function configure(config: Config): void {
 	});
 }
 
-function tenant(): string {
+function project(): string {
 	if (!configured) throw new Error("configure() has not been called");
-	return configured.tenantId;
+	return configured.projectId;
 }
 
 /** Remember the answer to a content question for a short while. */
 function cached<T>(key: string, load: () => Promise<T>): Promise<T> {
-	const scope = `${tenant()}|${configured?.environment}|${key}`;
+	const scope = `${project()}|${configured?.environment}|${key}`;
 	const hit = cache.get(scope);
 	if (hit && hit.expires > Date.now()) return hit.value as Promise<T>;
 	const value = load();
@@ -118,7 +118,7 @@ const byPosition = (a: { position: number }, b: { position: number }) => a.posit
 // --- Start-up check ---------------------------------------------------------
 
 /**
- * Confirm, once, that the API key works for this tenant and has every scope
+ * Confirm, once, that the API key works for this project and has every scope
  * the site uses. Throws a SetupError that names what is missing.
  */
 export function checkApiKey(): Promise<void> {
@@ -137,7 +137,7 @@ async function runKeyCheck(): Promise<void> {
 	]);
 	let result: Awaited<ReturnType<typeof getCurrentApiKey>>;
 	try {
-		result = await getCurrentApiKey({ path: { tenantId: tenant() } });
+		result = await getCurrentApiKey({ path: { projectId: project() } });
 	} catch {
 		throw unreachable;
 	}
@@ -147,7 +147,7 @@ async function runKeyCheck(): Promise<void> {
 	if (status === 401) throw new SetupError(["Monopane rejected MONOPANE_API_KEY (401)."]);
 	if (status === 403 || status === 404) {
 		throw new SetupError([
-			"MONOPANE_API_KEY does not belong to MONOPANE_TENANT_ID, or is not an admin or scoped key.",
+			"MONOPANE_API_KEY does not belong to MONOPANE_PROJECT_ID, or is not an admin or scoped key.",
 		]);
 	}
 	if (!result.data) {
@@ -169,7 +169,7 @@ export function listPublishedCourses(tag?: string): Promise<Course[]> {
 		all(async (cursor) => {
 			const { data } = await listCourses({
 				throwOnError: true,
-				path: { tenantId: tenant() },
+				path: { projectId: project() },
 				query: { status: "published", tag, limit: 100, cursor },
 			});
 			return data;
@@ -191,7 +191,7 @@ export function getPublishedCourse(slug: string): Promise<Course | null> {
 	return cached(`course:${slug}`, async () => {
 		const { data } = await listCourses({
 			throwOnError: true,
-			path: { tenantId: tenant() },
+			path: { projectId: project() },
 			query: { status: "published", slug, limit: 1 },
 		});
 		return data.data[0] ?? null;
@@ -207,11 +207,11 @@ export interface OutlineSection {
 /**
  * A course's published lessons in order: lessons outside any module first,
  * then each published module with its lessons. A published lesson inside an
- * unpublished module is left out, as a learner must not see it.
+ * unpublished module is left out, as a user must not see it.
  */
 export function getOutline(courseId: string): Promise<OutlineSection[]> {
 	return cached(`outline:${courseId}`, async () => {
-		const path = { tenantId: tenant(), courseId };
+		const path = { projectId: project(), courseId };
 		const [modules, lessons] = await Promise.all([
 			all(async (cursor) => {
 				const { data } = await listModules({
@@ -253,7 +253,7 @@ export function listLessonActivities(courseId: string, lessonId: string): Promis
 		const activities = await all(async (cursor) => {
 			const { data } = await listActivities({
 				throwOnError: true,
-				path: { tenantId: tenant(), courseId, lessonId },
+				path: { projectId: project(), courseId, lessonId },
 				query: { status: "published", answers: "omit", limit: 100, cursor },
 			});
 			return data;
@@ -262,20 +262,20 @@ export function listLessonActivities(courseId: string, lessonId: string): Promis
 	});
 }
 
-// --- Learners ---------------------------------------------------------------
+// --- Users ---------------------------------------------------------------
 
 /**
- * The Monopane learner for a signed-in person: found by `externalId`, created
+ * The Monopane user for a signed-in person: found by `externalId`, created
  * on their first visit. `email` is passed only when the sign-in adapter has
  * verified it.
  */
-export async function findOrCreateLearner(
+export async function findOrCreateUser(
 	identity: Identity,
 	options: { emailVerified: boolean },
-): Promise<Learner> {
-	const path = { tenantId: tenant() };
+): Promise<User> {
+	const path = { projectId: project() };
 	const find = async () => {
-		const { data } = await listLearners({
+		const { data } = await listUsers({
 			throwOnError: true,
 			path,
 			query: { externalId: identity.id, limit: 1 },
@@ -286,15 +286,15 @@ export async function findOrCreateLearner(
 	const existing = await find();
 	if (existing) {
 		if (existing.displayName === identity.name) return existing;
-		const { data } = await updateLearner({
+		const { data } = await updateUser({
 			throwOnError: true,
-			path: { ...path, learnerId: existing.id },
+			path: { ...path, userId: existing.id },
 			body: { displayName: identity.name },
 		});
 		return data;
 	}
 
-	const created = await createLearner({
+	const created = await createUser({
 		path,
 		body: {
 			externalId: identity.id,
@@ -303,22 +303,22 @@ export async function findOrCreateLearner(
 		},
 	});
 	if (created.data) return created.data;
-	// Two first visits at once: the other request created the learner.
+	// Two first visits at once: the other request created the user.
 	if (created.response?.status === 409) {
 		const raced = await find();
 		if (raced) return raced;
 	}
-	throw new Error(`Could not create the learner (${created.response?.status}).`);
+	throw new Error(`Could not create the user (${created.response?.status}).`);
 }
 
 // --- Enrollment and progress ------------------------------------------------
 
-/** Everything the learner is enrolled in, newest first. Dropped enrollments are left out. */
-export async function listEnrollments(learnerId: string): Promise<Enrollment[]> {
+/** Everything the user is enrolled in, newest first. Dropped enrollments are left out. */
+export async function listEnrollments(userId: string): Promise<Enrollment[]> {
 	const enrollments = await all(async (cursor) => {
-		const { data } = await listLearnerEnrollments({
+		const { data } = await listUserEnrollments({
 			throwOnError: true,
-			path: { tenantId: tenant(), learnerId },
+			path: { projectId: project(), userId },
 			query: { limit: 100, cursor },
 		});
 		return data;
@@ -326,25 +326,22 @@ export async function listEnrollments(learnerId: string): Promise<Enrollment[]> 
 	return enrollments.filter((enrollment) => enrollment.status !== "dropped");
 }
 
-/** The learner's enrollment in a course, or null. Dropped enrollments do not count. */
-export async function findEnrollment(
-	learnerId: string,
-	courseId: string,
-): Promise<Enrollment | null> {
-	return (await listEnrollments(learnerId)).find((e) => e.courseId === courseId) ?? null;
+/** The user's enrollment in a course, or null. Dropped enrollments do not count. */
+export async function findEnrollment(userId: string, courseId: string): Promise<Enrollment | null> {
+	return (await listEnrollments(userId)).find((e) => e.courseId === courseId) ?? null;
 }
 
-/** Enrol the learner. Enrolling twice returns the enrollment that already exists. */
-export async function enrol(learnerId: string, courseId: string): Promise<Enrollment> {
-	const existing = await findEnrollment(learnerId, courseId);
+/** Enrol the user. Enrolling twice returns the enrollment that already exists. */
+export async function enrol(userId: string, courseId: string): Promise<Enrollment> {
+	const existing = await findEnrollment(userId, courseId);
 	if (existing) return existing;
 	const created = await createEnrollment({
-		path: { tenantId: tenant(), courseId },
-		body: { learnerId },
+		path: { projectId: project(), courseId },
+		body: { userId },
 	});
 	if (created.data) return created.data;
 	if (created.response?.status === 409) {
-		const raced = await findEnrollment(learnerId, courseId);
+		const raced = await findEnrollment(userId, courseId);
 		if (raced) return raced;
 	}
 	throw new Error(`Could not enrol (${created.response?.status}).`);
@@ -353,7 +350,7 @@ export async function enrol(learnerId: string, courseId: string): Promise<Enroll
 export async function readEnrollment(enrollmentId: string): Promise<Enrollment> {
 	const { data } = await getEnrollment({
 		throwOnError: true,
-		path: { tenantId: tenant(), enrollmentId },
+		path: { projectId: project(), enrollmentId },
 	});
 	return data;
 }
@@ -362,14 +359,14 @@ export async function readEnrollment(enrollmentId: string): Promise<Enrollment> 
 export async function progressByActivity(enrollmentId: string): Promise<Map<string, Progress>> {
 	const { data } = await listProgress({
 		throwOnError: true,
-		path: { tenantId: tenant(), enrollmentId },
+		path: { projectId: project(), enrollmentId },
 	});
 	return new Map(data.data.map((record) => [record.activityId, record]));
 }
 
 /** Mark a reading or link as done. Monopane completes the course when all are. */
 export async function completeActivity(enrollmentId: string, activityId: string): Promise<void> {
-	const path = { tenantId: tenant(), enrollmentId };
+	const path = { projectId: project(), enrollmentId };
 	let record = (await progressByActivity(enrollmentId)).get(activityId);
 	if (record?.status === "completed") return;
 	if (!record) {
@@ -395,7 +392,7 @@ export async function submitQuiz(
 ): Promise<Submission> {
 	const { data } = await createSubmission({
 		throwOnError: true,
-		path: { tenantId: tenant(), enrollmentId },
+		path: { projectId: project(), enrollmentId },
 		body: { activityId, answers },
 	});
 	return data;
@@ -405,7 +402,7 @@ export async function submitQuiz(
 
 /** The credential for a completed enrollment. Asking again returns the same one. */
 export async function issueCredential(enrollmentId: string): Promise<Credential | null> {
-	const result = await createCredential({ path: { tenantId: tenant(), enrollmentId } });
+	const result = await createCredential({ path: { projectId: project(), enrollmentId } });
 	return result.data ?? null;
 }
 

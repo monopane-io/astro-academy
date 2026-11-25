@@ -10,7 +10,7 @@ export function isDone(record: Progress | undefined): boolean {
 }
 
 /**
- * How far the learner is through each lesson of a course: activities done out
+ * How far the user is through each lesson of a course: activities done out
  * of activities published. One request per lesson the first time; lesson
  * content is cached for a minute after that (see monopane.ts).
  */

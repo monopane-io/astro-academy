@@ -8,7 +8,7 @@ import { openSession, sessionCookieName } from "./lib/session";
 
 /**
  * Runs before every page. It reads the settings, checks once that the API key
- * can do what the site needs, and works out who is signed in: the learner,
+ * can do what the site needs, and works out who is signed in: the user,
  * and separately the admin, if there is one. If the
  * site is not set up correctly, every page says what is wrong instead of
  * failing somewhere later.

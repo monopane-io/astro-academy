@@ -1,11 +1,11 @@
 import type { AstroCookieSetOptions, AstroCookies } from "astro";
 import type { AuthAdapter, Identity, User } from "./auth/types";
 import type { Config } from "./config";
-import { findOrCreateLearner } from "./monopane";
+import { findOrCreateUser } from "./monopane";
 import { SESSION_MAX_AGE, sealSession, sessionCookieName } from "./session";
 
 /**
- * The attributes of the learner's session cookie (the admin's are in
+ * The attributes of the user's session cookie (the admin's are in
  * admin/session.ts and follow the same rules). It
  * belongs to this hostname alone: there is no `Domain`, so neighbouring sites
  * on the same parent domain never receive it. Scripts cannot read it
@@ -26,7 +26,7 @@ export function sessionCookieOptions(
 }
 
 /**
- * Sign an identified person in: find or create their learner in Monopane and
+ * Sign an identified person in: find or create their user in Monopane and
  * set the session cookie. The same for every sign-in adapter.
  */
 export async function signIn(
@@ -36,8 +36,8 @@ export async function signIn(
 	cookies: AstroCookies,
 	url: URL,
 ): Promise<User> {
-	const learner = await findOrCreateLearner(identity, { emailVerified: adapter.forProduction });
-	const user: User = { ...identity, learnerId: learner.id };
+	const record = await findOrCreateUser(identity, { emailVerified: adapter.forProduction });
+	const user: User = { ...identity, userId: record.id };
 	cookies.set(sessionCookieName(url), await sealSession(user, config.sessionSecret), {
 		...sessionCookieOptions(url),
 		maxAge: SESSION_MAX_AGE,

@@ -1,5 +1,5 @@
 /**
- * The learner's session: a cookie holding who they are, signed with
+ * The user's session: a cookie holding who they are, signed with
  * SESSION_SECRET so it cannot be forged or altered. Nothing is stored on the
  * server. Changing SESSION_SECRET signs everyone out.
  */
@@ -73,21 +73,24 @@ export async function openSession(
 		);
 		if (!valid) return null;
 		const data = JSON.parse(new TextDecoder().decode(fromBase64Url(payload))) as {
-			user?: Partial<User>;
+			// `learnerId` is what `userId` was called in cookies set by an older
+			// version of this site; reading it keeps those people signed in.
+			user?: Partial<User> & { learnerId?: unknown };
 			exp?: number;
 		};
 		if (typeof data.exp !== "number" || data.exp * 1000 <= now) return null;
 		const user = data.user;
+		const userId = user?.userId ?? user?.learnerId;
 		if (
 			!user ||
 			typeof user.id !== "string" ||
 			typeof user.name !== "string" ||
 			typeof user.email !== "string" ||
-			typeof user.learnerId !== "string"
+			typeof userId !== "string"
 		) {
 			return null;
 		}
-		return { id: user.id, name: user.name, email: user.email, learnerId: user.learnerId };
+		return { id: user.id, name: user.name, email: user.email, userId };
 	} catch {
 		return null;
 	}

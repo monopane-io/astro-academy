@@ -6,12 +6,18 @@ const user = {
 	id: "demo:ada@example.com",
 	name: "Ada",
 	email: "ada@example.com",
-	learnerId: "lrn_1",
+	userId: "usr_1",
 };
 
 describe("the session cookie", () => {
 	it("round-trips a user", async () => {
 		expect(await openSession(await sealSession(user, secret), secret)).toEqual(user);
+	});
+
+	it("opens a cookie set before userId had that name", async () => {
+		const { userId, ...rest } = user;
+		const old = await sealSession({ ...rest, learnerId: userId } as unknown as typeof user, secret);
+		expect(await openSession(old, secret)).toEqual(user);
 	});
 
 	it("is rejected when signed with another secret", async () => {
@@ -21,7 +27,7 @@ describe("the session cookie", () => {
 	it("is rejected when its contents are changed", async () => {
 		const [payload, signature] = (await sealSession(user, secret)).split(".");
 		const forged = btoa(
-			JSON.stringify({ user: { ...user, learnerId: "lrn_someone_else" }, exp: 9999999999 }),
+			JSON.stringify({ user: { ...user, userId: "usr_someone_else" }, exp: 9999999999 }),
 		).replace(/=+$/, "");
 		expect(await openSession(`${forged}.${signature}`, secret)).toBeNull();
 		expect(await openSession(`${payload}.${signature}x`, secret)).toBeNull();

@@ -2,7 +2,7 @@
 # .dev.vars holds secrets: it is ignored by git, and must stay that way.
 
 # Your project's ID, from the Monopane console (Settings, "Project ID").
-MONOPANE_TENANT_ID=
+MONOPANE_PROJECT_ID=
 
 # An API key created in the console (API keys, "Create key"). It can do
 # anything in the project, so it is used only on your machine, by

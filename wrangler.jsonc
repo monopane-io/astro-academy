@@ -9,7 +9,7 @@
 	// RESEND_API_KEY) are set with `npx wrangler secret put <NAME>`, never here.
 	"vars": {
 		// "demo": anyone can sign in with any name and email. Not for production.
-		// "magic-link": sign-in by a link emailed to the learner.
+		// "magic-link": sign-in by a link emailed to the user.
 		"AUTH_MODE": "demo",
 		"SITE_NAME": "Academy",
 		"SITE_TAGLINE": "Courses to help you get the most out of the product."

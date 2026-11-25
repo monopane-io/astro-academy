@@ -3,7 +3,7 @@ import { SetupError, readConfig } from "../../src/lib/config";
 
 const base = {
 	MONOPANE_API_KEY: "mpk_live_x",
-	MONOPANE_TENANT_ID: "tnt_x",
+	MONOPANE_PROJECT_ID: "prj_x",
 	SESSION_SECRET: "s".repeat(32),
 };
 
@@ -18,10 +18,15 @@ function problems(env: Record<string, unknown>): string[] {
 }
 
 describe("readConfig", () => {
-	it("needs only the key, the tenant and a session secret", () => {
+	it("reads the project ID from its older name too", () => {
+		const { MONOPANE_PROJECT_ID: id, ...rest } = base;
+		expect(readConfig({ ...rest, MONOPANE_TENANT_ID: id }).projectId).toBe(id);
+	});
+
+	it("needs only the key, the project and a session secret", () => {
 		expect(readConfig(base)).toEqual({
 			apiKey: "mpk_live_x",
-			tenantId: "tnt_x",
+			projectId: "prj_x",
 			sessionSecret: "s".repeat(32),
 			environment: "production",
 			apiUrl: "https://api.monopane.io",
@@ -49,7 +54,7 @@ describe("readConfig", () => {
 	it("names every missing setting at once", () => {
 		expect(problems({})).toEqual([
 			"MONOPANE_API_KEY is not set.",
-			"MONOPANE_TENANT_ID is not set.",
+			"MONOPANE_PROJECT_ID is not set.",
 			"SESSION_SECRET is not set.",
 		]);
 	});

@@ -1,7 +1,7 @@
 /**
  * The admin's session. Someone who runs the academy signs in with their
  * Monopane account (see sign-in.ts) and the site is handed a token that acts
- * for them: it can edit this project's courses and see its learners, in one
+ * for them: it can edit this project's courses and see its users, in one
  * environment, for an hour, and nothing else.
  *
  * That token is the one powerful thing the site ever holds, so it is kept
@@ -10,8 +10,8 @@
  * browser carries it and cannot read it, and neither can a script on the
  * page (`HttpOnly`). Nothing is stored on the server.
  *
- * It is separate from the learner's session: an admin is not a learner, and a
- * learner is never an admin.
+ * It is separate from the user's session: an admin is not a user, and a
+ * user is never an admin.
  */
 import type { AstroCookieSetOptions } from "astro";
 
@@ -73,7 +73,7 @@ function fromBase64Url(value: string): Uint8Array<ArrayBuffer> {
 	return bytes;
 }
 
-/** A key for admin cookies only: the learner's cookie is signed with a different one. */
+/** A key for admin cookies only: the user's cookie is signed with a different one. */
 async function key(secret: string): Promise<CryptoKey> {
 	const material = await crypto.subtle.digest("SHA-256", encoder.encode(`admin-cookie:${secret}`));
 	return crypto.subtle.importKey("raw", material, "AES-GCM", false, ["encrypt", "decrypt"]);

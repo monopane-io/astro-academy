@@ -20,7 +20,7 @@ const SECRET = "0123456789abcdef0123456789abcdef";
 const TOKEN = "mpa_0123456789abcdef0123456789abcdef";
 const HTTPS = new URL("https://academy.example.com/admin");
 const config = {
-	tenantId: "tnt_test",
+	projectId: "prj_test",
 	apiUrl: "https://api.example.test",
 	sessionSecret: SECRET,
 } as Config;
@@ -95,7 +95,7 @@ describe("signing an admin in", () => {
 		const address = new URL(await startSignIn(config, cookies, HTTPS, "/admin/courses/x"));
 		expect(`${address.origin}${address.pathname}`).toBe("https://api.example.test/oauth/authorize");
 		const params = address.searchParams;
-		expect(params.get("client_id")).toBe("signin_tnt_test");
+		expect(params.get("client_id")).toBe("signin_prj_test");
 		expect(params.get("redirect_uri")).toBe("https://academy.example.com/admin/callback");
 		expect(params.get("scope")).toBe("deployment:admin");
 		expect(params.get("code_challenge_method")).toBe("S256");

@@ -14,7 +14,7 @@ function config(): Config {
 	n++;
 	return {
 		apiKey: `mpk_live_test_${n}`,
-		tenantId: "tnt_test",
+		projectId: "prj_test",
 		sessionSecret: "s".repeat(32),
 		environment: "production",
 		apiUrl: "https://api.example.test",
@@ -53,7 +53,7 @@ async function problemsFrom(check: Promise<void>): Promise<string[]> {
 
 const key = (scopes: string[]) => ({
 	id: "key_1",
-	tenantId: "tnt_test",
+	projectId: "prj_test",
 	name: "academy",
 	mode: "live",
 	prefix: "mpk_live_test",
@@ -76,7 +76,7 @@ describe("checkApiKey", () => {
 		expect(REQUIRED_SCOPES).toHaveLength(7);
 		// It asked about its own key, with the key and the environment.
 		expect(requests).toHaveLength(1);
-		expect(new URL(requests[0]?.url ?? "").pathname).toBe("/tenants/tnt_test/api-keys/current");
+		expect(new URL(requests[0]?.url ?? "").pathname).toBe("/projects/prj_test/api-keys/current");
 		expect(requests[0]?.headers.get("Authorization")).toBe(`Bearer ${c.apiKey}`);
 		expect(requests[0]?.headers.get("X-Environment")).toBe("production");
 	});
@@ -89,15 +89,15 @@ describe("checkApiKey", () => {
 
 	it("names each missing scope", async () => {
 		configure(config());
-		answerWith(200, key(["content:read", "learners:read", "enrollments:read", "analytics:read"]));
+		answerWith(200, key(["content:read", "users:read", "enrollments:read", "analytics:read"]));
 		expect(await problemsFrom(checkApiKey())).toEqual([
-			"MONOPANE_API_KEY is missing the scope learners:write.",
+			"MONOPANE_API_KEY is missing the scope users:write.",
 			"MONOPANE_API_KEY is missing the scope enrollments:write.",
 			"MONOPANE_API_KEY is missing the scope progress:write.",
 		]);
 	});
 
-	it("says so when the key is rejected or belongs to another tenant", async () => {
+	it("says so when the key is rejected or belongs to another project", async () => {
 		configure(config());
 		answerWith(401, { error: { code: "UNAUTHORIZED", message: "no" } });
 		expect(await problemsFrom(checkApiKey())).toEqual([
@@ -107,7 +107,7 @@ describe("checkApiKey", () => {
 		configure(config());
 		answerWith(403, { error: { code: "FORBIDDEN", message: "no" } });
 		expect((await problemsFrom(checkApiKey()))[0]).toContain(
-			"does not belong to MONOPANE_TENANT_ID",
+			"does not belong to MONOPANE_PROJECT_ID",
 		);
 	});
 

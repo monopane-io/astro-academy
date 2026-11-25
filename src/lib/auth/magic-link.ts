@@ -42,7 +42,7 @@ async function storageKey(token: string): Promise<string> {
 }
 
 /**
- * Email magic link: the learner enters an address and gets a link that signs
+ * Email magic link: the user enters an address and gets a link that signs
  * in that address, once, within 15 minutes. Open to anyone with an email
  * address; there are no passwords and no list of allowed people.
  *
@@ -89,7 +89,7 @@ export function createMagicLinkAdapter(options: MagicLinkOptions): AuthAdapter {
 					].join("\n"),
 				});
 			} catch (error) {
-				// The learner gets the same answer either way; the cause goes to the logs.
+				// The user gets the same answer either way; the cause goes to the logs.
 				console.error("Magic link email could not be sent:", error);
 			}
 			return { kind: "link-sent" };

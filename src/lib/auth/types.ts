@@ -7,7 +7,7 @@
 
 /** Someone the adapter has identified. `id` must be stable for that person. */
 export interface Identity {
-	/** Becomes the learner's `externalId` in Monopane. */
+	/** Becomes the user's `externalId` in Monopane. */
 	id: string;
 	name: string;
 	email: string;
@@ -15,8 +15,8 @@ export interface Identity {
 
 /** The signed-in person as kept in the session cookie. */
 export interface User extends Identity {
-	/** The Monopane learner (`lrn_...`) created for this person at sign-in. */
-	learnerId: string;
+	/** The Monopane user (`usr_...`) created for this person at sign-in. */
+	userId: string;
 }
 
 export type SignInResult =
@@ -81,5 +81,5 @@ export function normaliseEmail(value: string): string | null {
 
 export function normaliseName(value: string, email: string): string {
 	const name = value.trim().replace(/\s+/g, " ").slice(0, 200);
-	return name || email.split("@")[0] || "Learner";
+	return name || email.split("@")[0] || "User";
 }

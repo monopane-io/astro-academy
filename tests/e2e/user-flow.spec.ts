@@ -1,7 +1,7 @@
 import { type Page, expect, test } from "@playwright/test";
 
 /**
- * The whole learner journey against a real Monopane API, in demo mode:
+ * The whole user journey against a real Monopane API, in demo mode:
  * catalogue, sign in, enrol, reading, quiz, completion, credential.
  *
  * The API key (if the test is told it) and the quiz answers must never reach
@@ -48,7 +48,7 @@ test("a signed-out visitor can browse, and is asked to sign in for a lesson", as
 	watch(page);
 	await page.goto("/");
 	await expect(page.getByRole("heading", { level: 2, name: "Courses" })).toBeVisible();
-	// "My learning" is for signed-in learners.
+	// "My learning" is for signed-in users.
 	await expect(page.getByRole("link", { name: "My learning" })).toHaveCount(0);
 	await expect(page.getByRole("link", { name: "A tour of this academy" })).toBeVisible();
 	// Drafts are not listed.
@@ -93,10 +93,10 @@ test("drafts are not reachable by address", async ({ page }) => {
 	expect(lesson?.status()).toBe(404);
 });
 
-test("the learner flow, from sign-in to a verified credential", async ({ page, browser }) => {
+test("the user flow, from sign-in to a verified credential", async ({ page, browser }) => {
 	watch(page);
-	// A new learner each run, so the test can be repeated against one tenant.
-	const email = `learner-${Date.now()}@example.com`;
+	// A new user each run, so the test can be repeated against one project.
+	const email = `user-${Date.now()}@example.com`;
 
 	// --- Sign in (demo mode) -------------------------------------------------
 	await page.goto(`/sign-in?next=${encodeURIComponent(COURSE)}`);
@@ -164,7 +164,7 @@ test("the learner flow, from sign-in to a verified credential", async ({ page, b
 	// "Continue" goes to the first lesson that is not finished.
 	await inProgress.getByRole("link", { name: "Continue" }).click();
 	await expect(page.getByRole("heading", { level: 1 })).toHaveText("Quizzes");
-	// The curriculum beside the lesson shows where the learner is and what is done.
+	// The curriculum beside the lesson shows where the user is and what is done.
 	const curriculum = page.getByRole("complementary", { name: "Course contents" });
 	await expect(curriculum.getByRole("link", { name: "Quizzes" })).toHaveAttribute(
 		"aria-current",
@@ -231,7 +231,7 @@ test("the learner flow, from sign-in to a verified credential", async ({ page, b
 	await page.reload();
 	await expect(page.locator("[data-credential-code]")).toHaveText(code);
 
-	// The certificate names the learner and the course.
+	// The certificate names the user and the course.
 	await expect(page.locator("[data-credential]")).toContainText("Ada Lovelace");
 	await expect(page.locator("[data-credential]")).toContainText("A tour of this academy");
 

@@ -1,5 +1,5 @@
 /**
- * What each page of the admin area does. As with the learner pages
+ * What each page of the admin area does. As with the user pages
  * (../pages.ts), a page file calls one function here and draws the result.
  *
  * Every function starts with `signedIn`: no admin session, no page. The
@@ -80,7 +80,7 @@ export interface AdminCourseRow {
 	published: boolean;
 	/** "25 November 2026" */
 	updatedOn: string;
-	/** The course as learners see it; null for a draft, which they cannot. */
+	/** The course as users see it; null for a draft, which they cannot. */
 	viewHref: string | null;
 }
 

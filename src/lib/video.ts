@@ -38,7 +38,7 @@ export function videoPlayer(address: string): VideoPlayer | null {
 				: parts[0] === "embed" || parts[0] === "shorts" || parts[0] === "live"
 					? parts[1]
 					: null;
-		// The no-cookie player does not track the learner until they press play.
+		// The no-cookie player does not track the user until they press play.
 		if (id && ID.test(id)) return embed(`https://www.youtube-nocookie.com/embed/${id}`, "YouTube");
 	}
 	if (host === "youtu.be" && parts[0] && ID.test(parts[0])) {

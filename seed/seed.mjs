@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Creates the demo course in your Monopane tenant, through the SDK.
+ * Creates the demo course in your Monopane project, through the SDK.
  *
  *   npm run seed
  *
@@ -9,7 +9,7 @@
  *
  * It needs a key that can write content, which the site's own key cannot:
  *   MONOPANE_SETUP_API_KEY  the key you created in the console
- *   MONOPANE_TENANT_ID      the project to seed
+ *   MONOPANE_PROJECT_ID      the project to seed
  *   MONOPANE_API_URL       optional, defaults to https://api.monopane.io
  *   MONOPANE_ENVIRONMENT   optional, defaults to production
  * Values in .dev.vars are picked up automatically.
@@ -32,12 +32,12 @@ import {
 import { courses } from "./demo-course.mjs";
 
 const apiKey = process.env.MONOPANE_SETUP_API_KEY;
-const tenantId = process.env.MONOPANE_TENANT_ID;
+const projectId = process.env.MONOPANE_PROJECT_ID || process.env.MONOPANE_TENANT_ID; // the second is its older name
 const baseUrl = (process.env.MONOPANE_API_URL || "https://api.monopane.io").replace(/\/+$/, "");
 const environment = process.env.MONOPANE_ENVIRONMENT || "production";
 
-if (!apiKey || !tenantId) {
-	console.error("Set MONOPANE_SETUP_API_KEY and MONOPANE_TENANT_ID (for example in .dev.vars).");
+if (!apiKey || !projectId) {
+	console.error("Set MONOPANE_SETUP_API_KEY and MONOPANE_PROJECT_ID (for example in .dev.vars).");
 	process.exit(1);
 }
 
@@ -76,7 +76,7 @@ async function ensureStatus(item, draft, update, path) {
 async function seedLessons(courseId, moduleId, lessons, existingLessons, startAt) {
 	let position = startAt;
 	for (const spec of lessons) {
-		const path = { tenantId, courseId };
+		const path = { projectId, courseId };
 		let lesson = existingLessons.find((l) => l.title === spec.title && l.moduleId === moduleId);
 		if (!lesson) {
 			({ data: lesson } = await createLesson({
@@ -126,14 +126,14 @@ async function seedLessons(courseId, moduleId, lessons, existingLessons, startAt
 async function seedCourse(spec) {
 	const found = await listCourses({
 		throwOnError: true,
-		path: { tenantId },
+		path: { projectId },
 		query: { slug: spec.slug, limit: 1 },
 	});
 	let course = found.data.data[0];
 	if (!course) {
 		({ data: course } = await createCourse({
 			throwOnError: true,
-			path: { tenantId },
+			path: { projectId },
 			body: { title: spec.title, slug: spec.slug, description: spec.description },
 		}));
 		created++;
@@ -151,11 +151,11 @@ async function seedCourse(spec) {
 	) {
 		({ data: course } = await updateCourse({
 			throwOnError: true,
-			path: { tenantId, courseId: course.id },
+			path: { projectId, courseId: course.id },
 			body: fields,
 		}));
 	}
-	const path = { tenantId, courseId: course.id };
+	const path = { projectId, courseId: course.id };
 	const existingLessons = await all(listLessons, path);
 	const existingModules = await all(listModules, path);
 
@@ -186,7 +186,7 @@ async function seedCourse(spec) {
 	console.log(`  ${spec.draft ? "draft    " : "published"}  /courses/${spec.slug}  ${spec.title}`);
 }
 
-console.log(`Seeding tenant ${tenantId} (${environment}) at ${baseUrl}`);
+console.log(`Seeding project ${projectId} (${environment}) at ${baseUrl}`);
 try {
 	for (const spec of courses) await seedCourse(spec);
 } catch (error) {

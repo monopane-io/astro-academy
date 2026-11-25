@@ -4,7 +4,7 @@
  * exactly what Monopane lets that person do from a site and no more.
  *
  * Nothing read here is kept between requests: an admin sees drafts, and a
- * draft must never reach the cache the learner pages share.
+ * draft must never reach the cache the user pages share.
  */
 import type { Config } from "../config";
 import type { AdminSession } from "./session";
@@ -43,7 +43,7 @@ interface Page<T> {
 
 /** An API for this request's admin. Paths are relative to the project: `/courses`. */
 export function adminApi(config: Config, session: AdminSession): AdminApi {
-	const base = `${config.apiUrl.replace(/\/$/, "")}/tenants/${config.tenantId}`;
+	const base = `${config.apiUrl.replace(/\/$/, "")}/projects/${config.projectId}`;
 
 	async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
 		const response = await fetch(`${base}${path}`, {

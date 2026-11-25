@@ -2,7 +2,7 @@
 import Base from "../layouts/Base.astro";
 import { myLearningPage } from "../lib/pages";
 
-/** The learner's own page: what they are enrolled in, how far along, and their credentials. */
+/** The user's own page: what they are enrolled in, how far along, and their credentials. */
 const { response, data } = await myLearningPage(Astro);
 if (response) return response;
 const { inProgress, completed } = data;

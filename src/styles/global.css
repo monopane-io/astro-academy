@@ -165,7 +165,7 @@
 	/*
 	 * The lesson track: a course's lessons in order, joined by a line. A lesson's
 	 * marker is hollow until it is started, ringed while in progress and filled
-	 * when done, so the line shows how far along the learner is.
+	 * when done, so the line shows how far along the user is.
 	 */
 	.track {
 		@apply relative flex flex-col;

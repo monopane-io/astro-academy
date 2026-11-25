@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * One-time setup. Run it after putting MONOPANE_TENANT_ID and
+ * One-time setup. Run it after putting MONOPANE_PROJECT_ID and
  * MONOPANE_SETUP_API_KEY in .dev.vars:
  *
  *   npm run setup
@@ -13,7 +13,7 @@
  *   2. Generates SESSION_SECRET.
  *
  * Both are appended to .dev.vars for local development, and written with the
- * tenant ID to .prod.vars, ready for `npx wrangler secret bulk .prod.vars`.
+ * project ID to .prod.vars, ready for `npx wrangler secret bulk .prod.vars`.
  * Neither file is committed. Running it again changes nothing.
  */
 import { randomBytes } from "node:crypto";
@@ -22,15 +22,15 @@ import { client, createApiKey } from "@monopane/sdk";
 
 const SCOPES = [
 	"content:read",
-	"learners:read",
-	"learners:write",
+	"users:read",
+	"users:write",
 	"enrollments:read",
 	"enrollments:write",
 	"progress:write",
 	"analytics:read",
 ];
 
-const tenantId = process.env.MONOPANE_TENANT_ID;
+const projectId = process.env.MONOPANE_PROJECT_ID || process.env.MONOPANE_TENANT_ID; // the second is its older name
 const setupKey = process.env.MONOPANE_SETUP_API_KEY;
 const baseUrl = (process.env.MONOPANE_API_URL || "https://api.monopane.io").replace(/\/+$/, "");
 
@@ -40,8 +40,8 @@ if (!existsSync(".dev.vars")) {
 	);
 	process.exit(1);
 }
-if (!tenantId || !setupKey) {
-	console.error("Put MONOPANE_TENANT_ID and MONOPANE_SETUP_API_KEY in .dev.vars first.");
+if (!projectId || !setupKey) {
+	console.error("Put MONOPANE_PROJECT_ID and MONOPANE_SETUP_API_KEY in .dev.vars first.");
 	process.exit(1);
 }
 
@@ -52,13 +52,13 @@ const added = [];
 if (!apiKey) {
 	client.setConfig({ baseUrl, auth: () => setupKey });
 	const result = await createApiKey({
-		path: { tenantId },
+		path: { projectId },
 		body: { name: "Site", mode: "live", scopes: SCOPES },
 	});
 	if (!result.data) {
 		const message = result.error?.error?.message ?? `HTTP ${result.response?.status ?? "error"}`;
 		console.error(`Monopane would not create the site's key: ${message}`);
-		console.error("MONOPANE_SETUP_API_KEY must be an unrestricted key for MONOPANE_TENANT_ID.");
+		console.error("MONOPANE_SETUP_API_KEY must be an unrestricted key for MONOPANE_PROJECT_ID.");
 		process.exit(1);
 	}
 	apiKey = result.data.rawKey;
@@ -78,7 +78,7 @@ if (!sessionSecret) {
 // Exactly what the deployed Worker needs, and nothing else: no setup key.
 writeFileSync(
 	".prod.vars",
-	`MONOPANE_API_KEY=${apiKey}\nMONOPANE_TENANT_ID=${tenantId}\nSESSION_SECRET=${sessionSecret}\n`,
+	`MONOPANE_API_KEY=${apiKey}\nMONOPANE_PROJECT_ID=${projectId}\nSESSION_SECRET=${sessionSecret}\n`,
 	{ mode: 0o600 },
 );
 

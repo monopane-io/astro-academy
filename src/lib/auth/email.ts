@@ -34,13 +34,13 @@ export function resendSender(apiKey: string, from: string): EmailSender {
 export function monopaneSender(options: {
 	apiUrl: string;
 	apiKey: string;
-	tenantId: string;
+	projectId: string;
 	environment: string;
 }): EmailSender {
 	return {
 		async send(message: EmailMessage): Promise<void> {
 			const response = await fetch(
-				`${options.apiUrl}/tenants/${encodeURIComponent(options.tenantId)}/sign-in-emails`,
+				`${options.apiUrl}/projects/${encodeURIComponent(options.projectId)}/sign-in-emails`,
 				{
 					method: "POST",
 					headers: {

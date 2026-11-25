@@ -37,8 +37,8 @@ const SCOPE = "deployment:admin";
 export const CALLBACK_PATH = "/admin/callback";
 export const ADMIN_HOME = "/admin";
 
-/** This project's sign-in client at Monopane: worked out from the tenant ID, with nothing to set up. */
-const clientId = (config: Config) => `signin_${config.tenantId}`;
+/** This project's sign-in client at Monopane: worked out from the project ID, with nothing to set up. */
+const clientId = (config: Config) => `signin_${config.projectId}`;
 
 /** Where to go after signing in: somewhere in the admin area, or its front page. */
 function adminNext(next: string | null | undefined): string {

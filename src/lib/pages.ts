@@ -76,7 +76,7 @@ export interface CourseCard {
 	tags: { name: string; href: string }[];
 	/** "45 min", or null when the course does not say. */
 	duration: string | null;
-	/** The signed-in learner's standing in the course, if enrolled. */
+	/** The signed-in user's standing in the course, if enrolled. */
 	enrolled: "active" | "completed" | null;
 }
 
@@ -174,7 +174,7 @@ export async function homePage(context: PageContext): Promise<PageResult<HomePag
 	const tag = wanted && tags.includes(wanted) ? wanted : null;
 	const courses = await listPublishedCourses(tag ?? undefined);
 	const enrolled = new Map(
-		user ? (await listEnrollments(user.learnerId)).map((e) => [e.courseId, e.status]) : [],
+		user ? (await listEnrollments(user.userId)).map((e) => [e.courseId, e.status]) : [],
 	);
 	return page({
 		tag,
@@ -198,14 +198,14 @@ export interface CoursePage {
 	signedIn: boolean;
 	enrolled: boolean;
 	completed: boolean;
-	/** Activities done and in total, for an enrolled learner. */
+	/** Activities done and in total, for an enrolled user. */
 	progress: LessonState | null;
 	/** Where "Start" or "Continue" goes. */
 	nextHref: string | null;
 	certificateHref: string;
 }
 
-/** GET shows the course. POST enrols the learner (after sign-in) and shows it again. */
+/** GET shows the course. POST enrols the user (after sign-in) and shows it again. */
 export async function coursePage(context: PageContext): Promise<PageResult<CoursePage>> {
 	const { user } = context.locals;
 	const course = await getPublishedCourse(context.params.slug ?? "");
@@ -214,13 +214,13 @@ export async function coursePage(context: PageContext): Promise<PageResult<Cours
 
 	if (context.request.method === "POST") {
 		if (!user) return respond(context.redirect(signInUrl(here)));
-		await enrol(user.learnerId, course.id);
+		await enrol(user.userId, course.id);
 		return respond(context.redirect(here, 303));
 	}
 
 	const sections = await getOutline(course.id);
 	const lessons = sections.flatMap((section) => section.lessons);
-	const enrollment = user ? await findEnrollment(user.learnerId, course.id) : null;
+	const enrollment = user ? await findEnrollment(user.userId, course.id) : null;
 	const states = enrollment
 		? await lessonStates(course.id, sections, await progressByActivity(enrollment.id))
 		: new Map<string, LessonState>();
@@ -273,7 +273,7 @@ export interface VideoView extends ActivityBase {
 export interface QuestionView extends Question {
 	/** The name of this question's form field. */
 	field: string;
-	/** What the learner answered in the attempt just submitted. */
+	/** What the user answered in the attempt just submitted. */
 	given: string[];
 	/** Whether that answer was right; null when no attempt was just submitted. */
 	correct: boolean | null;
@@ -379,7 +379,7 @@ function activityView(
 }
 
 /**
- * GET shows a lesson to an enrolled learner. POST marks a reading, link or
+ * GET shows a lesson to an enrolled user. POST marks a reading, link or
  * video as done, or submits a quiz; a quiz's result is shown in the reply.
  */
 export async function lessonPage(context: PageContext): Promise<PageResult<LessonPage>> {
@@ -395,9 +395,9 @@ export async function lessonPage(context: PageContext): Promise<PageResult<Lesso
 	if (!lesson) return notFound(context);
 	const here = `${coursePath}/${lesson.id}`;
 
-	// Lessons are for enrolled learners.
+	// Lessons are for enrolled users.
 	if (!user) return respond(context.redirect(signInUrl(here)));
-	let enrollment = await findEnrollment(user.learnerId, course.id);
+	let enrollment = await findEnrollment(user.userId, course.id);
 	if (!enrollment) return respond(context.redirect(coursePath));
 
 	const activities = await listLessonActivities(course.id, lesson.id);
@@ -467,7 +467,7 @@ export async function myLearningPage(context: PageContext): Promise<PageResult<M
 	if (!user) return respond(context.redirect(signInUrl("/my-learning")));
 
 	const [enrollments, courses] = await Promise.all([
-		listEnrollments(user.learnerId),
+		listEnrollments(user.userId),
 		listPublishedCourses(),
 	]);
 	// A course that has since been unpublished drops off the list; its progress is kept in Monopane.
@@ -509,7 +509,7 @@ export async function myLearningPage(context: PageContext): Promise<PageResult<M
 
 export interface CompletePage {
 	course: { title: string; href: string };
-	learnerName: string;
+	userName: string;
 	/** Null until the course is completed. */
 	certificate: { code: string; issuedOn: string; verifyPath: string; verifyUrl: string } | null;
 }
@@ -521,7 +521,7 @@ export async function completePage(context: PageContext): Promise<PageResult<Com
 	const coursePath = `/courses/${course.slug}`;
 	if (!user) return respond(context.redirect(signInUrl(`${coursePath}/complete`)));
 
-	const enrollment = await findEnrollment(user.learnerId, course.id);
+	const enrollment = await findEnrollment(user.userId, course.id);
 	if (!enrollment) return respond(context.redirect(coursePath));
 
 	// Monopane issues a credential only for a completed enrollment, and returns
@@ -532,7 +532,7 @@ export async function completePage(context: PageContext): Promise<PageResult<Com
 
 	return page({
 		course: { title: course.title, href: coursePath },
-		learnerName: user.name,
+		userName: user.name,
 		certificate: credential
 			? {
 					code: credential.code,
@@ -549,7 +549,7 @@ export interface CredentialPage {
 	credential: {
 		code: string;
 		courseTitle: string;
-		learnerName: string;
+		userName: string;
 		issuedBy: string;
 		issuedOn: string;
 	} | null;
@@ -567,8 +567,8 @@ export async function credentialPage(context: PageContext): Promise<PageResult<C
 				? {
 						code: credential.code,
 						courseTitle: result.courseTitle ?? "",
-						learnerName: result.learnerName ?? "A learner (no name on record)",
-						issuedBy: result.tenantName ?? "",
+						userName: result.userName ?? "Someone (no name on record)",
+						issuedBy: result.projectName ?? "",
 						issuedOn: longDate(credential.issuedAt),
 					}
 				: null,
