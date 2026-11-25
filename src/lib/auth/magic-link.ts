@@ -76,6 +76,8 @@ export function createMagicLinkAdapter(options: MagicLinkOptions): AuthAdapter {
 			try {
 				await options.sender.send({
 					to: email,
+					link,
+					siteName: options.siteName,
 					subject: `Sign in to ${options.siteName}`,
 					text: [
 						`Use this link to sign in to ${options.siteName}:`,

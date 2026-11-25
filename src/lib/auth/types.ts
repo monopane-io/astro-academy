@@ -61,6 +61,10 @@ export interface EmailMessage {
 	to: string;
 	subject: string;
 	text: string;
+	/** The sign-in link in `text`, for a sender that writes the email itself. */
+	link: string;
+	/** The site's name, as in `subject`. */
+	siteName: string;
 }
 
 /** Sends one email. resendSender() in email.ts is the documented one. */

@@ -28,6 +28,7 @@ describe("readConfig", () => {
 			authMode: "demo",
 			siteName: "Site",
 			tagline: "Courses to help you get the most out of the product.",
+			emailVia: "resend",
 			resendApiKey: null,
 			emailFrom: null,
 		});
@@ -76,5 +77,24 @@ describe("readConfig", () => {
 			MAGIC_LINKS: {},
 		});
 		expect(config.authMode).toBe("magic-link");
+		expect(config.emailVia).toBe("resend");
+	});
+
+	it("needs no email account when the host sends the sign-in email", () => {
+		const hosted = { ...base, AUTH_MODE: "magic-link", EMAIL_VIA: "monopane", MAGIC_LINKS: {} };
+		expect(readConfig(hosted).emailVia).toBe("monopane");
+		// It still needs somewhere to keep the links.
+		expect(problems({ ...base, AUTH_MODE: "magic-link", EMAIL_VIA: "monopane" })).toEqual([
+			"AUTH_MODE is magic-link but the MAGIC_LINKS KV binding is missing.",
+		]);
+		// Your own account wins when you have set one up.
+		const own = readConfig({ ...hosted, RESEND_API_KEY: "re_x", EMAIL_FROM: "A <a@example.com>" });
+		expect(own.emailVia).toBe("resend");
+		expect(problems({ ...hosted, RESEND_API_KEY: "re_x" })).toEqual([
+			"AUTH_MODE is magic-link but EMAIL_FROM is not set.",
+		]);
+		expect(problems({ ...base, EMAIL_VIA: "pigeon" })).toEqual([
+			'EMAIL_VIA is "pigeon". Use "resend" or "monopane".',
+		]);
 	});
 });

@@ -7,6 +7,9 @@
 
 export type AuthMode = "demo" | "magic-link";
 
+/** Who sends the sign-in email: your own Resend account, or Monopane when it hosts the site. */
+export type EmailVia = "resend" | "monopane";
+
 export interface Config {
 	apiKey: string;
 	tenantId: string;
@@ -18,6 +21,7 @@ export interface Config {
 	siteName: string;
 	/** One line under the site name on the home page. */
 	tagline: string;
+	emailVia: EmailVia;
 	resendApiKey: string | null;
 	emailFrom: string | null;
 }
@@ -60,9 +64,19 @@ export function readConfig(env: RawEnv): Config {
 
 	const resendApiKey = text(env, "RESEND_API_KEY") || null;
 	const emailFrom = text(env, "EMAIL_FROM") || null;
-	if (authMode === "magic-link") {
+	// With a Resend account of your own, that is what sends. EMAIL_VIA=monopane
+	// is set for you when Monopane hosts the site and you have none.
+	const rawVia = text(env, "EMAIL_VIA");
+	if (rawVia && rawVia !== "resend" && rawVia !== "monopane") {
+		problems.push(`EMAIL_VIA is "${rawVia}". Use "resend" or "monopane".`);
+	}
+	const emailVia: EmailVia =
+		rawVia === "monopane" && !resendApiKey && !emailFrom ? "monopane" : "resend";
+	if (authMode === "magic-link" && emailVia === "resend") {
 		if (!resendApiKey) problems.push("AUTH_MODE is magic-link but RESEND_API_KEY is not set.");
 		if (!emailFrom) problems.push("AUTH_MODE is magic-link but EMAIL_FROM is not set.");
+	}
+	if (authMode === "magic-link") {
 		if (!env.MAGIC_LINKS) {
 			problems.push("AUTH_MODE is magic-link but the MAGIC_LINKS KV binding is missing.");
 		}
@@ -79,6 +93,7 @@ export function readConfig(env: RawEnv): Config {
 		authMode,
 		siteName: text(env, "SITE_NAME") || "Site",
 		tagline: text(env, "SITE_TAGLINE") || "Courses to help you get the most out of the product.",
+		emailVia,
 		resendApiKey,
 		emailFrom,
 	};

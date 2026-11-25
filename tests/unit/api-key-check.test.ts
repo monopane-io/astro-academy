@@ -21,6 +21,7 @@ function config(): Config {
 		authMode: "demo",
 		siteName: "Academy",
 		tagline: "",
+		emailVia: "resend",
 		resendApiKey: null,
 		emailFrom: null,
 	};

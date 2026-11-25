@@ -1,6 +1,6 @@
 import type { Config } from "../config";
 import { createDemoAdapter } from "./demo";
-import { resendSender } from "./email";
+import { monopaneSender, resendSender } from "./email";
 import { createMagicLinkAdapter } from "./magic-link";
 import type { AuthAdapter, TokenStore } from "./types";
 
@@ -9,12 +9,21 @@ import type { AuthAdapter, TokenStore } from "./types";
  * one place to change if you bring your own sign-in.
  */
 export function getAuthAdapter(config: Config, store: TokenStore | undefined): AuthAdapter {
-	if (config.authMode === "magic-link" && store && config.resendApiKey && config.emailFrom) {
-		return createMagicLinkAdapter({
-			store,
-			sender: resendSender(config.resendApiKey, config.emailFrom),
-			siteName: config.siteName,
-		});
+	if (config.authMode === "magic-link" && store) {
+		if (config.emailVia === "monopane") {
+			return createMagicLinkAdapter({
+				store,
+				sender: monopaneSender(config),
+				siteName: config.siteName,
+			});
+		}
+		if (config.resendApiKey && config.emailFrom) {
+			return createMagicLinkAdapter({
+				store,
+				sender: resendSender(config.resendApiKey, config.emailFrom),
+				siteName: config.siteName,
+			});
+		}
 	}
 	return createDemoAdapter();
 }

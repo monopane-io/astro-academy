@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createDemoAdapter } from "../../src/lib/auth/demo";
+import { monopaneSender } from "../../src/lib/auth/email";
 import { MAGIC_LINK_TTL, createMagicLinkAdapter } from "../../src/lib/auth/magic-link";
 import type { EmailMessage, EmailSender, TokenStore } from "../../src/lib/auth/types";
 
@@ -95,6 +96,12 @@ describe("magic-link sign-in", () => {
 		expect(t.sent[0]?.to).toBe("ada@example.com");
 		expect(t.sent[0]?.subject).toBe("Sign in to Acme Academy");
 		expect(t.sent[0]?.text).toContain("https://academy.example/auth/verify?token=");
+		// The link and the name are also given on their own, for a sender that writes the email.
+		expect(t.sent[0]?.text).toContain(t.sent[0]?.link);
+		expect(t.sent[0]?.link).toMatch(
+			/^https:\/\/academy\.example\/auth\/verify\?token=[0-9a-f]{64}$/,
+		);
+		expect(t.sent[0]?.siteName).toBe("Acme Academy");
 
 		expect(await t.adapter.finish(t.tokenFrom(t.sent[0]))).toEqual({
 			identity: { id: "email:ada@example.com", name: "Ada Lovelace", email: "ada@example.com" },
@@ -175,5 +182,61 @@ describe("magic-link sign-in", () => {
 		expect((await t.adapter.start({ ...form, email: "nope" })).kind).toBe("invalid");
 		expect(t.sent).toHaveLength(0);
 		expect(t.items.size).toBe(0);
+	});
+});
+
+describe("the host's sign-in email", () => {
+	it("asks the API to send the link, with the site's key", async () => {
+		const calls: { url: string; init: RequestInit }[] = [];
+		const original = globalThis.fetch;
+		globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+			calls.push({ url: String(url), init: init ?? {} });
+			return new Response(JSON.stringify({ sent: true }), { status: 202 });
+		}) as typeof fetch;
+		try {
+			await monopaneSender({
+				apiUrl: "https://api.example",
+				apiKey: "mpk_live_x",
+				tenantId: "tnt_1",
+				environment: "production",
+			}).send({
+				to: "ada@example.com",
+				subject: "ignored",
+				text: "ignored",
+				link: "https://academy.example/auth/verify?token=abc",
+				siteName: "Acme Academy",
+			});
+		} finally {
+			globalThis.fetch = original;
+		}
+
+		expect(calls).toHaveLength(1);
+		expect(calls[0]?.url).toBe("https://api.example/tenants/tnt_1/sign-in-emails");
+		expect(calls[0]?.init.method).toBe("POST");
+		expect(new Headers(calls[0]?.init.headers).get("Authorization")).toBe("Bearer mpk_live_x");
+		expect(JSON.parse(String(calls[0]?.init.body))).toEqual({
+			to: "ada@example.com",
+			link: "https://academy.example/auth/verify?token=abc",
+			siteName: "Acme Academy",
+		});
+	});
+
+	it("fails loudly when the API refuses, so the cause reaches the logs", async () => {
+		const original = globalThis.fetch;
+		globalThis.fetch = (async () =>
+			new Response('{"error":{"code":"LINK_NOT_HOSTED"}}', { status: 422 })) as typeof fetch;
+		try {
+			await expect(
+				monopaneSender({ apiUrl: "https://a", apiKey: "k", tenantId: "t", environment: "e" }).send({
+					to: "a@b.c",
+					subject: "",
+					text: "",
+					link: "https://x.example/",
+					siteName: "X",
+				}),
+			).rejects.toThrow(/422.*LINK_NOT_HOSTED/);
+		} finally {
+			globalThis.fetch = original;
+		}
 	});
 });

@@ -122,6 +122,8 @@ Demo sign-in lets anyone sign in as anyone. It is there so the first deploy need
 
 A learner now enters their email address and gets a link. The link signs in that address only, works once, and expires after 15 minutes. The storage for pending links (a Cloudflare KV namespace called `MAGIC_LINKS`) is created by the deploy.
 
+If Monopane hosts the site, you can skip steps 1 to 3: set `AUTH_MODE` to `magic-link` in the site's settings and Monopane sends the sign-in emails, up to 200 a day for a project. With a Resend account of your own (the two settings above, set on the site) the emails come from your address and that limit does not apply.
+
 People who signed in during demo mode do not carry over: a demo identity is never treated as a verified email address, so each learner starts fresh on their first magic-link sign-in.
 
 Sign-in is open to anyone with an email address. If the academy is for a known list of people, put [Cloudflare Access](https://developers.cloudflare.com/cloudflare-one/policies/access/) in front of it or write your own adapter (below). The sign-in form has no rate limit of its own; add a [rate limiting rule](https://developers.cloudflare.com/waf/rate-limiting-rules/) for `/sign-in` if you see abuse.
@@ -137,10 +139,11 @@ Secrets are set with `npx wrangler secret put NAME` (or `secret bulk`), and loca
 | `SESSION_SECRET` | yes, secret | At least 32 random characters. Changing it signs everyone out. |
 | `MONOPANE_ENVIRONMENT` | no | The Monopane environment to read from. Default `production`. |
 | `AUTH_MODE` | no | `demo` (default) or `magic-link`. |
-| `SITE_NAME` | no | Shown in the header, page titles, certificates and emails. Default `Academy`. |
+| `SITE_NAME` | no | Shown in the header, page titles, certificates and emails. Default `Site`. |
 | `SITE_TAGLINE` | no | One line under the name on the home page. |
 | `RESEND_API_KEY` | for magic links, secret | Your Resend API key. |
 | `EMAIL_FROM` | for magic links | The sender, on a domain verified in Resend. |
+| `EMAIL_VIA` | no | Who sends the sign-in email: `resend` (default; your own account, with the two settings above) or `monopane`. Monopane sends it only for sites it hosts, and sets this for you there. |
 | `MONOPANE_API_URL` | no | Default `https://api.monopane.io`. |
 
 If a required setting is missing or wrong, every page says which one instead of failing later.

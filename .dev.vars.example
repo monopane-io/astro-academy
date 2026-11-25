@@ -16,3 +16,7 @@ MONOPANE_SETUP_API_KEY=
 # Optional. The defaults are shown.
 # MONOPANE_ENVIRONMENT=production
 # MONOPANE_API_URL=https://api.monopane.io
+
+# EMAIL_VIA=resend          # who sends sign-in email: your own Resend account
+#                           # (RESEND_API_KEY and EMAIL_FROM), or "monopane"
+#                           # when Monopane hosts the site, which sets it for you
