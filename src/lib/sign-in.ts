@@ -2,10 +2,11 @@ import type { AstroCookieSetOptions, AstroCookies } from "astro";
 import type { AuthAdapter, Identity, User } from "./auth/types";
 import type { Config } from "./config";
 import { findOrCreateLearner } from "./monopane";
-import { SESSION_COOKIE, SESSION_MAX_AGE, sealSession } from "./session";
+import { SESSION_MAX_AGE, sealSession, sessionCookieName } from "./session";
 
 /**
- * The attributes of the session cookie, the only cookie this site sets. It
+ * The attributes of the learner's session cookie (the admin's are in
+ * admin/session.ts and follow the same rules). It
  * belongs to this hostname alone: there is no `Domain`, so neighbouring sites
  * on the same parent domain never receive it. Scripts cannot read it
  * (`HttpOnly`), it is sent only over https (plain http is only ever
@@ -37,7 +38,7 @@ export async function signIn(
 ): Promise<User> {
 	const learner = await findOrCreateLearner(identity, { emailVerified: adapter.forProduction });
 	const user: User = { ...identity, learnerId: learner.id };
-	cookies.set(SESSION_COOKIE, await sealSession(user, config.sessionSecret), {
+	cookies.set(sessionCookieName(url), await sealSession(user, config.sessionSecret), {
 		...sessionCookieOptions(url),
 		maxAge: SESSION_MAX_AGE,
 	});
@@ -45,7 +46,7 @@ export async function signIn(
 }
 
 export function signOut(cookies: AstroCookies, url: URL): void {
-	cookies.delete(SESSION_COOKIE, sessionCookieOptions(url));
+	cookies.delete(sessionCookieName(url), sessionCookieOptions(url));
 }
 
 /** The sign-in page's address, remembering where the person was going. */

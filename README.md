@@ -170,11 +170,30 @@ Anything you publish in Monopane shows up on the site within a minute. Three way
 
 - **Ask Claude.** Monopane has a connector at `https://mcp.monopane.io`. Add it as a custom connector in Claude, sign in, and describe the course you want. [`seed/connector-prompt.md`](seed/connector-prompt.md) is a prompt that creates the demo course this way; use it as a pattern.
 - **The API or an SDK.** [`seed/seed.mjs`](seed/seed.mjs) is a complete example using `@monopane/sdk`. API reference: https://api.monopane.io/docs
-- **The Monopane console**, for looking at what is there.
+- **The Monopane console**, for looking at what is there. (The site's own [admin area](#the-admin-area) lists every course; editing there is on the way.)
 
 A course can have a cover image (`imageUrl`), topics (`tags`, which become the filter on the home page) and a length (`estimatedMinutes`). A `video` activity takes an `https` address: YouTube, Vimeo, Loom and Wistia links are embedded, a link to a video file plays in the browser's own player, and anything else is shown as a link.
 
 Only published content appears: a course, lesson or activity must be published, and so must the module a lesson sits in. Drafts are not listed and their addresses return "Page not found".
+
+## The admin area
+
+`/admin` is for the people who run the academy. Today it shows every course, drafts included; editing courses and seeing learners there are on the way.
+
+- **Signing in.** Go to `/admin` and you are sent to Monopane to sign in with your Monopane account, then back. Anyone who can open the project in Monopane can sign in; nobody else can. There are no admin accounts or passwords on the site.
+- **What the site holds.** Monopane hands the site a token that acts for you: it can edit this project's courses and see its learners, in one environment, for an hour, and nothing else. The site keeps it in an encrypted cookie that scripts cannot read, and uses it only on the server. The site's own API key still cannot change a course.
+- **Where it works.** Monopane only sends you back to addresses it knows belong to the project: its `monopane.dev` address and its verified domains when Monopane hosts the site. For a copy you host yourself, or for `http://localhost:4321` on your own machine, add the address first:
+
+  ```bash
+  curl -X PUT https://api.monopane.io/tenants/$MONOPANE_TENANT_ID/sign-in/addresses \
+    -H "Authorization: Bearer <an unrestricted API key>" -H "Content-Type: application/json" \
+    -d '{"addresses":[{"url":"http://localhost:4321"}]}'
+  ```
+
+  This replaces the list, so send every address you want kept. Preview deployments cannot be used for admin sign-in.
+- **Leaving.** "Leave admin" ends the token at Monopane and removes the cookie. Otherwise it ends by itself after an hour and you are asked to sign in again.
+
+The code is in `src/lib/admin/` (`sign-in.ts`, `session.ts`, `api.ts`, `pages.ts`) and `src/pages/admin/`. `src/middleware.ts` refuses any form sent to `/admin` from another site and marks every reply from it as private.
 
 ## How it works
 

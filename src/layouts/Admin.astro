@@ -1,0 +1,36 @@
+---
+import Base from "./Base.astro";
+
+interface Props {
+	title: string;
+	/** How much longer the admin's sign-in lasts. */
+	minutesLeft: number;
+}
+
+const { title, minutesLeft } = Astro.props;
+const path = Astro.url.pathname;
+const tab =
+	"rounded-md px-3 py-1.5 font-medium text-muted-foreground hover:text-foreground aria-[current=page]:bg-border/60 aria-[current=page]:text-foreground";
+---
+
+<Base title={`${title} (admin)`} wide>
+	<div
+		class="mb-10 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-border border-b pb-4"
+		data-admin-bar
+	>
+		<nav class="flex items-center gap-1" aria-label="Admin">
+			<a class={tab} href="/admin" aria-current={path === "/admin" ? "page" : undefined}>Courses</a>
+		</nav>
+		<div class="flex items-center gap-4 text-sm">
+			<span class="text-muted-foreground" data-admin-time-left>
+				Signed in as an admin for {minutesLeft} more {minutesLeft === 1 ? "minute" : "minutes"}
+			</span>
+			<form method="post" action="/admin/sign-out">
+				<button class="cursor-pointer font-medium hover:text-primary" type="submit">
+					Leave admin
+				</button>
+			</form>
+		</div>
+	</div>
+	<slot />
+</Base>

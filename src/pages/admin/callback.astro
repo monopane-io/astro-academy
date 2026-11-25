@@ -1,0 +1,25 @@
+---
+import Base from "../../layouts/Base.astro";
+import { finishSignIn } from "../../lib/admin/sign-in";
+
+/** Where Monopane sends an admin back to. On success they never see this page. */
+const outcome = await finishSignIn(Astro.locals.config, Astro.cookies, Astro.url);
+if (outcome.ok) return Astro.redirect(outcome.next);
+Astro.response.status = 400;
+---
+
+<Base title="Admin sign-in">
+	<h1 class="text-3xl sm:text-4xl">You are not signed in</h1>
+	<p class="note note-error mt-6" role="alert" data-admin-sign-in-failed={outcome.reason}>
+		{
+			outcome.reason === "declined"
+				? "The sign-in was cancelled at Monopane."
+				: outcome.reason === "expired"
+					? "This sign-in was not started in this browser, or took longer than ten minutes."
+					: "Monopane did not accept the sign-in."
+		}
+	</p>
+	<p class="mt-6">
+		<a class="btn" href="/admin/sign-in">Try again</a>
+	</p>
+</Base>

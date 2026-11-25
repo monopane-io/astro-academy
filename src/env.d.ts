@@ -22,6 +22,8 @@ declare namespace App {
 	interface Locals {
 		/** The signed-in person, or null. Set by src/middleware.ts. */
 		user: import("./lib/auth/types").User | null;
+		/** The signed-in admin's session, or null. Set by src/middleware.ts. */
+		admin: import("./lib/admin/session").AdminSession | null;
 		config: import("./lib/config").Config;
 	}
 }

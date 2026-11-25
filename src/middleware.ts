@@ -1,12 +1,15 @@
 import { defineMiddleware } from "astro:middleware";
 import { env } from "cloudflare:workers";
+import { fromThisSite, isAdminPath, protectAdminReply } from "./lib/admin/pages";
+import { adminCookieNames, openAdminSession } from "./lib/admin/session";
 import { type Config, SetupError, readConfig } from "./lib/config";
 import { checkApiKey, configure } from "./lib/monopane";
-import { SESSION_COOKIE, openSession } from "./lib/session";
+import { openSession, sessionCookieName } from "./lib/session";
 
 /**
  * Runs before every page. It reads the settings, checks once that the API key
- * can do what the site needs, and works out who is signed in. If the
+ * can do what the site needs, and works out who is signed in: the learner,
+ * and separately the admin, if there is one. If the
  * site is not set up correctly, every page says what is wrong instead of
  * failing somewhere later.
  */
@@ -23,10 +26,26 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	context.locals.config = config;
 	context.locals.user = await openSession(
-		context.cookies.get(SESSION_COOKIE)?.value,
+		context.cookies.get(sessionCookieName(context.url))?.value,
 		config.sessionSecret,
 	);
-	return next();
+	context.locals.admin = await openAdminSession(
+		context.cookies.get(adminCookieNames(context.url).session)?.value,
+		config.sessionSecret,
+	);
+
+	// The admin area: a form sent from anywhere but this site is refused, and
+	// nothing it answers may be stored or shown inside another page.
+	if (!isAdminPath(context.url.pathname)) return next();
+	if (!fromThisSite(context.request, context.url)) {
+		return new Response("This form was not sent from this site.", {
+			status: 403,
+			headers: { "Cache-Control": "no-store" },
+		});
+	}
+	const response = await next();
+	protectAdminReply(response.headers);
+	return response;
 });
 
 function setupProblem(problems: string[]): Response {

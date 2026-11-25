@@ -10,7 +10,7 @@ interface Props {
 }
 
 const { title, description, wide = false } = Astro.props;
-const { config, user } = Astro.locals;
+const { config, user, admin } = Astro.locals;
 const demo = config.authMode === "demo";
 const path = Astro.url.pathname;
 const navLink =
@@ -56,6 +56,17 @@ const navLink =
 								aria-current={path === "/my-learning" ? "page" : undefined}
 							>
 								My learning
+							</a>
+						)
+					}
+					{
+						admin && (
+							<a
+								class={navLink}
+								href="/admin"
+								aria-current={path === "/admin" || path.startsWith("/admin/") ? "page" : undefined}
+							>
+								Admin
 							</a>
 						)
 					}

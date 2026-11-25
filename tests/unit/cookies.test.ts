@@ -10,7 +10,7 @@ vi.mock("../../src/lib/monopane", () => ({
 
 import type { AuthAdapter } from "../../src/lib/auth/types";
 import type { Config } from "../../src/lib/config";
-import { SESSION_COOKIE, SESSION_MAX_AGE } from "../../src/lib/session";
+import { SESSION_MAX_AGE, sessionCookieName } from "../../src/lib/session";
 import { sessionCookieOptions, signIn, signOut } from "../../src/lib/sign-in";
 
 /**
@@ -68,9 +68,11 @@ describe("cookies the site sets", () => {
 	it("are the session cookie, set on sign-in and removed on sign-out", async () => {
 		const written = await everyCookieWritten(HTTPS);
 		expect(written.map((w) => [w.op, w.name])).toEqual([
-			["set", SESSION_COOKIE],
-			["delete", SESSION_COOKIE],
+			["set", "__Host-site_session"],
+			["delete", "__Host-site_session"],
 		]);
+		// The prefix needs https; on this machine during development it is left off.
+		expect(sessionCookieName(new URL("http://localhost:4321/"))).toBe("site_session");
 		expect(written[0]?.options.maxAge).toBe(SESSION_MAX_AGE);
 	});
 
@@ -98,7 +100,7 @@ describe("the site's source", () => {
 		});
 	}
 
-	it("sets cookies only through the sign-in module covered above", () => {
+	it("sets cookies only through the two sign-in modules, whose cookies are tested", () => {
 		const root = join(__dirname, "../..");
 		const touching = [...sourceFiles(join(root, "src")), ...sourceFiles(join(root, "public"))]
 			.filter((path) => /\.(ts|js|mjs|astro|vue|tsx|jsx|svelte|html)$/.test(path))
@@ -106,6 +108,7 @@ describe("the site's source", () => {
 				/cookies\.(set|delete)\(|set-cookie|document\.cookie/i.test(readFileSync(path, "utf8")),
 			)
 			.map((path) => relative(root, path).split("\\").join("/"));
-		expect(touching).toEqual(["src/lib/sign-in.ts"]);
+		// The learner's (above) and the admin's (admin.test.ts).
+		expect(touching.sort()).toEqual(["src/lib/admin/sign-in.ts", "src/lib/sign-in.ts"]);
 	});
 });

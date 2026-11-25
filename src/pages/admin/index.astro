@@ -1,0 +1,44 @@
+---
+import Admin from "../../layouts/Admin.astro";
+import { adminHomePage } from "../../lib/admin/pages";
+
+const { response, data } = await adminHomePage(Astro);
+if (response) return response;
+---
+
+<Admin title="Courses" minutesLeft={data.minutesLeft}>
+	<h1>Courses</h1>
+	<p class="mt-3 text-muted-foreground" data-admin-summary>
+		{data.published} published, {data.drafts} in draft.
+	</p>
+
+	{
+		data.courses.length === 0 ? (
+			<p class="note mt-8">There are no courses yet.</p>
+		) : (
+			<ul class="mt-8 divide-y divide-border rounded-xl border border-border bg-card">
+				{data.courses.map((course) => (
+					<li
+						class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-4"
+						data-admin-course={course.slug}
+					>
+						<div class="min-w-0">
+							<p class="font-semibold text-lg tracking-tight">{course.title}</p>
+							<p class="text-muted-foreground text-sm">Changed on {course.updatedOn}</p>
+						</div>
+						<div class="flex items-center gap-4">
+							<span class:list={["pill", { "pill-done": course.published }]} data-state>
+								{course.published ? "Published" : "Draft"}
+							</span>
+							{course.viewHref && (
+								<a class="link text-sm" href={course.viewHref}>
+									View
+								</a>
+							)}
+						</div>
+					</li>
+				))}
+			</ul>
+		)
+	}
+</Admin>

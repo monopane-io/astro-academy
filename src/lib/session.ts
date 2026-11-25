@@ -5,7 +5,15 @@
  */
 import type { User } from "./auth/types";
 
-export const SESSION_COOKIE = "site_session";
+/**
+ * The session cookie's name. Over https it carries the `__Host-` prefix: a
+ * browser only accepts such a cookie from this exact host, so a neighbouring
+ * site on the same parent domain cannot plant one of its own. Plain http is
+ * only ever this machine during development, where the prefix cannot be used.
+ */
+export function sessionCookieName(url: URL): string {
+	return url.protocol === "https:" ? "__Host-site_session" : "site_session";
+}
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days, in seconds
 
 const encoder = new TextEncoder();
