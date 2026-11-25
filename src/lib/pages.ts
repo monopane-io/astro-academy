@@ -643,7 +643,9 @@ export async function verifyLinkPage(context: PageContext): Promise<PageResult<V
 	return page({ token, failed: token === "" });
 }
 
-export function signOutResponse(context: Pick<APIContext, "cookies" | "redirect">): Response {
-	signOut(context.cookies);
+export function signOutResponse(
+	context: Pick<APIContext, "cookies" | "redirect" | "url">,
+): Response {
+	signOut(context.cookies, context.url);
 	return context.redirect("/", 303);
 }
