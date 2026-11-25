@@ -137,7 +137,7 @@ Secrets are set with `npx wrangler secret put NAME` (or `secret bulk`), and loca
 | `MONOPANE_API_KEY` | yes, secret | The academy's key. Created by `npm run setup`. |
 | `MONOPANE_TENANT_ID` | yes | Your project's ID (`tnt_...`). |
 | `SESSION_SECRET` | yes, secret | At least 32 random characters. Changing it signs everyone out. |
-| `MONOPANE_ENVIRONMENT` | no | The Monopane environment to read from. Default `production`. |
+| `MONOPANE_ENVIRONMENT` | no | The Monopane environment to read from. Default `production`. An API key works in one environment only, so `MONOPANE_API_KEY` must be a key made for this one. |
 | `AUTH_MODE` | no | `demo` (default) or `magic-link`. |
 | `SITE_NAME` | no | Shown in the header, page titles, certificates and emails. Default `Site`. |
 | `SITE_TAGLINE` | no | One line under the name on the home page. |
