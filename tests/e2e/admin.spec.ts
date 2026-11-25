@@ -74,7 +74,7 @@ test("an admin signs in with Monopane and sees every course, drafts included", a
 	// Monopane says which project and which site, and what the site may do.
 	const site = new URL(process.env.SITE_URL ?? "http://127.0.0.1:4321").origin;
 	await expect(page.getByText(site)).toBeVisible();
-	await expect(page.getByText(/see learners and their progress/)).toBeVisible();
+	await expect(page.getByText(/see users and their progress/)).toBeVisible();
 	await page.getByRole("button", { name: "Allow" }).click();
 
 	// --- The admin area -------------------------------------------------------
