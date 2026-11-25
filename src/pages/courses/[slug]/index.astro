@@ -8,82 +8,101 @@ const { course, progress } = data;
 ---
 
 <Base title={course.title} description={course.description}>
-	<p class="breadcrumb"><a href="/">All courses</a></p>
+	<p class="mb-6 text-sm">
+		<a class="text-muted-foreground hover:text-primary" href="/">All courses</a>
+	</p>
 	<h1>{course.title}</h1>
-	{course.description && <p class="lede">{course.description}</p>}
+	{course.description && <p class="mt-4 text-muted-foreground text-xl">{course.description}</p>}
 	{
 		(course.duration || course.tags.length > 0) && (
-			<p class="facts-line">
-				{course.duration && <span data-course-duration>{course.duration}</span>}
+			<p class="mt-5 flex flex-wrap items-center gap-2 text-sm">
+				{course.duration && (
+					<span class="mr-1 font-medium" data-course-duration>
+						{course.duration}
+					</span>
+				)}
 				{course.tags.map((tag) => (
-					<a class="tag" href={tag.href}>
+					<a class="tag px-2.5 py-0.5" href={tag.href}>
 						{tag.name}
 					</a>
 				))}
 			</p>
 		)
 	}
-	{course.imageUrl && <img class="course-cover" src={course.imageUrl} alt="" />}
-
 	{
-		progress && (
-			<div class="meter" data-course-progress>
-				<p>
-					{data.completed
-						? "You have completed this course."
-						: `${progress.done} of ${progress.total} activities done`}
-				</p>
-				<progress value={progress.done} max={Math.max(progress.total, 1)} />
-			</div>
+		course.imageUrl && (
+			<img class="mt-8 aspect-[16/9] w-full rounded-xl object-cover" src={course.imageUrl} alt="" />
 		)
 	}
 
-	{
-		data.completed ? (
-			<p>
-				<a class="button" href={data.certificateHref}>
-					See your certificate
-				</a>
-			</p>
-		) : data.enrolled && data.nextHref ? (
-			<p>
-				<a class="button" href={data.nextHref}>
-					{progress && progress.done > 0 ? "Continue" : "Start the course"}
-				</a>
-			</p>
-		) : !data.enrolled && data.hasLessons ? (
-			<form method="post">
-				<button class="button" type="submit">
-					Enrol in this course
-				</button>
-				{!data.signedIn && <p class="muted">You will be asked to sign in first.</p>}
-			</form>
-		) : null
-	}
-
-	{!data.hasLessons && <p class="message">This course has no published lessons yet.</p>}
+	<div class="mt-8 flex flex-col gap-5 rounded-xl border border-border bg-card p-5 empty:hidden">
+		{
+			progress && (
+				<div data-course-progress>
+					<p class="font-medium">
+						{data.completed
+							? "You have completed this course."
+							: `${progress.done} of ${progress.total} activities done`}
+					</p>
+					<progress class="meter mt-3" value={progress.done} max={Math.max(progress.total, 1)} />
+				</div>
+			)
+		}
+		{
+			data.completed ? (
+				<p>
+					<a class="btn" href={data.certificateHref}>
+						See your certificate
+					</a>
+				</p>
+			) : data.enrolled && data.nextHref ? (
+				<p>
+					<a class="btn" href={data.nextHref}>
+						{progress && progress.done > 0 ? "Continue" : "Start the course"}
+					</a>
+				</p>
+			) : !data.enrolled && data.hasLessons ? (
+				<form class="flex flex-wrap items-center gap-x-4 gap-y-2" method="post">
+					<button class="btn" type="submit">
+						Enrol in this course
+					</button>
+					{!data.signedIn && (
+						<p class="text-muted-foreground text-sm">You will be asked to sign in first.</p>
+					)}
+				</form>
+			) : null
+		}
+		{
+			!data.hasLessons && (
+				<p class="text-muted-foreground">This course has no published lessons yet.</p>
+			)
+		}
+	</div>
 
 	{
 		data.outline.map((section) => (
-			<section class="outline-section">
-				{section.moduleTitle && <h2>{section.moduleTitle}</h2>}
-				{section.moduleDescription && <p class="muted">{section.moduleDescription}</p>}
-				<ol class="track">
+			<section class="mt-10">
+				{section.moduleTitle && (
+					<h2 class="font-semibold text-2xl tracking-tight">{section.moduleTitle}</h2>
+				)}
+				{section.moduleDescription && (
+					<p class="mt-1 text-muted-foreground">{section.moduleDescription}</p>
+				)}
+				<ol class="track mt-3">
 					{section.lessons.map((lesson) => (
-						<li
-							class={lesson.status === "todo" ? "" : lesson.status}
-							data-lesson-state={lesson.status}
-						>
+						<li data-lesson-state={lesson.status}>
 							{data.enrolled ? (
-								<a class="lesson-title" href={lesson.href}>
+								<a class="font-medium text-lg hover:text-primary" href={lesson.href}>
 									{lesson.title}
 								</a>
 							) : (
-								<span class="lesson-title">{lesson.title}</span>
+								<span class="font-medium text-lg">{lesson.title}</span>
 							)}
-							{data.enrolled && <span class="lesson-state">{lesson.statusLabel}</span>}
+							{data.enrolled && (
+								<span class="text-muted-foreground text-sm">{lesson.statusLabel}</span>
+							)}
 							{!data.enrolled && lesson.description && (
-								<span class="lesson-state">{lesson.description}</span>
+								<span class="basis-full text-muted-foreground">{lesson.description}</span>
 							)}
 						</li>
 					))}

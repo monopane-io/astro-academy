@@ -8,40 +8,58 @@ interface Props {
 const { course } = Astro.props;
 ---
 
-<li class="tile" data-course-tile>
+<li
+	class="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary"
+	data-course-tile
+>
 	{
 		course.imageUrl ? (
-			<img class="tile-cover" src={course.imageUrl} alt="" loading="lazy" decoding="async" />
+			<img
+				class="aspect-[16/9] w-full object-cover"
+				src={course.imageUrl}
+				alt=""
+				loading="lazy"
+				decoding="async"
+			/>
 		) : (
-			<div class="tile-cover" aria-hidden="true" />
+			// No picture: the course's first letter, large, on the soft accent.
+			<div
+				class="flex aspect-[16/9] w-full items-end bg-primary-soft px-5 pb-2 font-bold text-7xl text-primary leading-none tracking-tighter"
+				aria-hidden="true"
+			>
+				{course.title.trim().charAt(0)}
+			</div>
 		)
 	}
-	<div class="tile-body">
+	<div class="flex flex-1 flex-col gap-2 p-5">
+		<h3 class="font-semibold text-xl leading-snug tracking-tight">
+			{/* The whole tile is the link; tags sit above it so they stay clickable. */}
+			<a class="after:absolute after:inset-0 group-hover:text-primary" href={course.href}>
+				{course.title}
+			</a>
+		</h3>
+		{course.description && <p class="text-muted-foreground">{course.description}</p>}
 		{
 			course.tags.length > 0 && (
-				<p class="tags">
+				<p class="relative z-10 mt-1 flex flex-wrap gap-1.5">
 					{course.tags.map((tag) => (
-						<a class="tag" href={tag.href}>
+						<a class="tag px-2.5 py-0.5" href={tag.href}>
 							{tag.name}
 						</a>
 					))}
 				</p>
 			)
 		}
-		<h3 class="tile-title">
-			<a href={course.href}>{course.title}</a>
-		</h3>
-		{course.description && <p>{course.description}</p>}
 		{
 			(course.duration || course.enrolled) && (
-				<div class="tile-foot">
+				<div class="mt-auto flex items-center justify-between gap-3 pt-3 text-sm">
 					{course.duration && (
-						<span class="muted" data-course-duration>
+						<span class="text-muted-foreground" data-course-duration>
 							{course.duration}
 						</span>
 					)}
-					{course.enrolled === "completed" && <span class="badge done">Completed</span>}
-					{course.enrolled === "active" && <span class="badge">In progress</span>}
+					{course.enrolled === "completed" && <span class="pill pill-done ml-auto">Completed</span>}
+					{course.enrolled === "active" && <span class="pill ml-auto">In progress</span>}
 				</div>
 			)
 		}

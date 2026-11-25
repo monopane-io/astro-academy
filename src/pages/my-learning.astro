@@ -6,6 +6,8 @@ import { myLearningPage } from "../lib/pages";
 const { response, data } = await myLearningPage(Astro);
 if (response) return response;
 const { inProgress, completed } = data;
+const row =
+	"flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-xl border border-border bg-card p-5";
 ---
 
 <Base title="My learning">
@@ -14,9 +16,9 @@ const { inProgress, completed } = data;
 	{
 		inProgress.length + completed.length === 0 && (
 			<>
-				<p class="message">You are not enrolled in anything yet.</p>
-				<p>
-					<a class="button" href="/">
+				<p class="mt-4 text-lg text-muted-foreground">You are not enrolled in anything yet.</p>
+				<p class="mt-8">
+					<a class="btn" href="/">
 						Browse courses
 					</a>
 				</p>
@@ -26,24 +28,28 @@ const { inProgress, completed } = data;
 
 	{
 		inProgress.length > 0 && (
-			<section data-in-progress>
-				<h2>In progress</h2>
-				<ul class="learning">
+			<section class="mt-10" data-in-progress>
+				<h2 class="font-semibold text-muted-foreground">In progress</h2>
+				<ul class="mt-3 flex flex-col gap-3">
 					{inProgress.map(({ course, progress, nextHref, started }) => (
-						<li>
-							<div>
-								<h2>
-									<a href={course.href}>{course.title}</a>
-								</h2>
-								<div class="meter">
-									<span>
-										{progress.done} of {progress.total} activities done
-									</span>
-									<progress value={progress.done} max={Math.max(progress.total, 1)} />
-								</div>
+						<li class={row}>
+							<div class="min-w-56 flex-1">
+								<h3 class="font-semibold text-xl tracking-tight">
+									<a class="hover:text-primary" href={course.href}>
+										{course.title}
+									</a>
+								</h3>
+								<p class="mt-1 text-muted-foreground text-sm">
+									{progress.done} of {progress.total} activities done
+								</p>
+								<progress
+									class="meter mt-3"
+									value={progress.done}
+									max={Math.max(progress.total, 1)}
+								/>
 							</div>
 							{nextHref && (
-								<a class="button" href={nextHref}>
+								<a class="btn" href={nextHref}>
 									{started ? "Continue" : "Start"}
 								</a>
 							)}
@@ -56,18 +62,22 @@ const { inProgress, completed } = data;
 
 	{
 		completed.length > 0 && (
-			<section data-completed>
-				<h2>Completed</h2>
-				<ul class="learning">
+			<section class="mt-10" data-completed>
+				<h2 class="font-semibold text-muted-foreground">Completed</h2>
+				<ul class="mt-3 flex flex-col gap-3">
 					{completed.map(({ course, completedOn, certificateHref }) => (
-						<li>
-							<div>
-								<h2>
-									<a href={course.href}>{course.title}</a>
-								</h2>
-								{completedOn && <p class="muted">Completed on {completedOn}</p>}
+						<li class={row}>
+							<div class="min-w-56 flex-1">
+								<h3 class="font-semibold text-xl tracking-tight">
+									<a class="hover:text-primary" href={course.href}>
+										{course.title}
+									</a>
+								</h3>
+								{completedOn && (
+									<p class="mt-1 text-muted-foreground text-sm">Completed on {completedOn}</p>
+								)}
 							</div>
-							<a class="button quiet" href={certificateHref}>
+							<a class="btn btn-quiet" href={certificateHref}>
 								See your certificate
 							</a>
 						</li>

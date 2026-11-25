@@ -7,48 +7,60 @@ if (response) return response;
 ---
 
 <Base title="Sign in">
-	<h1>Sign in</h1>
-	{
-		data.linkSent ? (
-			<p class="message success" data-link-sent>
-				If that address can receive email, a sign-in link is on its way. It works once and expires
-				in 15 minutes.
-			</p>
-		) : (
-			<>
-				{data.mode === "demo" ? (
-					<p>Enter a name and an email address to try the academy. Nothing is sent to you.</p>
-				) : (
-					<p>Enter your email address and we will send you a link that signs you in.</p>
-				)}
-				{data.error && (
-					<p class="message error" role="alert">
-						{data.error}
+	<div class="mx-auto max-w-sm">
+		<h1 class="text-3xl sm:text-4xl">Sign in</h1>
+		{
+			data.linkSent ? (
+				<p class="note note-success mt-6" data-link-sent>
+					If that address can receive email, a sign-in link is on its way. It works once and expires
+					in 15 minutes.
+				</p>
+			) : (
+				<>
+					<p class="mt-3 text-muted-foreground">
+						{data.mode === "demo"
+							? "Enter a name and an email address to try the academy. Nothing is sent to you."
+							: "Enter your email address and we will send you a link that signs you in."}
 					</p>
-				)}
-				<form method="post">
-					<div class="field">
-						<label for="name">Your name</label>
-						<input id="name" name="name" type="text" autocomplete="name" value={data.name} />
-					</div>
-					<div class="field">
-						<label for="email">Email address</label>
-						<input
-							id="email"
-							name="email"
-							type="email"
-							autocomplete="email"
-							required
-							value={data.email}
-						/>
-					</div>
-					<p class="form-actions">
-						<button class="button" type="submit">
+					{data.error && (
+						<p class="note note-error mt-6" role="alert">
+							{data.error}
+						</p>
+					)}
+					<form class="mt-6 flex flex-col gap-4" method="post">
+						<div class="flex flex-col gap-1.5">
+							<label class="font-medium text-sm" for="name">
+								Your name
+							</label>
+							<input
+								class="field"
+								id="name"
+								name="name"
+								type="text"
+								autocomplete="name"
+								value={data.name}
+							/>
+						</div>
+						<div class="flex flex-col gap-1.5">
+							<label class="font-medium text-sm" for="email">
+								Email address
+							</label>
+							<input
+								class="field"
+								id="email"
+								name="email"
+								type="email"
+								autocomplete="email"
+								required
+								value={data.email}
+							/>
+						</div>
+						<button class="btn mt-2" type="submit">
 							{data.mode === "demo" ? "Sign in" : "Email me a sign-in link"}
 						</button>
-					</p>
-				</form>
-			</>
-		)
-	}
+					</form>
+				</>
+			)
+		}
+	</div>
 </Base>

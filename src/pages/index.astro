@@ -9,33 +9,37 @@ if (response) return response;
 ---
 
 <Base title={config.siteName} description={config.tagline} wide>
-	<div class="hero" slot="band">
-		<div class="hero-inner">
-			<h1>{config.siteName}</h1>
-			<p>{config.tagline}</p>
+	<div class="border-border border-b" slot="band">
+		<div class="mx-auto max-w-page px-4 py-14 sm:px-6 sm:py-20">
+			<h1 class="max-w-3xl sm:text-6xl">{config.siteName}</h1>
+			<p class="mt-4 max-w-xl text-muted-foreground text-xl">{config.tagline}</p>
 		</div>
 	</div>
 
-	<h2>{data.tag ? `Courses: ${data.tag}` : "Courses"}</h2>
-	{
-		data.filters.length > 0 && (
-			<nav class="filters" aria-label="Filter courses by topic">
-				{data.filters.map((filter) => (
-					<a class="tag" href={filter.href} aria-current={filter.current ? "true" : undefined}>
-						{filter.name}
-					</a>
-				))}
-			</nav>
-		)
-	}
+	<div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+		<h2 class="font-semibold text-2xl tracking-tight">
+			{data.tag ? `Courses: ${data.tag}` : "Courses"}
+		</h2>
+		{
+			data.filters.length > 0 && (
+				<nav class="flex flex-wrap gap-1.5" aria-label="Filter courses by topic">
+					{data.filters.map((filter) => (
+						<a class="tag" href={filter.href} aria-current={filter.current ? "true" : undefined}>
+							{filter.name}
+						</a>
+					))}
+				</nav>
+			)
+		}
+	</div>
 	{
 		data.courses.length === 0 ? (
-			<p class="message">
+			<p class="note mt-6">
 				No courses are published yet. Publish a course in Monopane and it appears here within a
 				minute.
 			</p>
 		) : (
-			<ul class="tiles">
+			<ul class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 				{data.courses.map((course) => (
 					<CourseTile course={course} />
 				))}

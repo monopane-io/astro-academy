@@ -5,53 +5,71 @@ import { lessonPage } from "../../../lib/pages";
 const { response, data } = await lessonPage(Astro);
 if (response) return response;
 const { course, lesson } = data;
+const head = "flex flex-wrap items-center justify-between gap-x-4 gap-y-2";
+const heading = "font-semibold text-2xl tracking-tight";
+const choice =
+	"flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 has-checked:border-primary has-checked:bg-primary-soft";
 ---
 
 <Base title={lesson.title} description={lesson.description} wide>
-	<p class="breadcrumb"><a href={course.href}>{course.title}</a></p>
-	<div class="player">
-		<aside class="curriculum" aria-label="Course contents">
-			<details open>
-				<summary>Course contents</summary>
-				{
-					data.outline.map((section) => (
-						<>
-							{section.moduleTitle && <h2>{section.moduleTitle}</h2>}
-							<ol class="track">
-								{section.lessons.map((item) => (
-									<li
-										class={item.status === "todo" ? "" : item.status}
-										data-lesson-state={item.status}
-									>
-										<a href={item.href} aria-current={item.current ? "page" : undefined}>
-											{item.title}
-										</a>
-									</li>
-								))}
-							</ol>
-						</>
-					))
-				}
+	<div class="grid gap-x-12 gap-y-8 lg:grid-cols-[17rem_minmax(0,1fr)]">
+		<aside class="lg:sticky lg:top-24 lg:self-start" aria-label="Course contents">
+			<p class="mb-4 text-sm">
+				<a class="text-muted-foreground hover:text-primary" href={course.href}>{course.title}</a>
+			</p>
+			{/* Open on a wide screen; on a narrow one it folds away above the lesson. */}
+			<details class="group rounded-xl border border-border bg-card lg:border-0 lg:bg-transparent" open>
+				<summary class="cursor-pointer px-4 py-3 font-semibold lg:hidden">Course contents</summary>
+				<div class="px-4 pb-3 lg:p-0">
+					{
+						data.outline.map((section) => (
+							<>
+								{section.moduleTitle && (
+									<h2 class="mt-5 mb-1 font-semibold text-muted-foreground text-sm first:mt-0">
+										{section.moduleTitle}
+									</h2>
+								)}
+								<ol class="track">
+									{section.lessons.map((item) => (
+										<li data-lesson-state={item.status}>
+											<a
+												class="text-muted-foreground hover:text-foreground aria-[current=page]:font-semibold aria-[current=page]:text-foreground"
+												href={item.href}
+												aria-current={item.current ? "page" : undefined}
+											>
+												{item.title}
+											</a>
+										</li>
+									))}
+								</ol>
+							</>
+						))
+					}
+				</div>
 			</details>
 		</aside>
 
-		<div class="player-main">
+		<div class="min-w-0 max-w-prose">
 			<h1>{lesson.title}</h1>
-			{lesson.description && <p class="lede">{lesson.description}</p>}
+			{lesson.description && <p class="mt-4 text-muted-foreground text-xl">{lesson.description}</p>}
 
-			{data.activities.length === 0 && <p class="message">This lesson has nothing in it yet.</p>}
+			{data.activities.length === 0 && <p class="note mt-8">This lesson has nothing in it yet.</p>}
 
 			{
 				data.activities.map((activity) => (
-					<section class="activity" id={activity.id} data-activity={activity.type}>
+					<section
+						class="mt-10 flex flex-col gap-4 border-border border-t pt-10"
+						id={activity.id}
+						data-activity={activity.type}
+					>
 						{activity.type === "quiz" && (
 							<>
-								<div class="activity-head">
-									<h2>{activity.title}</h2>
+								<div class={head}>
+									<h2 class={heading}>{activity.title}</h2>
 									<span
 										class:list={[
-											"state",
-											{ done: activity.done, failed: activity.status === "failed" },
+											"pill",
+											{ "pill-done": activity.done, "pill-failed": activity.status === "failed" },
 										]}
 										data-state
 									>
@@ -65,7 +83,7 @@ const { course, lesson } = data;
 
 								{activity.result && (
 									<p
-										class:list={["message", activity.result.passed ? "success" : "error"]}
+										class:list={["note", activity.result.passed ? "note-success" : "note-error"]}
 										role="status"
 										data-quiz-result={activity.result.passed ? "passed" : "failed"}
 									>
@@ -76,26 +94,36 @@ const { course, lesson } = data;
 									</p>
 								)}
 								{!activity.result && activity.done && activity.bestScore && (
-									<p class="muted">Your best score: {activity.bestScore}.</p>
+									<p class="text-muted-foreground">Your best score: {activity.bestScore}.</p>
 								)}
 
 								{activity.showForm && (
-									<form method="post" action={`${data.action}#${activity.id}`}>
+									<form
+										class="flex flex-col gap-8"
+										method="post"
+										action={`${data.action}#${activity.id}`}
+									>
 										<input type="hidden" name="activityId" value={activity.id} />
 										{activity.questions.map((question) => (
-											<fieldset class="question" data-question={question.type}>
-												<legend>
+											<fieldset class="flex min-w-0 flex-col gap-2" data-question={question.type}>
+												<legend class="mb-3 font-medium text-lg">
 													{question.text}
 													{question.correct !== null && (
-														<span class:list={["state", question.correct ? "done" : "failed"]}>
+														<span
+															class:list={[
+																"font-normal text-base",
+																question.correct ? "text-success" : "text-destructive",
+															]}
+														>
 															{question.correct ? " (correct)" : " (not correct)"}
 														</span>
 													)}
 												</legend>
 												{question.type === "multiple_choice" &&
 													question.options.map((option) => (
-														<label>
+														<label class={choice}>
 															<input
+																class="size-4 accent-primary"
 																type="radio"
 																name={question.field}
 																value={option}
@@ -106,10 +134,13 @@ const { course, lesson } = data;
 													))}
 												{question.type === "multi_select" && (
 													<>
-														<p class="hint">Choose every answer that applies.</p>
+														<p class="-mt-2 mb-1 text-muted-foreground text-sm">
+															Choose every answer that applies.
+														</p>
 														{question.options.map((option) => (
-															<label>
+															<label class={choice}>
 																<input
+																	class="size-4 accent-primary"
 																	type="checkbox"
 																	name={question.field}
 																	value={option}
@@ -122,6 +153,7 @@ const { course, lesson } = data;
 												)}
 												{question.type === "fill_in_blank" && (
 													<input
+														class="field"
 														type="text"
 														name={question.field}
 														aria-label={question.text}
@@ -131,6 +163,7 @@ const { course, lesson } = data;
 												)}
 												{question.type === "short_answer" && (
 													<textarea
+														class="field"
 														name={question.field}
 														rows="3"
 														aria-label={question.text}
@@ -140,8 +173,8 @@ const { course, lesson } = data;
 											</fieldset>
 										))}
 										{activity.canSubmit && (
-											<p class="form-actions">
-												<button class="button" type="submit">
+											<p>
+												<button class="btn" type="submit">
 													{activity.submitLabel}
 												</button>
 											</p>
@@ -153,17 +186,19 @@ const { course, lesson } = data;
 
 						{activity.type === "video" && (
 							<>
-								<div class="activity-head">
-									<h2>{activity.title}</h2>
-									<span class:list={["state", { done: activity.done }]} data-state>
+								<div class={head}>
+									<h2 class={heading}>{activity.title}</h2>
+									<span class:list={["pill", { "pill-done": activity.done }]} data-state>
 										{activity.done ? "Watched" : "Not watched"}
 									</span>
 								</div>
-								{activity.duration && <p class="muted">{activity.duration}</p>}
-								{activity.description && <p>{activity.description}</p>}
+								{activity.duration && (
+									<p class="-mt-2 text-muted-foreground text-sm">{activity.duration}</p>
+								)}
+								{activity.description && <p class="text-lg">{activity.description}</p>}
 								{activity.player?.kind === "embed" && (
 									<iframe
-										class="video"
+										class="aspect-video w-full rounded-xl bg-foreground"
 										src={activity.player.src}
 										title={activity.title}
 										loading="lazy"
@@ -173,31 +208,43 @@ const { course, lesson } = data;
 									/>
 								)}
 								{activity.player?.kind === "file" && (
-									<video class="video" src={activity.player.src} controls preload="metadata" />
+									<video
+										class="aspect-video w-full rounded-xl bg-foreground"
+										src={activity.player.src}
+										controls
+										preload="metadata"
+									/>
 								)}
 								{activity.player?.kind === "link" && (
 									<p>
-										<a href={activity.player.href} target="_blank" rel="noopener noreferrer">
+										<a
+											class="link"
+											href={activity.player.href}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
 											Watch the video
 										</a>
 									</p>
 								)}
 								{!activity.player && (
-									<p class="message error">This video's address cannot be played.</p>
+									<p class="note note-error">This video's address cannot be played.</p>
 								)}
 							</>
 						)}
 
 						{activity.type === "reading" && (
 							<>
-								<div class="activity-head">
-									<h2>{activity.title}</h2>
-									<span class:list={["state", { done: activity.done }]} data-state>
+								<div class={head}>
+									<h2 class={heading}>{activity.title}</h2>
+									<span class:list={["pill", { "pill-done": activity.done }]} data-state>
 										{activity.done ? "Done" : "Not done"}
 									</span>
 								</div>
 								{activity.minutes !== null && (
-									<p class="muted">About {activity.minutes} min to read.</p>
+									<p class="-mt-2 text-muted-foreground text-sm">
+										About {activity.minutes} min to read.
+									</p>
 								)}
 								<div class="reading" set:html={activity.html} />
 							</>
@@ -205,16 +252,17 @@ const { course, lesson } = data;
 
 						{activity.type === "external_link" && (
 							<>
-								<div class="activity-head">
-									<h2>{activity.title}</h2>
-									<span class:list={["state", { done: activity.done }]} data-state>
+								<div class={head}>
+									<h2 class={heading}>{activity.title}</h2>
+									<span class:list={["pill", { "pill-done": activity.done }]} data-state>
 										{activity.done ? "Done" : "Not done"}
 									</span>
 								</div>
-								{activity.description && <p>{activity.description}</p>}
+								{activity.description && <p class="text-lg">{activity.description}</p>}
 								{activity.url && (
 									<p>
 										<a
+											class="link break-all"
 											href={activity.url}
 											target={activity.newTab ? "_blank" : undefined}
 											rel="noopener noreferrer"
@@ -227,9 +275,9 @@ const { course, lesson } = data;
 						)}
 
 						{activity.type !== "quiz" && !activity.done && (
-							<form method="post" action={data.action}>
+							<form method="post" action={data.action} data-stay>
 								<input type="hidden" name="activityId" value={activity.id} />
-								<button class="button quiet" type="submit">
+								<button class="btn btn-quiet" type="submit">
 									{activity.type === "video"
 										? "Mark as watched"
 										: activity.type === "reading"
@@ -244,26 +292,37 @@ const { course, lesson } = data;
 
 			{
 				data.courseCompleted && (
-					<p class="message success" data-course-complete>
+					<p class="note note-success mt-10" data-course-complete>
 						You have completed {course.title}.{" "}
-						<a href={data.certificateHref}>See your certificate</a>
+						<a class="font-semibold underline underline-offset-4" href={data.certificateHref}>
+							See your certificate
+						</a>
 					</p>
 				)
 			}
 
-			<nav class="lesson-nav" aria-label="Lessons">
+			<nav
+				class="mt-12 flex flex-wrap justify-between gap-4 border-border border-t pt-6"
+				aria-label="Lessons"
+			>
 				{
 					data.previous ? (
-						<a href={data.previous.href}>Previous: {data.previous.title}</a>
+						<a class="btn btn-quiet" href={data.previous.href}>
+							Previous: {data.previous.title}
+						</a>
 					) : (
 						<span />
 					)
 				}
 				{
 					data.following ? (
-						<a href={data.following.href}>Next: {data.following.title}</a>
+						<a class="btn" href={data.following.href}>
+							Next: {data.following.title}
+						</a>
 					) : (
-						<a href={course.href}>Back to the course</a>
+						<a class="btn" href={course.href}>
+							Back to the course
+						</a>
 					)
 				}
 			</nav>

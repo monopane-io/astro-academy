@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
 
 interface Props {
@@ -12,6 +13,8 @@ const { title, description, wide = false } = Astro.props;
 const { config, user } = Astro.locals;
 const demo = config.authMode === "demo";
 const path = Astro.url.pathname;
+const navLink =
+	"rounded-md px-3 py-1.5 font-medium text-muted-foreground hover:text-foreground aria-[current=page]:bg-border/60 aria-[current=page]:text-foreground";
 ---
 
 <!doctype html>
@@ -22,11 +25,14 @@ const path = Astro.url.pathname;
 		<title>{title === config.siteName ? title : `${title} | ${config.siteName}`}</title>
 		{description && <meta name="description" content={description} />}
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<ClientRouter />
 	</head>
-	<body>
+	<body class="flex min-h-dvh flex-col">
+		<div class="loading-bar" data-loading-bar transition:persist="loading-bar" aria-hidden="true">
+		</div>
 		{
 			demo && (
-				<div class="notice" role="note" data-demo-notice>
+				<div class="no-print bg-mark px-4 py-2 text-center text-mark-foreground text-sm" role="note" data-demo-notice>
 					<p>
 						Demo sign-in is on: anyone can sign in as anyone. Not for production. Switch to email
 						sign-in before you invite learners (see the README).
@@ -34,43 +40,94 @@ const path = Astro.url.pathname;
 				</div>
 			)
 		}
-		<header class="site-header">
-			<div class="site-header-inner">
-				<a class="site-name" href="/">{config.siteName}</a>
-				<nav class="site-nav" aria-label="Main">
-					<a href="/" aria-current={path === "/" ? "page" : undefined}>Courses</a>
+		<header
+			class="sticky top-0 z-40 border-border border-b bg-background/85 backdrop-blur"
+			transition:name="site-header"
+		>
+			<div class="mx-auto flex h-14 max-w-page items-center gap-2 px-4 sm:gap-6 sm:px-6">
+				<a class="mr-auto font-bold text-lg tracking-tight sm:mr-0" href="/">{config.siteName}</a>
+				<nav class="flex items-center gap-1 sm:mr-auto" aria-label="Main">
+					<a class={navLink} href="/" aria-current={path === "/" ? "page" : undefined}>Courses</a>
 					{
 						user && (
-							<a href="/my-learning" aria-current={path === "/my-learning" ? "page" : undefined}>
+							<a
+								class={navLink}
+								href="/my-learning"
+								aria-current={path === "/my-learning" ? "page" : undefined}
+							>
 								My learning
 							</a>
 						)
 					}
 				</nav>
-				<div class="account">
+				<div class="flex items-center gap-3 text-sm">
 					{
 						user ? (
 							<>
-								<span data-signed-in-as>{user.name}</span>
+								<span class="hidden max-w-40 truncate text-muted-foreground sm:inline" data-signed-in-as>
+									{user.name}
+								</span>
 								<form method="post" action="/sign-out">
-									<button class="link-button" type="submit">
+									<button class="cursor-pointer font-medium hover:text-primary" type="submit">
 										Sign out
 									</button>
 								</form>
 							</>
 						) : (
-							<a href="/sign-in">Sign in</a>
+							<a class="btn px-4 py-1.5" href="/sign-in">
+								Sign in
+							</a>
 						)
 					}
 				</div>
 			</div>
 		</header>
 		<slot name="band" />
-		<main class:list={["site-main", { wide }]}>
+		<main
+			class:list={[
+				"mx-auto w-full flex-1 px-4 py-10 sm:px-6 sm:py-14",
+				wide ? "max-w-page" : "max-w-prose",
+			]}
+		>
 			<slot />
 		</main>
-		<footer class="site-footer">
-			<p>{config.siteName}</p>
+		<footer class="border-border border-t">
+			<p class="mx-auto max-w-page px-4 py-6 text-muted-foreground text-sm sm:px-6">{config.siteName}</p>
 		</footer>
+		<script>
+			// The client router fetches the next page and swaps it in. Two things
+			// make that feel right: a line across the top while a page is on its
+			// way, and staying put when a form marked data-stay was sent (marking an
+			// activity as done should not move the page).
+			const bar = () => document.querySelector<HTMLElement>("[data-loading-bar]");
+			let timer: ReturnType<typeof setTimeout> | undefined;
+			let stay: { path: string; top: number } | null = null;
+
+			document.addEventListener("astro:before-preparation", (event) => {
+				const form = event.formData && event.sourceElement?.closest("form[data-stay]");
+				stay = form ? { path: location.pathname, top: scrollY } : null;
+				clearTimeout(timer);
+				// Most pages arrive before anyone would notice; only show it for the rest.
+				timer = setTimeout(() => bar()?.setAttribute("data-loading", ""), 120);
+			});
+
+			// The server answers such a form by pointing at the activity (#id), which
+			// is right for a full page load. Here the page stays where it is instead.
+			document.addEventListener("astro:before-swap", (event) => {
+				if (stay && event.to.pathname === stay.path) event.to.hash = "";
+			});
+
+			document.addEventListener("astro:after-swap", () => {
+				if (stay && stay.path === location.pathname) {
+					scrollTo({ top: stay.top, behavior: "instant" });
+				}
+				stay = null;
+			});
+
+			document.addEventListener("astro:page-load", () => {
+				clearTimeout(timer);
+				bar()?.removeAttribute("data-loading");
+			});
+		</script>
 	</body>
 </html>

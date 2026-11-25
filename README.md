@@ -11,7 +11,7 @@ What is in it:
 - A "My learning" page, a printable certificate and a public page for checking one
 - Sign-in that works on the first deploy (demo mode), and email magic links for real use
 - A demo course, so there is something to click through straight away
-- No JavaScript sent to the browser; every page is plain HTML rendered on the server
+- Every page is rendered on the server. One small script (Astro's client router) swaps pages in place, so links and forms never reload the whole page; without JavaScript they work as ordinary page loads
 
 ## What you need
 
@@ -193,7 +193,7 @@ src/
   pages/                 one file per page: the markup only
   components/            the course tile
   layouts/Base.astro     the frame around every page
-  styles/global.css      the whole look; start with the variables at the top
+  styles/global.css      colours, typeface and shared components (Tailwind CSS)
 seed/                    the demo course
 tests/                   unit tests, an end-to-end test, a check of the built site
 ```
@@ -241,7 +241,7 @@ This starter does not use learner tokens; it has a server, so it does not need t
 ```sh
 npm test            # unit tests: settings, session cookie, sign-in adapters, quizzes, videos, deploy script
 npm run check       # type check
-npm run build && npm run test:build   # no key and no JavaScript in what is built
+npm run build && npm run test:build   # no key in what is built
 npm run test:e2e    # the whole learner journey in a browser
 ```
 
@@ -249,11 +249,11 @@ The end-to-end test needs the site running (`npm run dev`) in demo mode against 
 
 ## Making it yours
 
-- **Look:** `src/styles/global.css`. Every colour, font and radius is a variable at the top of the file; change those first. Hand the file to an AI assistant with your brand colours and it can do the rest.
+- **Look:** pages are written with Tailwind CSS classes. `src/styles/global.css` holds what they share: the colours and the typeface at the top (in `@theme`, with dark-mode values below), then the components used on more than one page (buttons, pills, notes, the lesson track). Change the colours first. They are named the way shadcn-style kits name theirs (`background`, `foreground`, `primary`, `border`, ...), so components from such a kit fit in without restyling.
 - **Name and tagline:** `SITE_NAME` and `SITE_TAGLINE`.
 - **Pages:** each is one `.astro` file under `src/pages`, and is almost all HTML. What a page does (who may see it, what a form does, what it shows) is a function in `src/lib/pages.ts`; the page calls it and draws the result. So you can rewrite every page's HTML, or rebuild the site on a UI library, without touching how it behaves.
 - **Words:** all the text learners see is in those page files and in `layouts/Base.astro`.
-- **Course tiles:** a course with an `imageUrl` shows that image; one without gets a cover drawn in CSS (`.tile-cover` in `global.css`).
+- **Course tiles:** a course with an `imageUrl` shows that image; one without gets its first letter on a tinted cover (`src/components/CourseTile.astro`).
 
 ## Licence
 

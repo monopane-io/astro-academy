@@ -26,6 +26,14 @@ const pagesSeen: { url: string; html: string }[] = [];
 
 function watch(page: Page) {
 	page.on("request", (request) => requests.push(request.url()));
+	// The site swaps pages in place: after the first, a page arrives as a
+	// response to a request the page made, with no "load". Every HTML response
+	// is read, so each page is checked exactly as the server sent it.
+	page.on("response", async (response) => {
+		if (!(response.headers()["content-type"] ?? "").includes("text/html")) return;
+		const html = await response.text().catch(() => null);
+		if (html) pagesSeen.push({ url: response.url(), html });
+	});
 	page.on("load", async () => {
 		// A page that is left the moment it loads (a redirect after a form post)
 		// cannot be read: it is skipped, and the page it led to is read instead.
@@ -167,10 +175,10 @@ test("the learner flow, from sign-in to a verified credential", async ({ page, b
 
 	// --- The quiz: fail, then pass -------------------------------------------
 	await page.getByRole("link", { name: "Quizzes" }).click();
-	await page
-		.locator("[data-activity=reading]")
-		.getByRole("button", { name: "Mark as read" })
-		.click();
+	const quizReading = page.locator("[data-activity=reading]");
+	await quizReading.getByRole("button", { name: "Mark as read" }).click();
+	// The page is swapped in place, so wait for it before filling in the quiz.
+	await expect(quizReading.locator("[data-state]")).toHaveText("Done");
 	const quiz = page.locator("[data-activity=quiz]");
 	await expect(quiz.locator("[data-state]")).toHaveText("Not attempted");
 	// All four kinds of question are drawn.

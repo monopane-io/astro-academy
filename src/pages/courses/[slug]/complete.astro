@@ -9,39 +9,49 @@ const { course, certificate } = data;
 ---
 
 <Base title={`${course.title}: certificate`}>
-	<p class="breadcrumb"><a href={course.href}>{course.title}</a></p>
+	<p class="no-print mb-6 text-sm">
+		<a class="text-muted-foreground hover:text-primary" href={course.href}>{course.title}</a>
+	</p>
 	{
 		certificate ? (
 			<>
 				<h1 class="no-print">You completed {course.title}</h1>
-				<div class="certificate" data-credential>
-					<p class="issuer">{config.siteName}</p>
-					<p>This certifies that</p>
-					<p class="recipient">{data.learnerName}</p>
-					<p>has completed</p>
-					<p class="course">{course.title}</p>
-					<p>on {certificate.issuedOn}</p>
-					<p class="credential-code" data-credential-code>
+				<div
+					class="mt-8 rounded-xl border-2 border-foreground bg-card px-6 py-12 text-center sm:px-12"
+					data-credential
+				>
+					<p class="font-bold text-lg tracking-tight">{config.siteName}</p>
+					<p class="mt-10 text-muted-foreground">This certifies that</p>
+					<p class="mt-2 text-balance font-bold text-4xl tracking-tight">{data.learnerName}</p>
+					<p class="mt-6 text-muted-foreground">has completed</p>
+					<p class="mt-2 text-balance font-semibold text-2xl tracking-tight">{course.title}</p>
+					<p class="mt-6 text-muted-foreground">on {certificate.issuedOn}</p>
+					<p
+						class="mt-10 inline-block rounded-full bg-mark px-4 py-1.5 font-semibold text-mark-foreground tabular-nums tracking-wider"
+						data-credential-code
+					>
 						{certificate.code}
 					</p>
 				</div>
-				<p class="no-print">
+				<p class="no-print mt-8">
 					Anyone can check this certificate at{" "}
-					<a href={certificate.verifyPath}>{certificate.verifyUrl}</a>
+					<a class="link break-all" href={certificate.verifyPath}>
+						{certificate.verifyUrl}
+					</a>
 				</p>
-				<p class="muted no-print">
+				<p class="no-print mt-2 text-muted-foreground text-sm">
 					To keep a copy, use your browser's Print command and choose "Save as PDF".
 				</p>
 			</>
 		) : (
 			<>
 				<h1>Not finished yet</h1>
-				<p>
+				<p class="mt-4 text-lg text-muted-foreground">
 					You get a certificate when every activity in {course.title} is done and every quiz is
 					passed.
 				</p>
-				<p>
-					<a class="button" href={course.href}>
+				<p class="mt-8">
+					<a class="btn" href={course.href}>
 						Go back to the course
 					</a>
 				</p>
