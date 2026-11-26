@@ -41,10 +41,10 @@ const {
 } = Astro.props;
 
 const control = cx(
-	"w-full min-w-0 rounded-md border bg-card px-3 text-foreground placeholder:text-muted-foreground",
-	"focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-ring",
-	invalid ? "border-destructive" : "border-border",
-	as === "textarea" ? "py-2.5 leading-6" : "h-10",
+	"w-full min-w-0 rounded-md border bg-card px-3 text-base text-foreground shadow-xs placeholder:text-muted-foreground md:text-sm",
+	"outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
+	invalid ? "border-destructive ring-destructive/20" : "border-border",
+	as === "textarea" ? "py-2 leading-6" : "h-9",
 	as === "select" && "cursor-pointer appearance-none pr-9",
 	code && "font-mono text-sm",
 	icon && "pl-9",
@@ -57,7 +57,7 @@ const shared = { "aria-invalid": invalid ? ("true" as const) : undefined, ...res
 <div class={frame}>
 	{
 		prefix && (
-			<span class="inline-flex h-10 shrink-0 items-center rounded-l-md border border-border border-r-0 bg-muted px-3 text-muted-foreground">
+			<span class="inline-flex h-9 shrink-0 items-center rounded-l-md border border-border border-r-0 bg-muted px-3 text-muted-foreground text-sm">
 				{prefix}
 			</span>
 		)

@@ -8,17 +8,29 @@ import { cx } from "../../lib/ui";
 interface Props {
 	href?: string;
 	fields?: Record<string, string>;
+	/** Where the form is sent; the page itself when left out. */
+	action?: string;
 	destructive?: boolean;
 	disabled?: boolean;
+	/** The id of a <Dialog> this line opens, instead of sending a form. */
+	dialog?: string;
 	/** Keep the page where it is after the form is sent. */
 	stay?: boolean;
 }
 
-const { href, fields = {}, destructive = false, disabled = false, stay = true } = Astro.props;
+const {
+	href,
+	action,
+	fields = {},
+	destructive = false,
+	disabled = false,
+	stay = true,
+	dialog,
+} = Astro.props;
 const item = cx(
-	"flex w-full cursor-pointer items-center rounded-md px-2.5 py-1.5 text-left text-sm hover:bg-muted disabled:cursor-default disabled:opacity-45 disabled:hover:bg-transparent",
+	"flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-muted disabled:cursor-default disabled:opacity-45 disabled:hover:bg-transparent",
 	"focus-visible:outline-2 focus-visible:outline-ring",
-	destructive && "text-destructive",
+	destructive && "text-destructive hover:bg-destructive/10",
 );
 ---
 
@@ -27,8 +39,12 @@ const item = cx(
 		<a class={item} href={href}>
 			<slot />
 		</a>
+	) : dialog ? (
+		<button class={item} type="button" data-dialog-open={dialog}>
+			<slot />
+		</button>
 	) : (
-		<form method="post" data-stay={stay ? "" : undefined}>
+		<form method="post" action={action} data-stay={stay ? "" : undefined}>
 			{Object.entries(fields).map(([name, value]) => (
 				<input type="hidden" name={name} value={value} />
 			))}

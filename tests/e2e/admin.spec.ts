@@ -90,7 +90,9 @@ test("an admin signs in with Monopane and sees every course, drafts included", a
 	await expect(published.locator("[data-state]")).toHaveText("Published");
 	const draft = page.locator("[data-admin-course=unpublished-course]");
 	await expect(draft.locator("[data-state]")).toHaveText("Draft");
-	await expect(page.locator("[data-admin-time-left]")).toContainText("more minutes");
+	await expect(page.locator("aside [data-admin-time-left]")).toContainText("more minutes");
+	// The sidebar says who is signed in.
+	await expect(page.locator("aside [data-admin-account]")).toContainText(EMAIL);
 
 	// --- What the browser holds -----------------------------------------------
 	const cookies = await context.cookies();
@@ -173,7 +175,7 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 	await signInAsAdmin(page);
 
 	// --- A new course starts as a draft ---------------------------------------
-	await page.getByRole("link", { name: "New course" }).first().click();
+	await page.getByRole("link", { name: "Create course" }).first().click();
 	await expect(heading).toHaveText("New course");
 	await page.getByLabel("Course title").fill(title);
 	await page.getByLabel("What it covers").fill("Your first week.");
@@ -368,14 +370,19 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 	await expect(done).toHaveText("Course moved back to draft");
 	await expect(page.locator("[data-course-state]")).toHaveText("Draft");
 	await page.getByRole("link", { name: "Details", exact: true }).click();
-	// Deleting asks once more, and Cancel leaves everything as it was.
+	// Deleting is the last line of the course's menu. It asks once more, and
+	// Cancel leaves everything as it was.
 	const confirm = page.getByRole("dialog", { name: `Delete ${title}?` });
-	await page.getByRole("button", { name: "Delete this course" }).click();
+	const openDelete = async () => {
+		await page.getByLabel(`More actions for ${title}`, { exact: true }).click();
+		await page.getByRole("button", { name: "Delete course", exact: true }).click();
+	};
+	await openDelete();
 	await confirm.getByRole("button", { name: "Cancel" }).click();
 	await expect(confirm).toBeHidden();
 	await expect(page).toHaveURL(`${courseUrl}/details`);
-	await page.getByRole("button", { name: "Delete this course" }).click();
-	await confirm.getByRole("button", { name: "Yes, delete it" }).click();
+	await openDelete();
+	await confirm.getByRole("button", { name: "Delete", exact: true }).click();
 	await expect(page).toHaveURL(/\/admin\/courses\?done=/);
 	await expect(done).toHaveText("Course deleted");
 	await expect(page.locator(`[data-admin-course="${slug}"]`)).toHaveCount(0);

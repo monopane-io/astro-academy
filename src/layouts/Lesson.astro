@@ -14,11 +14,11 @@ const { title, description } = Astro.props;
 ---
 
 <Base title={title} description={description} wide>
-	<div class="grid gap-x-12 gap-y-8 lg:grid-cols-[17rem_minmax(0,1fr)]">
+	<div class="grid gap-x-10 gap-y-8 lg:grid-cols-[18rem_minmax(0,1fr)]">
 		<aside class="lg:sticky lg:top-24 lg:self-start" aria-label="Course contents">
 			<slot name="contents" />
 		</aside>
-		<div class="min-w-0 max-w-prose">
+		<div class="mx-auto w-full min-w-0 max-w-160">
 			<slot />
 		</div>
 	</div>

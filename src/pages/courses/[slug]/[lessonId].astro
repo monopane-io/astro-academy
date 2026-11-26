@@ -16,6 +16,7 @@ const { course, lesson } = data;
 	<LessonOutline slot="contents" course={course} outline={data.outline} />
 
 			<PageIntro
+				compact
 				title={lesson.title}
 				text={lesson.description}
 				editHref={data.editHref}

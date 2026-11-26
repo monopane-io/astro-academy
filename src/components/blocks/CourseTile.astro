@@ -12,7 +12,7 @@ const { course } = Astro.props;
 ---
 
 <li
-	class="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary"
+	class="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xs transition hover:shadow-lg"
 	data-course-tile
 >
 	{
@@ -34,17 +34,19 @@ const { course } = Astro.props;
 			</div>
 		)
 	}
-	<div class="flex flex-1 flex-col gap-2 p-5">
-		<h3 class="text-subheading leading-snug">
+	<div class="flex flex-1 flex-col p-4 sm:p-6">
+		<h3 class="font-medium text-lg">
 			{/* The whole tile is the link; tags sit above it so they stay clickable. */}
 			<a class="after:absolute after:inset-0 group-hover:text-primary" href={course.href}>
 				{course.title}
 			</a>
 		</h3>
-		{course.description && <p class="text-muted-foreground">{course.description}</p>}
+		{course.description && (
+			<p class="mt-2 line-clamp-3 text-muted-foreground text-sm/relaxed">{course.description}</p>
+		)}
 		{
 			course.tags.length > 0 && (
-				<p class="relative z-10 mt-1 flex flex-wrap gap-1.5">
+				<p class="relative z-10 mt-4 flex flex-wrap gap-1.5">
 					{course.tags.map((tag) => (
 						<Tag size="sm" href={tag.href}>
 							{tag.name}
@@ -55,7 +57,7 @@ const { course } = Astro.props;
 		}
 		{
 			(course.duration || course.enrolled) && (
-				<div class="mt-auto flex items-center justify-between gap-3 pt-3 text-sm">
+				<div class="mt-auto flex items-center justify-between gap-3 pt-4 text-sm">
 					{course.duration && (
 						<span class="text-muted-foreground" data-course-duration>
 							{course.duration}

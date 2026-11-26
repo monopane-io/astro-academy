@@ -17,26 +17,26 @@ const { id, title } = Astro.props;
 
 <dialog
 	id={id}
-	class="m-auto w-[calc(100%-2rem)] max-w-md rounded-xl border border-border bg-card p-0 text-foreground shadow-xl backdrop:bg-black/40"
+	class="m-auto w-full max-w-[calc(100%-2rem)] rounded-lg border border-border bg-background p-6 text-foreground shadow-lg backdrop:bg-black/50 sm:max-w-lg"
 	aria-labelledby={`${id}-title`}
 	closedby="any"
 >
-	<div class="flex items-start justify-between gap-4 px-6 pt-6">
-		<h2 class="text-subheading" id={`${id}-title`}>{title}</h2>
-		<form method="dialog">
-			<button
-				class="-mt-1 -mr-2 inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
-				type="submit"
-				aria-label="Close"
-			>
-				<Icon name="x" />
-			</button>
-		</form>
+	<div class="grid gap-4">
+		<div class="flex flex-col gap-2 pr-6">
+			<h2 class="font-semibold text-lg leading-none" id={`${id}-title`}>{title}</h2>
+			<p class="text-muted-foreground text-sm"><slot /></p>
+		</div>
+		<div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+			<slot name="actions" />
+		</div>
 	</div>
-	<div class="px-6 pt-2 pb-6 text-muted-foreground">
-		<slot />
-	</div>
-	<div class="flex flex-wrap justify-end gap-2 rounded-b-xl border-border border-t bg-background px-6 py-4">
-		<slot name="actions" />
-	</div>
+	<form method="dialog" class="absolute top-4 right-4">
+		<button
+			class="cursor-pointer rounded-xs opacity-70 outline-none transition-opacity hover:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+			type="submit"
+			aria-label="Close"
+		>
+			<Icon name="x" />
+		</button>
+	</form>
 </dialog>

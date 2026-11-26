@@ -1,6 +1,7 @@
 ---
 import DemoNotice from "../components/blocks/DemoNotice.astro";
 import Card from "../components/ui/Card.astro";
+import Icon from "../components/ui/Icon.astro";
 import Document from "./Document.astro";
 
 /**
@@ -17,18 +18,23 @@ const { title, heading = title } = Astro.props;
 const { config } = Astro.locals;
 ---
 
-<Document title={title}>
+<Document title={title} class="flex min-h-dvh flex-col bg-muted">
 	<DemoNotice />
-	<main class="flex flex-1 flex-col items-center justify-center px-4 py-12">
-		<p class="mb-6">
-			<a class="font-bold text-xl tracking-tight" href="/">{config.siteName}</a>
-		</p>
-		<Card class="w-full max-w-sm sm:p-8">
-			<h1 class="text-heading">{heading}</h1>
-			<slot />
-		</Card>
-		<p class="mt-6 text-sm">
-			<a class="text-muted-foreground hover:text-foreground" href="/">Back to the courses</a>
-		</p>
+	<main class="flex flex-1 flex-col items-center justify-center gap-6 p-6 md:p-10">
+		<a class="flex items-center gap-2 self-center font-medium" href="/">
+			<span class="flex size-6 items-center justify-center rounded-md bg-brand text-brand-foreground">
+				<Icon name="graduation" />
+			</span>
+			{config.siteName}
+		</a>
+		<div class="flex w-full max-w-sm flex-col gap-6">
+			<Card>
+				<h1 class="text-center font-semibold text-xl leading-none tracking-normal">{heading}</h1>
+				<slot />
+			</Card>
+			<p class="px-6 text-center text-muted-foreground text-sm">
+				<a class="underline underline-offset-4 hover:text-primary" href="/">Back to the courses</a>
+			</p>
+		</div>
 	</main>
 </Document>

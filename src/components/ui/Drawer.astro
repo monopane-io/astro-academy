@@ -1,0 +1,45 @@
+---
+import Icon from "./Icon.astro";
+
+/**
+ * Navigation for a narrow window: one button, which slides a panel in from
+ * the side over a dimmed page. Put the panel's content in the slot.
+ *
+ * It is the browser's own popover, so it opens, closes on Escape and closes
+ * on a press outside without any script, and it never holds the keyboard.
+ */
+interface Props {
+	id: string;
+	/** What the button opens, read out: "Menu". */
+	label: string;
+}
+
+const { id, label } = Astro.props;
+---
+
+<button
+	class="inline-flex cursor-pointer items-center justify-center rounded-lg p-2 text-foreground outline-none hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50"
+	type="button"
+	popovertarget={id}
+	aria-label={label}
+>
+	<Icon name="menu" class="size-6" />
+</button>
+<div id={id} popover class="drawer" role="dialog" aria-label={label} data-drawer>
+	<div class="flex h-dvh w-full max-w-74 flex-col overflow-auto bg-card shadow-xl" data-drawer-panel>
+		<slot />
+	</div>
+	{/* Everything beside the panel is one large button that closes it. */}
+	<button
+		class="flex flex-1 cursor-pointer items-start justify-end p-3 text-white outline-none"
+		type="button"
+		popovertarget={id}
+		popovertargetaction="hide"
+		aria-label="Close"
+		data-drawer-close
+	>
+		<span class="rounded-lg p-2 hover:bg-white/10">
+			<Icon name="x" class="size-6" />
+		</span>
+	</button>
+</div>

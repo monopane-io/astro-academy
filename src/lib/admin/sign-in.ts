@@ -109,7 +109,11 @@ export async function finishSignIn(
 		}),
 	});
 	if (!response.ok) return { ok: false, reason: "refused" };
-	const reply = (await response.json()) as { access_token?: unknown; expires_in?: unknown };
+	const reply = (await response.json()) as {
+		access_token?: unknown;
+		expires_in?: unknown;
+		account?: { name?: unknown; email?: unknown };
+	};
 	if (typeof reply.access_token !== "string" || typeof reply.expires_in !== "number") {
 		return { ok: false, reason: "refused" };
 	}
@@ -117,6 +121,10 @@ export async function finishSignIn(
 	const session: AdminSession = {
 		token: reply.access_token,
 		expires: Date.now() + reply.expires_in * 1000,
+		...(typeof reply.account?.name === "string" ? { name: reply.account.name.slice(0, 200) } : {}),
+		...(typeof reply.account?.email === "string"
+			? { email: reply.account.email.slice(0, 320) }
+			: {}),
 	};
 	cookies.set(names.session, await sealAdminSession(session, config.sessionSecret), {
 		...adminCookieOptions(url),

@@ -21,7 +21,7 @@ const { title, trail, description } = Astro.props;
 ---
 
 <header class="mb-8">
-	{trail && trail.length > 0 && <Breadcrumbs trail={trail} />}
+	{trail && trail.length > 0 && <Breadcrumbs trail={trail} current={title} />}
 	<div class="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
 		<div class="min-w-0">
 			<h1 class="text-title-sm">{title}</h1>

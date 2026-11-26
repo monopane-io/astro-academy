@@ -8,12 +8,12 @@ interface Props {
 const { title, description } = Astro.props;
 ---
 
-<fieldset class="grid gap-x-10 gap-y-5 py-8 md:grid-cols-[14rem_minmax(0,1fr)]">
-	<div>
+<fieldset class="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,5fr)]">
+	<div class="md:pt-2">
 		<legend class="float-left font-semibold">{title}</legend>
-		{description && <p class="clear-left pt-1 text-muted-foreground text-sm">{description}</p>}
+		{description && <p class="clear-left pt-2 text-muted-foreground text-sm">{description}</p>}
 	</div>
-	<div class="flex max-w-form flex-col gap-5">
+	<div class="flex flex-col gap-7 rounded-xl border border-border bg-card p-6 shadow-sm">
 		<slot />
 	</div>
 </fieldset>

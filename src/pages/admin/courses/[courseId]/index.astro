@@ -43,16 +43,14 @@ const addInput =
 					</form>
 				)
 			}
-			{
-				data.hasDrafts && (
-					<Menu label={`More for ${course.title}`}>
-						<MenuItem fields={{ do: "toggle-course", status: status(course.published) }}>
-							{course.published ? "Move the course back to draft" : "Publish the course only"}
-						</MenuItem>
-					</Menu>
-				)
-			}
 		</Fragment>
+		{
+			data.hasDrafts && (
+				<MenuItem slot="menu" fields={{ do: "toggle-course", status: status(course.published) }}>
+					{course.published ? "Move the course back to draft" : "Publish the course only"}
+				</MenuItem>
+			)
+		}
 	</CourseHeader>
 
 	{

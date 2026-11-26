@@ -11,7 +11,7 @@ type Props = {
 } & Omit<HTMLAttributes<"span">, "class">;
 
 const badge = variants(
-	"inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-2.5 py-0.5 font-medium text-sm",
+	"inline-flex w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full border border-transparent px-2 py-0.5 font-medium text-xs",
 	{
 		variant: {
 			neutral: "bg-muted text-muted-foreground",
@@ -27,5 +27,5 @@ const { variant, dot = false, class: extra, ...rest } = Astro.props;
 ---
 
 <span class={badge({ variant }, extra)} {...rest}>
-	{dot && <span class="mr-1.5 size-1.5 rounded-full bg-current" aria-hidden="true" />}<slot />
+	{dot && <span class="size-1.5 rounded-full bg-current" aria-hidden="true" />}<slot />
 </span>

@@ -285,6 +285,8 @@ test("the user flow, from sign-in to a verified credential", async ({ page, brow
 	await stranger.close();
 
 	// --- Sign out ------------------------------------------------------------
+	// Signing out is in the account menu, behind the avatar.
+	await page.getByLabel("Account", { exact: true }).click();
 	await page.getByRole("button", { name: "Sign out" }).click();
 	await expect(page.getByRole("banner").getByRole("link", { name: "Sign in" })).toBeVisible();
 	await page.goto(`${COURSE}/complete`);

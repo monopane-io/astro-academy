@@ -293,7 +293,7 @@ There are four layers, and a page only uses the one above it:
   (`src/lib/ui.ts`). Icons are [Lucide](https://lucide.dev)'s.
 - **Blocks** in `src/components/blocks`: pieces of a screen, such as
   `PageHeader`, `Tabs`, `Section`, `ItemList`, `Table`, `Stats`, `FormCard`,
-  `SettingsForm`, `Feed`, `Checklist` and `DangerZone`.
+  `SettingsForm`, `Feed`, `Checklist` and `DeleteAction`.
 - **Layouts** in `src/layouts`: `Base` for the user pages, `Lesson` for a
   lesson, `Auth` for signing in and `Admin` for the admin area.
 
@@ -303,6 +303,18 @@ one page. A built site does not have that page.
 To change how every button looks, change `Button.astro`; to add a screen,
 put blocks in a layout. A page should not need a list of classes of its own
 for anything a component already draws.
+
+## Credits
+
+The components and blocks are written for this template, and each follows the structure of an open-source reference:
+
+- [shadcn/ui](https://ui.shadcn.com) (MIT, © 2023 shadcn): buttons, badges, fields, cards, alerts, dialogs, menus, tabs, breadcrumbs, empty states, list rows, the stat cards, the sign-in page and the lesson's reading layout.
+- [Untitled UI React](https://www.untitledui.com/react), open-source components only (MIT, © 2025 Untitled UI): the site header, the admin sidebar, the table and its pagination.
+- [HyperUI](https://www.hyperui.dev) (MIT, © Mark Mead): the course tile.
+- [Flowbite](https://flowbite.com) (MIT, © 2023 Bergside Inc.): the timeline behind the lesson track.
+- [Lucide](https://lucide.dev) (ISC): the icons.
+
+Page layouts in the admin area (list page, details page, settings page, where delete goes) apply the published guidance of Shopify Polaris in our own markup; no Polaris code is used.
 
 ## Licence
 

@@ -1,8 +1,6 @@
 ---
 import CourseHeader from "../../../../components/blocks/CourseHeader.astro";
-import DangerZone from "../../../../components/blocks/DangerZone.astro";
 import Notice from "../../../../components/blocks/Notice.astro";
-import Section from "../../../../components/blocks/Section.astro";
 import SettingsForm from "../../../../components/blocks/SettingsForm.astro";
 import SettingsGroup from "../../../../components/blocks/SettingsGroup.astro";
 import Button from "../../../../components/ui/Button.astro";
@@ -62,13 +60,4 @@ const { course, values } = data;
 		</SettingsGroup>
 		<Button slot="actions" variant="primary" type="submit">Save course</Button>
 	</SettingsForm>
-
-	<Section title="Danger zone" id="danger">
-		<DangerZone
-			do="delete-course"
-			what="this course"
-			name={course.title}
-			consequence="Its lessons and activities go with it."
-		/>
-	</Section>
 </Admin>

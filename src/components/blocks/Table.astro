@@ -13,8 +13,14 @@ import Icon from "../ui/Icon.astro";
 interface Props {
 	/** Read out as the table's name. */
 	label: string;
+	/** A heading above the rows, inside the card, with a line about them. */
+	title?: string;
+	description?: string;
 	columns: {
 		label: string;
+		/** A heading above the rows, inside the card, with a line about them. */
+		title?: string;
+		description?: string;
 		align?: "left" | "right";
 		hide?: boolean;
 		/** Makes the heading a link that orders the table by this column. */
@@ -25,29 +31,35 @@ interface Props {
 	[attribute: string]: unknown;
 }
 
-const { label, columns, ...rest } = Astro.props;
+const { label, title, description, columns, ...rest } = Astro.props;
 ---
 
-<div class="overflow-hidden rounded-xl border border-border bg-card" {...rest}>
+<div class="overflow-hidden rounded-xl bg-card shadow-xs ring-1 ring-border" {...rest}>
 	{
-		Astro.slots.has("toolbar") && (
-			<div class="flex flex-wrap items-center gap-2 border-border border-b px-4 py-3 sm:px-5">
+		(title || Astro.slots.has("toolbar")) && (
+			<div class="flex flex-col items-start gap-4 border-border border-b px-4 py-4 md:flex-row md:items-center md:px-5">
+				{title && (
+					<div class="flex flex-1 flex-col gap-0.5">
+						<h2 class="font-semibold">{title}</h2>
+						{description && <p class="text-muted-foreground text-sm">{description}</p>}
+					</div>
+				)}
 				<slot name="toolbar" />
 			</div>
 		)
 	}
 	<div class="overflow-x-auto">
 		<table
-			class="w-full text-left [&_tbody_tr:hover]:bg-muted/50 [&_tbody_tr]:border-border [&_tbody_tr]:border-t [&_td]:px-4 [&_td]:py-3 sm:[&_td]:px-5"
+			class="w-full text-left [&_tbody_tr:hover]:bg-muted/60 [&_tbody_tr]:border-border [&_tbody_tr]:border-t [&_tbody_tr]:transition-colors [&_td]:h-14 [&_td]:px-5 [&_td]:py-3 [&_td]:text-sm"
 			aria-label={label}
 		>
-			<thead class="bg-muted/50 text-muted-foreground text-sm">
+			<thead class="bg-muted">
 				<tr>
 					{
 						columns.map((column) => (
 							<th
 								class={cx(
-									"whitespace-nowrap px-4 py-2.5 font-medium sm:px-5",
+									"h-9 whitespace-nowrap px-5 py-2 font-semibold text-muted-foreground text-xs",
 									column.align === "right" && "text-right",
 									column.hide && "hidden md:table-cell",
 								)}
@@ -82,7 +94,7 @@ const { label, columns, ...rest } = Astro.props;
 	</div>
 	{
 		Astro.slots.has("footer") && (
-			<div class="border-border border-t px-4 py-3 sm:px-5">
+			<div class="border-border border-t px-4 py-3 md:px-5">
 				<slot name="footer" />
 			</div>
 		)

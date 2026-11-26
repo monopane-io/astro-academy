@@ -1,26 +1,31 @@
 ---
 import type { HTMLAttributes } from "astro/types";
 import { variants } from "../../lib/ui";
+import Icon from "./Icon.astro";
 
 /** A message set apart from the page: something worked, failed, or needs saying. */
 type Props = {
 	variant?: "info" | "success" | "error";
 	class?: string;
-} & Omit<HTMLAttributes<"p">, "class">;
+} & Omit<HTMLAttributes<"div">, "class">;
 
 const alert = variants(
-	"rounded-lg border px-4 py-3",
+	"grid w-full grid-cols-[1rem_1fr] items-start gap-x-3 rounded-lg border bg-card px-4 py-3 text-sm",
 	{
 		variant: {
-			info: "border-border bg-card text-muted-foreground",
-			success: "border-transparent bg-success-soft text-success",
-			error: "border-transparent bg-destructive-soft text-destructive",
+			info: "border-border text-foreground",
+			success: "border-success/30 text-success",
+			error: "border-destructive/30 text-destructive",
 		},
 	},
 	{ variant: "info" },
 );
+const icons = { info: "info", success: "circle-check", error: "info" } as const;
 
-const { variant, class: extra, ...rest } = Astro.props;
+const { variant = "info", class: extra, ...rest } = Astro.props;
 ---
 
-<p class={alert({ variant }, extra)} {...rest}><slot /></p>
+<div class={alert({ variant }, extra)} {...rest}>
+	<Icon name={icons[variant]} class="translate-y-0.5" />
+	<p class="min-w-0"><slot /></p>
+</div>

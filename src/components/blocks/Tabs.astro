@@ -8,11 +8,11 @@ interface Props {
 const { label, items } = Astro.props;
 ---
 
-<nav class="mb-8 flex gap-6 border-border border-b" aria-label={label}>
+<nav class="mb-8 flex gap-1 border-border border-b" aria-label={label}>
 	{
 		items.map((item) => (
 			<a
-				class="-mb-px border-transparent border-b-2 pb-3 font-medium text-muted-foreground hover:text-foreground aria-[current=page]:border-primary aria-[current=page]:text-foreground"
+				class="-mb-px inline-flex h-9 items-center justify-center border-transparent border-b-2 px-2 font-medium text-foreground/60 text-sm hover:text-foreground aria-[current=page]:border-foreground aria-[current=page]:text-foreground"
 				href={item.href}
 				aria-current={item.current ? "page" : undefined}
 			>

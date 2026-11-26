@@ -1,11 +1,11 @@
 ---
-import Button from "../ui/Button.astro";
-import Icon from "../ui/Icon.astro";
+import Drawer from "../ui/Drawer.astro";
+import AdminNavBody from "./AdminNavBody.astro";
 
 /**
- * The admin area's navigation: a column down the side of a wide window, a
- * bar across the top of a narrow one. It holds the parts of the admin area,
- * how long the sign-in lasts, and the ways out.
+ * The admin area's navigation: a column down the side of a wide window; in a
+ * narrow one, a bar across the top with one menu button that slides the same
+ * column in as a drawer.
  */
 interface Props {
 	minutesLeft: number;
@@ -13,57 +13,24 @@ interface Props {
 
 const { minutesLeft } = Astro.props;
 const { config } = Astro.locals;
-const path = Astro.url.pathname;
-const sections = [
-	{ href: "/admin", label: "Overview", icon: "dashboard" as const, current: path === "/admin" },
-	{
-		href: "/admin/courses",
-		label: "Courses",
-		icon: "book" as const,
-		current: path.startsWith("/admin/courses"),
-	},
-	{
-		href: "/admin/users",
-		label: "Users",
-		icon: "users" as const,
-		current: path.startsWith("/admin/users"),
-	},
-];
-const link =
-	"flex items-center gap-2.5 rounded-md px-3 py-2 font-medium text-muted-foreground hover:bg-muted hover:text-foreground aria-[current=page]:bg-muted aria-[current=page]:text-foreground";
 ---
 
-<aside
-	class="flex flex-wrap items-center gap-x-4 gap-y-2 border-border border-b bg-card px-4 py-3 lg:sticky lg:top-0 lg:h-dvh lg:flex-col lg:flex-nowrap lg:items-stretch lg:gap-6 lg:border-r lg:border-b-0 lg:px-4 lg:py-6"
+<div
+	class="flex h-14 items-center justify-between border-border border-b bg-card p-3 pl-4 lg:hidden"
 	data-admin-bar
 >
-	<p class="px-3 font-bold text-lg tracking-tight">
+	<p class="font-bold text-lg tracking-tight">
 		{config.siteName}
 		<span class="ml-1 font-medium text-muted-foreground text-sm">Admin</span>
 	</p>
-	<nav class="flex gap-1 lg:flex-col" aria-label="Admin">
-		{
-			sections.map((section) => (
-				<a class={link} href={section.href} aria-current={section.current ? "page" : undefined}>
-					<Icon name={section.icon} />
-					{section.label}
-				</a>
-			))
-		}
-	</nav>
-	<div class="ml-auto flex items-center gap-2 lg:mt-auto lg:ml-0 lg:flex-col lg:items-stretch lg:gap-3">
-		<p class="hidden px-3 text-muted-foreground text-sm lg:block" data-admin-time-left>
-			Signed in for {minutesLeft} more {minutesLeft === 1 ? "minute" : "minutes"}
-		</p>
-		<Button href="/" size="sm" variant="ghost" class="lg:justify-start">
-			<Icon name="external" />
-			View the site
-		</Button>
-		<form method="post" action="/admin/sign-out" class="lg:contents">
-			<Button type="submit" size="sm" variant="ghost" class="lg:justify-start">
-				<Icon name="log-out" />
-				Leave admin
-			</Button>
-		</form>
-	</div>
+	<Drawer id="admin-menu" label="Menu">
+		<AdminNavBody minutesLeft={minutesLeft} />
+	</Drawer>
+</div>
+
+<aside
+	class="hidden h-dvh w-full flex-col justify-between overflow-auto border-border border-r bg-card lg:sticky lg:top-0 lg:flex"
+	data-admin-bar
+>
+	<AdminNavBody minutesLeft={minutesLeft} />
 </aside>

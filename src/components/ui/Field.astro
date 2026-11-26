@@ -61,8 +61,8 @@ const control = {
 };
 ---
 
-<div class={cx("flex flex-col gap-1.5", extra)}>
-	<label class="font-medium text-sm" for={id}>
+<div class={cx("flex w-full flex-col gap-2", extra)}>
+	<label class="flex w-fit gap-1 font-medium text-sm leading-snug" for={id}>
 		{label}
 		{optional && <span class="font-normal text-muted-foreground"> (optional)</span>}
 	</label>
@@ -86,14 +86,14 @@ const control = {
 	{as === "custom" && <slot />}
 	{
 		hint && (
-			<p class="text-muted-foreground text-sm" id={`${id}-hint`}>
+			<p class="font-normal text-muted-foreground text-sm leading-normal" id={`${id}-hint`}>
 				{hint}
 			</p>
 		)
 	}
 	{
 		error && (
-			<p class="font-medium text-destructive text-sm" id={`${id}-error`}>
+			<p class="font-normal text-destructive text-sm" role="alert" id={`${id}-error`}>
 				{error}
 			</p>
 		)

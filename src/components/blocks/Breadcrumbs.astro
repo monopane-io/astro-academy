@@ -1,25 +1,47 @@
 ---
 import Icon from "../ui/Icon.astro";
 
-/** The pages above this one, outermost first, each a link. */
+/** The pages above this one, outermost first, each a link, then this page. */
 interface Props {
 	trail: { href: string; label: string }[];
+	/** The page you are on, shown last and not as a link. */
+	current?: string;
 }
 
-const { trail } = Astro.props;
+const { trail, current } = Astro.props;
 ---
 
-<nav class="mb-3 text-sm" aria-label="Breadcrumb">
-	<ol class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-muted-foreground">
+<nav class="mb-4" aria-label="Breadcrumb">
+	<ol class="flex flex-wrap items-center gap-1.5 break-words text-muted-foreground text-sm sm:gap-2.5">
 		{
 			trail.map((step, index) => (
-				<li class="flex min-w-0 items-center gap-1.5">
-					{index > 0 && <Icon name="chevron-right" size="sm" class="opacity-60" />}
-					<a class="max-w-56 truncate hover:text-foreground" href={step.href}>
-						{step.label}
-					</a>
-				</li>
+				<>
+					{index > 0 && (
+						<li aria-hidden="true">
+							<Icon name="chevron-right" size="sm" />
+						</li>
+					)}
+					<li class="inline-flex min-w-0 items-center gap-1.5">
+						<a class="max-w-56 truncate transition-colors hover:text-foreground" href={step.href}>
+							{step.label}
+						</a>
+					</li>
+				</>
 			))
+		}
+		{
+			current && (
+				<>
+					<li aria-hidden="true">
+						<Icon name="chevron-right" size="sm" />
+					</li>
+					<li class="inline-flex min-w-0 items-center gap-1.5">
+						<span class="max-w-56 truncate font-normal text-foreground" aria-current="page">
+							{current}
+						</span>
+					</li>
+				</>
+			)
 		}
 	</ol>
 </nav>

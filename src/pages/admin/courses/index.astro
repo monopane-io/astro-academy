@@ -17,7 +17,7 @@ if (response) return response;
 	<Notice done={data.done} />
 	<PageHeader title="Courses">
 		<span slot="status" data-admin-summary>{data.published} published, {data.drafts} in draft</span>
-		<Button slot="actions" variant="primary" href="/admin/courses/new">New course</Button>
+		<Button slot="actions" variant="primary" href="/admin/courses/new">Create course</Button>
 	</PageHeader>
 
 	{
@@ -27,7 +27,7 @@ if (response) return response;
 				description="A course is a set of lessons. It starts as a draft, and users see it once you publish it."
 			>
 				<Button variant="primary" href="/admin/courses/new">
-					New course
+					Create course
 				</Button>
 			</Empty>
 		) : (

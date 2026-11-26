@@ -2,6 +2,8 @@
 import type { CourseHead } from "../../lib/admin/content";
 import Badge from "../ui/Badge.astro";
 import Button from "../ui/Button.astro";
+import Menu from "../ui/Menu.astro";
+import DeleteAction from "./DeleteAction.astro";
 import PageHeader from "./PageHeader.astro";
 import Tabs from "./Tabs.astro";
 
@@ -32,8 +34,25 @@ const { course, tab, facts } = Astro.props;
 			)
 		}
 		<slot name="actions" />
+		<Menu label={`More actions for ${course.title}`}>
+			<slot name="menu" />
+			<DeleteAction part="item"
+				do="delete-course"
+				action={course.detailsHref}
+				label="Delete course"
+				name={course.title}
+				consequence="Its lessons and activities go with it."
+			/>
+		</Menu>
 	</Fragment>
 </PageHeader>
+<DeleteAction part="dialog"
+	do="delete-course"
+	action={course.detailsHref}
+	label="Delete course"
+	name={course.title}
+	consequence="Its lessons and activities go with it."
+/>
 <Tabs
 	label="Parts of this course"
 	items={[

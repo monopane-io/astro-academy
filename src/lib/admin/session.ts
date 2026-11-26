@@ -20,6 +20,9 @@ export interface AdminSession {
 	token: string;
 	/** When the token stops working, in milliseconds. */
 	expires: number;
+	/** Who signed in, as Monopane told us, to show in the admin area. */
+	name?: string;
+	email?: string;
 }
 
 /** What is kept while someone is away signing in at Monopane. */
@@ -125,7 +128,12 @@ export async function openAdminSession(
 		return null;
 	}
 	if (session.expires <= now) return null;
-	return { token: session.token, expires: session.expires };
+	return {
+		token: session.token,
+		expires: session.expires,
+		...(typeof session.name === "string" ? { name: session.name } : {}),
+		...(typeof session.email === "string" ? { email: session.email } : {}),
+	};
 }
 
 export const sealSignInStart = (start: SignInStart, secret: string) => seal("start", start, secret);

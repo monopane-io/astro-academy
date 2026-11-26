@@ -1,52 +1,79 @@
 ---
 import { sitePages } from "../../lib/ui";
+import Avatar from "../ui/Avatar.astro";
 import Button from "../ui/Button.astro";
+import Drawer from "../ui/Drawer.astro";
+import Icon from "../ui/Icon.astro";
 import Menu from "../ui/Menu.astro";
 import MenuItem from "../ui/MenuItem.astro";
 
 /**
- * The bar across the top of every user page: the academy's name, its pages,
- * and who is signed in. On a small screen the pages are behind a menu button.
+ * The bar across the top of every user page.
+ *
+ * In a wide window: the academy's name, its pages, and the signed-in user's
+ * account behind an avatar that opens a menu. In a narrow one: the name and
+ * one menu button, which slides in a drawer with the pages at the top and the
+ * account at the bottom.
  */
 const { config, user, admin } = Astro.locals;
 const pages = sitePages(Astro.url.pathname, Boolean(user), Boolean(admin));
 const navLink =
-	"rounded-md px-3 py-1.5 font-medium text-muted-foreground hover:text-foreground aria-[current=page]:bg-muted aria-[current=page]:text-foreground";
+	"flex items-center justify-center rounded-md px-2.5 py-1.5 font-semibold text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-foreground aria-[current=page]:bg-muted aria-[current=page]:text-foreground";
+const drawerLink =
+	"flex max-h-9 w-full items-center rounded-md p-2 font-semibold text-muted-foreground text-sm hover:bg-muted hover:text-foreground aria-[current=page]:bg-muted aria-[current=page]:text-foreground";
 ---
 
 <header
 	class="sticky top-0 z-40 border-border border-b bg-background/85 backdrop-blur"
 	transition:name="site-header"
 >
-	<div class="mx-auto flex h-14 max-w-page items-center gap-2 px-4 sm:gap-6 sm:px-6">
-		<a class="mr-auto font-bold text-lg tracking-tight sm:mr-0" href="/">{config.siteName}</a>
-		<nav class="hidden items-center gap-1 sm:mr-auto sm:flex" aria-label="Main">
-			{
-				pages.map((page) => (
-					<a class={navLink} href={page.href} aria-current={page.current ? "page" : undefined}>
-						{page.label}
-					</a>
-				))
-			}
+	<div class="mx-auto flex h-14 max-w-page items-center justify-between p-3 pl-4 sm:px-6 lg:h-16">
+		<a class="mr-4 rounded-xs font-bold text-lg tracking-tight" href="/">{config.siteName}</a>
+
+		{/* A wide window: the pages, then the account. */}
+		<nav class="hidden sm:block" aria-label="Main">
+			<ul class="flex items-center gap-0.5">
+				{
+					pages.map((page) => (
+						<li>
+							<a class={navLink} href={page.href} aria-current={page.current ? "page" : undefined}>
+								{page.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
 		</nav>
-		<div class="flex items-center gap-3 text-sm">
+		<div class="ml-auto hidden items-center gap-3 sm:flex">
 			{
 				user ? (
-					<>
-						<span class="hidden max-w-40 truncate text-muted-foreground sm:inline" data-signed-in-as>
-							{user.name}
-						</span>
-						<form method="post" action="/sign-out">
-							<button class="cursor-pointer font-medium hover:text-primary" type="submit">
+					<Menu label="Account">
+						<Fragment slot="trigger">
+							<Avatar name={user.name} size="sm" />
+							<span class="max-w-40 truncate font-semibold" data-signed-in-as>
+								{user.name}
+							</span>
+							<Icon name="chevron-down" class="text-muted-foreground" />
+						</Fragment>
+						<div class="flex items-center gap-3 border-border border-b px-2 py-2.5">
+							<Avatar name={user.name} />
+							<p class="min-w-0">
+								<span class="block truncate font-semibold text-sm">{user.name}</span>
+								{user.email && <span class="block truncate text-muted-foreground text-sm">{user.email}</span>}
+							</p>
+						</div>
+						<div class="flex flex-col pt-1">
+							<MenuItem action="/sign-out" stay={false}>
+								<Icon name="log-out" class="text-muted-foreground" />
 								Sign out
-							</button>
-						</form>
-					</>
+							</MenuItem>
+						</div>
+					</Menu>
 				) : admin ? (
 					// Signed in to run the academy, not to learn in it.
-					<a class="font-medium hover:text-primary" href="/sign-in">
+					<Button variant="ghost" size="sm" href="/sign-in">
 						Sign in to learn
-					</a>
+					</Button>
 				) : (
 					<Button variant="primary" size="md" href="/sign-in">
 						Sign in
@@ -54,11 +81,54 @@ const navLink =
 				)
 			}
 		</div>
-		{/* On a small screen the pages are behind a menu button. */}
+
+		{/* A narrow window: one button, and everything in a drawer. */}
 		<div class="sm:hidden">
-			<Menu label="Pages" icon="menu">
-				{pages.map((page) => <MenuItem href={page.href}>{page.label}</MenuItem>)}
-			</Menu>
+			<Drawer id="site-menu" label="Menu">
+				<div class="flex flex-col gap-5 px-4 pt-4">
+					<a class="font-bold text-lg tracking-tight" href="/">{config.siteName}</a>
+				</div>
+				<nav aria-label="Main">
+					<ul class="flex flex-col px-4 pt-5">
+						{
+							pages.map((page) => (
+								<li class="py-px">
+									<a class={drawerLink} href={page.href} aria-current={page.current ? "page" : undefined}>
+										{page.label}
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</nav>
+				<div class="mt-auto flex flex-col gap-3 px-4 py-4">
+					{
+						user ? (
+							<>
+								<form method="post" action="/sign-out">
+									<button class={`${drawerLink} cursor-pointer text-left`} type="submit">
+										<Icon name="log-out" size="lg" class="mr-2 opacity-70" />
+										Sign out
+									</button>
+								</form>
+								<div class="flex items-center gap-3 rounded-xl p-3 ring-1 ring-border ring-inset" data-account-card>
+									<Avatar name={user.name} />
+									<p class="min-w-0">
+										<span class="block truncate font-semibold text-sm">{user.name}</span>
+										{user.email && (
+											<span class="block truncate text-muted-foreground text-sm">{user.email}</span>
+										)}
+									</p>
+								</div>
+							</>
+						) : (
+							<Button variant={admin ? "secondary" : "primary"} class="w-full" href="/sign-in">
+								{admin ? "Sign in to learn" : "Sign in"}
+							</Button>
+						)
+					}
+				</div>
+			</Drawer>
 		</div>
 	</div>
 </header>

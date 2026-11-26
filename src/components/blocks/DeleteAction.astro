@@ -1,0 +1,48 @@
+---
+import Button from "../ui/Button.astro";
+import Dialog from "../ui/Dialog.astro";
+import MenuItem from "../ui/MenuItem.astro";
+
+/**
+ * Deleting something for good: the last line of a page's menu of actions,
+ * which asks once more in a dialog before anything is sent.
+ *
+ * It has two parts, placed separately: `part="item"` inside the <Menu>, and
+ * `part="dialog"` outside it (a menu hides what is in it when it closes).
+ */
+interface Props {
+	part: "item" | "dialog";
+	/** The form's `do` value. */
+	do: string;
+	/** The page that carries out the delete. */
+	action: string;
+	/** What the menu line says: "Delete course". */
+	label: string;
+	/** Its name, for the question. */
+	name: string;
+	consequence: string;
+}
+
+const { part, do: task, action, label, name, consequence } = Astro.props;
+const dialog = `confirm-${task}`;
+---
+
+{part === "item" && <MenuItem dialog={dialog} destructive>{label}</MenuItem>}
+
+{
+	part === "dialog" && (
+<Dialog id={dialog} title={`Delete ${name}?`}>
+	{consequence} This cannot be undone.
+	<Fragment slot="actions">
+		<form method="dialog">
+			<Button type="submit" class="w-full">Cancel</Button>
+		</form>
+		<form method="post" action={action}>
+			<input type="hidden" name="do" value={task} />
+			<input type="hidden" name="confirm" value="yes" />
+			<Button variant="destructive" type="submit" class="w-full">Delete</Button>
+		</form>
+	</Fragment>
+</Dialog>
+	)
+}

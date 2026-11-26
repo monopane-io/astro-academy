@@ -13,15 +13,22 @@ interface Props {
 const { title, description, icon = "inbox", bare = false } = Astro.props;
 ---
 
-<div class:list={["px-6 py-10 text-center", !bare && "rounded-xl border border-border border-dashed"]}>
-	<span class="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-		<Icon name={icon} size="lg" />
-	</span>
-	<p class="font-medium">{title}</p>
-	{description && <p class="mx-auto mt-1 max-w-md text-muted-foreground text-sm">{description}</p>}
+<div
+	class:list={[
+		"flex min-w-0 flex-col items-center justify-center gap-6 text-balance p-6 text-center md:p-12",
+		!bare && "rounded-lg border border-border border-dashed",
+	]}
+>
+	<div class="flex max-w-sm flex-col items-center gap-2">
+		<span class="mb-2 flex size-10 items-center justify-center rounded-lg bg-muted text-foreground">
+			<Icon name={icon} size="lg" />
+		</span>
+		<p class="font-medium text-lg tracking-tight">{title}</p>
+		{description && <p class="text-muted-foreground text-sm/relaxed">{description}</p>}
+	</div>
 	{
 		Astro.slots.has("default") && (
-			<div class="mt-4 flex justify-center gap-2">
+			<div class="flex w-full max-w-sm flex-wrap items-center justify-center gap-2 text-sm">
 				<slot />
 			</div>
 		)

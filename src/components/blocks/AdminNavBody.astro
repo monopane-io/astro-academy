@@ -1,0 +1,82 @@
+---
+import Avatar from "../ui/Avatar.astro";
+import Icon from "../ui/Icon.astro";
+
+/**
+ * What the admin navigation holds, top to bottom: the academy's name, the
+ * parts of the admin area, the ways out, and who is signed in. AdminNav shows
+ * it as a column in a wide window and inside a drawer in a narrow one.
+ */
+interface Props {
+	minutesLeft: number;
+}
+
+const { minutesLeft } = Astro.props;
+const { config, admin } = Astro.locals;
+const path = Astro.url.pathname;
+const sections = [
+	{ href: "/admin", label: "Overview", icon: "dashboard" as const, current: path === "/admin" },
+	{
+		href: "/admin/courses",
+		label: "Courses",
+		icon: "book" as const,
+		current: path.startsWith("/admin/courses"),
+	},
+	{
+		href: "/admin/users",
+		label: "Users",
+		icon: "users" as const,
+		current: path.startsWith("/admin/users"),
+	},
+];
+const item =
+	"group/item flex max-h-9 w-full items-center rounded-md p-2 font-semibold text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-foreground aria-[current=page]:bg-muted aria-[current=page]:text-foreground";
+const left = `Signed in for ${minutesLeft} more ${minutesLeft === 1 ? "minute" : "minutes"}`;
+---
+
+<div class="pt-4 lg:pt-5">
+	<p class="px-4 font-bold text-lg tracking-tight lg:px-5">
+		{config.siteName}
+		<span class="ml-1 font-medium text-muted-foreground text-sm">Admin</span>
+	</p>
+	<nav aria-label="Admin">
+		<ul class="flex flex-col px-4 pt-5">
+			{
+				sections.map((section) => (
+					<li class="py-px">
+						<a class={item} href={section.href} aria-current={section.current ? "page" : undefined}>
+							<Icon name={section.icon} size="lg" class="mr-2 opacity-70" />
+							<span class="flex-1 truncate">{section.label}</span>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</nav>
+</div>
+<div class="mt-auto flex flex-col gap-3 px-4 py-4 lg:py-5">
+	<ul class="flex flex-col">
+		<li class="py-px">
+			<a class={item} href="/">
+				<Icon name="external" size="lg" class="mr-2 opacity-70" />
+				<span class="flex-1 truncate">View the site</span>
+			</a>
+		</li>
+		<li class="py-px">
+			<form method="post" action="/admin/sign-out">
+				<button class={`${item} cursor-pointer text-left`} type="submit">
+					<Icon name="log-out" size="lg" class="mr-2 opacity-70" />
+					<span class="flex-1 truncate">Leave admin</span>
+				</button>
+			</form>
+		</li>
+	</ul>
+	<div class="flex items-center gap-3 rounded-xl p-3 ring-1 ring-border ring-inset" data-admin-account>
+		{admin?.name && <Avatar name={admin.name} />}
+		<p class="min-w-0 text-sm">
+			{admin?.name && <span class="block truncate font-semibold">{admin.name}</span>}
+			{admin?.email && <span class="block truncate text-muted-foreground">{admin.email}</span>}
+			<span class="block text-muted-foreground" data-admin-time-left>{left}</span>
+		</p>
+	</div>
+</div>

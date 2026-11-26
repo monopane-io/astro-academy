@@ -26,27 +26,26 @@ const busy =
 	"aria-busy:pointer-events-none aria-busy:opacity-70 aria-busy:before:size-4 aria-busy:before:animate-spin aria-busy:before:rounded-full aria-busy:before:border-2 aria-busy:before:border-current aria-busy:before:border-r-transparent aria-busy:before:content-['']";
 
 const button = variants(
-	`inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors disabled:cursor-default disabled:opacity-45 ${focusRing} ${busy}`,
+	`inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md border font-medium text-sm transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 ${focusRing} ${busy}`,
 	{
 		variant: {
-			primary: "bg-brand text-brand-foreground hover:brightness-110 disabled:hover:brightness-100",
-			secondary:
-				"border border-border bg-card text-foreground hover:bg-muted disabled:hover:bg-card",
-			ghost: "text-foreground hover:bg-muted disabled:hover:bg-transparent",
+			primary: "border-transparent bg-brand text-brand-foreground hover:bg-brand/90",
+			secondary: "border-border bg-card text-foreground shadow-xs hover:bg-muted",
+			ghost: "border-transparent text-foreground hover:bg-muted",
 			destructive:
-				"bg-destructive text-destructive-foreground hover:brightness-110 disabled:hover:brightness-100",
+				"border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/90",
 		},
 		size: {
-			sm: "h-8 px-3 text-sm",
-			md: "h-10 px-4",
-			lg: "h-11 px-5 font-semibold",
+			sm: "h-8 gap-1.5 px-3",
+			md: "h-9 px-4",
+			lg: "h-10 px-6",
 		},
 	},
 	{ variant: "secondary", size: "md" },
 );
 
 const { variant, size, href, icon = false, class: extra, type = "button", ...rest } = Astro.props;
-const square = { sm: "w-8 px-0", md: "w-10 px-0", lg: "w-11 px-0" }[size ?? "md"];
+const square = { sm: "w-8 px-0", md: "w-9 px-0", lg: "w-10 px-0" }[size ?? "md"];
 const classes = button({ variant, size }, [icon && square, extra].filter(Boolean).join(" "));
 ---
 

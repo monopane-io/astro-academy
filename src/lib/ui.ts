@@ -46,7 +46,7 @@ export function variants<O extends Options>(
 
 /** The ring every control shows when it is reached by keyboard. */
 export const focusRing =
-	"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+	"outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
 /** A stable id for a field made from its name, so a label can point at it. */
 export function fieldId(name: string, suffix = ""): string {

@@ -82,6 +82,13 @@ const { config } = Astro.locals;
 				event.submitter?.setAttribute("aria-busy", "true");
 			});
 
+			// A drawer left open is closed before the next page is swapped in.
+			document.addEventListener("astro:before-swap", () => {
+				for (const drawer of document.querySelectorAll<HTMLElement>("[data-drawer]:popover-open")) {
+					drawer.hidePopover();
+				}
+			});
+
 			// A menu (a <details data-menu>) closes when something outside it is
 			// pressed, or on Escape, as menus do.
 			document.addEventListener("click", (event) => {

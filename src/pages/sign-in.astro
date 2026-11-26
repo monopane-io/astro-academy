@@ -18,7 +18,7 @@ if (response) return response;
 			</Alert>
 		) : (
 			<>
-				<p class="mt-2 text-muted-foreground">
+				<p class="mt-2 text-center text-muted-foreground text-sm">
 					{data.mode === "demo"
 						? "Enter a name and an email address to try the academy. Nothing is sent to you."
 						: "Enter your email address and we will send you a link that signs you in."}
@@ -28,7 +28,7 @@ if (response) return response;
 						{data.error}
 					</Alert>
 				)}
-				<form class="mt-6 flex flex-col gap-4" method="post">
+				<form class="mt-6 flex flex-col gap-7" method="post">
 					<Field label="Your name" name="name" autocomplete="name" value={data.name} />
 					<Field
 						label="Email address"
@@ -38,7 +38,7 @@ if (response) return response;
 						required
 						value={data.email}
 					/>
-					<Button variant="primary" size="lg" class="mt-2" type="submit">
+					<Button variant="primary" type="submit">
 						{data.mode === "demo" ? "Sign in" : "Email me a sign-in link"}
 					</Button>
 				</form>

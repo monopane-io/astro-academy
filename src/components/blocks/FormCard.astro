@@ -21,10 +21,10 @@ const { do: action, fields = {}, stay = false, ...rest } = Astro.props;
 	<form method="post" data-stay={stay ? "" : undefined}>
 		<input type="hidden" name="do" value={action} />
 		{Object.entries(fields).map(([name, value]) => <input type="hidden" name={name} value={value} />)}
-		<div class="flex flex-col gap-5 p-5 sm:p-6">
+		<div class="flex flex-col gap-7 p-6">
 			<slot />
 		</div>
-		<div class="flex flex-wrap items-center justify-end gap-2 rounded-b-xl border-border border-t bg-muted/50 px-5 py-3 sm:px-6">
+		<div class="flex flex-wrap items-center justify-end gap-2 rounded-b-xl border-border border-t px-6 py-4">
 			<slot name="actions" />
 		</div>
 	</form>

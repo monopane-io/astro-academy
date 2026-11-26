@@ -10,6 +10,6 @@ const { ordered = false, ...rest } = Astro.props;
 const List = ordered ? "ol" : "ul";
 ---
 
-<List class="divide-y divide-border rounded-xl border border-border bg-card" {...rest}>
+<List class="flex flex-col divide-y divide-border rounded-xl border border-border bg-card shadow-sm" role="list" {...rest}>
 	<slot />
 </List>
