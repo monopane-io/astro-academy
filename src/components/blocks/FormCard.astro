@@ -1,5 +1,6 @@
 ---
 import Card from "../ui/Card.astro";
+import FieldGroup from "../ui/FieldGroup.astro";
 
 /**
  * One form on a page: its fields in a column, and its buttons in a bar along
@@ -21,9 +22,9 @@ const { do: action, fields = {}, stay = false, ...rest } = Astro.props;
 	<form method="post" data-stay={stay ? "" : undefined}>
 		<input type="hidden" name="do" value={action} />
 		{Object.entries(fields).map(([name, value]) => <input type="hidden" name={name} value={value} />)}
-		<div class="flex flex-col gap-7 p-6">
+		<FieldGroup class="p-6">
 			<slot />
-		</div>
+		</FieldGroup>
 		<div class="flex flex-wrap items-center justify-end gap-2 rounded-b-xl border-border border-t px-6 py-4">
 			<slot name="actions" />
 		</div>

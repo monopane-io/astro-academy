@@ -3,7 +3,8 @@ import Icon, { type IconName } from "../ui/Icon.astro";
 
 /** What happened, newest first: one line each, with when. */
 interface Props {
-	items: { text: string; when: string; icon?: IconName }[];
+	/** `at` is the moment in ISO form, for the <time> element. */
+	items: { text: string; when: string; at?: string; icon?: IconName }[];
 	[attribute: string]: unknown;
 }
 
@@ -22,7 +23,9 @@ const { items, ...rest } = Astro.props;
 				</span>
 				<div class="min-w-0 pt-1">
 					<p>{item.text}</p>
-					<p class="text-muted-foreground text-sm">{item.when}</p>
+					<p class="text-muted-foreground text-sm">
+						{item.at ? <time datetime={item.at}>{item.when}</time> : item.when}
+					</p>
 				</div>
 			</li>
 		))

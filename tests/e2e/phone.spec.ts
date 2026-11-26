@@ -31,7 +31,7 @@ test("a user's header on a phone is one menu button and a drawer", async ({ page
 	// One button in the bar; no second menu, and nothing wider than the window.
 	const bar = page.getByRole("banner");
 	await expect(bar.getByRole("button")).toHaveCount(1);
-	await expect(page.getByLabel("Account", { exact: true })).toBeHidden();
+	await expect(page.getByLabel(/^Account: /)).toBeHidden();
 	expect(
 		await page.evaluate(
 			() => document.documentElement.scrollWidth - document.documentElement.clientWidth,

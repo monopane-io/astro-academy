@@ -1,8 +1,7 @@
 ---
 import CourseHeader from "../../../../components/blocks/CourseHeader.astro";
+import FormCard from "../../../../components/blocks/FormCard.astro";
 import Notice from "../../../../components/blocks/Notice.astro";
-import SettingsForm from "../../../../components/blocks/SettingsForm.astro";
-import SettingsGroup from "../../../../components/blocks/SettingsGroup.astro";
 import Button from "../../../../components/ui/Button.astro";
 import Field from "../../../../components/ui/Field.astro";
 import Admin from "../../../../layouts/Admin.astro";
@@ -17,8 +16,7 @@ const { course, values } = data;
 	<Notice done={data.done} error={data.error} />
 	<CourseHeader course={course} tab="details" />
 
-	<SettingsForm do="save-course">
-		<SettingsGroup title="Basics" description="What the course is called and where it lives.">
+	<FormCard do="save-course">
 		<Field label="Title" name="title" value={values.title} required maxlength="500" />
 		<Field
 			label="Address"
@@ -30,8 +28,6 @@ const { course, values } = data;
 			hint={`The course is at /courses/${values.slug}. Small letters, numbers and hyphens. Changing it breaks links people already have.`}
 		/>
 		<Field label="What it covers" name="description" as="textarea" value={values.description} maxlength="5000" />
-		</SettingsGroup>
-		<SettingsGroup title="In the catalogue" description="How the course is shown among the others.">
 		<Field
 			label="Topics"
 			name="tags"
@@ -57,7 +53,6 @@ const { course, values } = data;
 			placeholder="https://"
 			hint="The https address of a picture kept somewhere else. Leave empty for none."
 		/>
-		</SettingsGroup>
 		<Button slot="actions" variant="primary" type="submit">Save course</Button>
-	</SettingsForm>
+	</FormCard>
 </Admin>

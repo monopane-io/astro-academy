@@ -48,6 +48,18 @@ export function variants<O extends Options>(
 export const focusRing =
 	"outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
+/**
+ * A box to tick and a dot to choose, drawn the same in every browser: 16px,
+ * a light shadow, filled with the brand colour when chosen.
+ */
+const choice =
+	"grid size-4 shrink-0 cursor-pointer appearance-none place-content-center border border-border bg-card shadow-xs outline-none transition-shadow before:scale-0 before:content-[''] checked:border-brand checked:before:scale-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20";
+export const checkbox = `${choice} rounded-[4px] checked:bg-brand before:size-3 before:bg-brand-foreground before:[clip-path:polygon(14%_44%,0_65%,50%_100%,100%_16%,80%_0%,43%_62%)]`;
+export const radio = `${choice} rounded-full before:size-2 before:rounded-full before:bg-brand`;
+
+/** The one recipe for a surface that holds something: a card, a list, a tile. */
+export const surface = "rounded-xl border border-border bg-card shadow-sm";
+
 /** A stable id for a field made from its name, so a label can point at it. */
 export function fieldId(name: string, suffix = ""): string {
 	return `f-${name}${suffix ? `-${suffix}` : ""}`.replace(/[^a-zA-Z0-9_-]/g, "-");

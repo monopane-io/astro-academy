@@ -1,10 +1,13 @@
 ---
+import DeleteAction from "../../../../../../components/blocks/DeleteAction.astro";
 import Empty from "../../../../../../components/blocks/Empty.astro";
+import Facts from "../../../../../../components/blocks/Facts.astro";
 import ItemList from "../../../../../../components/blocks/ItemList.astro";
 import ItemRow from "../../../../../../components/blocks/ItemRow.astro";
 import LessonHeader from "../../../../../../components/blocks/LessonHeader.astro";
 import Notice from "../../../../../../components/blocks/Notice.astro";
 import Section from "../../../../../../components/blocks/Section.astro";
+import Split from "../../../../../../components/blocks/Split.astro";
 import Badge from "../../../../../../components/ui/Badge.astro";
 import Button from "../../../../../../components/ui/Button.astro";
 import Menu from "../../../../../../components/ui/Menu.astro";
@@ -21,16 +24,30 @@ const { course, lesson } = data;
 	<Notice done={data.done} error={data.error} />
 	<LessonHeader course={course} lesson={lesson} tab="activities" />
 
+	<Split>
+		<Facts
+			slot="aside"
+			title="About this lesson"
+			stacked
+			items={[
+				{ name: "Status", value: lesson.published ? "Published" : "Draft" },
+				{ name: "Course", value: course.published ? `${course.title} (published)` : `${course.title} (draft)` },
+				{ name: "Activities", value: String(data.activities.length) },
+			]}
+		/>
 	<Section description="What a user does in this lesson, in this order.">
-		<Menu slot="actions" label="Add an activity" text="Add an activity">
+		<Menu slot="actions" label="Add activity" text="Add activity">
 			{data.add.map((kind) => <MenuItem href={kind.href}>{kind.label}</MenuItem>)}
 		</Menu>
 		{
 			data.activities.length === 0 ? (
-				<Empty title="Nothing in this lesson yet" description="Add a reading, a video, a link or a quiz.">
+				<Empty
+					title="Add this lesson's first activity"
+					description="A reading, a video, a link or a quiz. Users go through them in order."
+				>
 					{data.add.map((kind) => (
 						<Button href={kind.href} size="sm">
-							{kind.label}
+							Add {kind.label.toLowerCase()}
 						</Button>
 					))}
 				</Empty>
@@ -71,14 +88,22 @@ const { course, lesson } = data;
 								>
 									Move down
 								</MenuItem>
-								<MenuItem fields={{ do: "delete-activity", id: activity.id }} destructive>
-									Delete
-								</MenuItem>
+								<DeleteAction part="item" do="delete-activity" of={activity.id} />
 							</Menu>
+							<DeleteAction
+								slot="actions"
+								part="dialog"
+								do="delete-activity"
+								of={activity.id}
+								fields={{ id: activity.id }}
+								name={activity.title}
+								consequence="Progress users have made on it goes with it."
+							/>
 						</ItemRow>
 					))}
 				</ItemList>
 			)
 		}
 	</Section>
+	</Split>
 </Admin>

@@ -1,4 +1,5 @@
 ---
+import { surface } from "../../lib/ui";
 /**
  * One of the user's courses: its name, a line about where they stand, and
  * what to do next (the `action` slot). `lead` holds a progress ring.
@@ -12,7 +13,7 @@ interface Props {
 const { title, href, meta } = Astro.props;
 ---
 
-<li class="flex flex-wrap items-center gap-x-5 gap-y-4 rounded-xl border border-border bg-card p-5">
+<li class={`flex flex-wrap items-center gap-4 p-4 sm:p-5 ${surface}`}>
 	<slot name="lead" />
 	<div class="min-w-48 flex-1">
 		<h3 class="text-subheading">

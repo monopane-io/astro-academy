@@ -2,6 +2,7 @@
 import DemoNotice from "../components/blocks/DemoNotice.astro";
 import Card from "../components/ui/Card.astro";
 import Icon from "../components/ui/Icon.astro";
+import TextLink from "../components/ui/TextLink.astro";
 import Document from "./Document.astro";
 
 /**
@@ -20,7 +21,7 @@ const { config } = Astro.locals;
 
 <Document title={title} class="flex min-h-dvh flex-col bg-muted">
 	<DemoNotice />
-	<main class="flex flex-1 flex-col items-center justify-center gap-6 p-6 md:p-10">
+	<main id="main" class="flex flex-1 flex-col items-center justify-center gap-6 p-6 md:p-10">
 		<a class="flex items-center gap-2 self-center font-medium" href="/">
 			<span class="flex size-6 items-center justify-center rounded-md bg-brand text-brand-foreground">
 				<Icon name="graduation" />
@@ -33,7 +34,7 @@ const { config } = Astro.locals;
 				<slot />
 			</Card>
 			<p class="px-6 text-center text-muted-foreground text-sm">
-				<a class="underline underline-offset-4 hover:text-primary" href="/">Back to the courses</a>
+				<TextLink href="/">Back to the courses</TextLink>
 			</p>
 		</div>
 	</main>

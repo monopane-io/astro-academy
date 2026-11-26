@@ -11,11 +11,9 @@ import Tabs from "./Tabs.astro";
 interface Props {
 	course: CourseHead;
 	tab: "lessons" | "details";
-	/** A line of facts after the badge: "3 enrolled, 1 completed". */
-	facts?: string;
 }
 
-const { course, tab, facts } = Astro.props;
+const { course, tab } = Astro.props;
 ---
 
 <PageHeader title={course.title} trail={[{ href: "/admin/courses", label: "Courses" }]}>
@@ -23,7 +21,6 @@ const { course, tab, facts } = Astro.props;
 		<Badge variant={course.published ? "success" : "neutral"} data-course-state>
 			{course.published ? "Published" : "Draft"}
 		</Badge>
-		{facts && <span data-course-numbers>{facts}</span>}
 	</Fragment>
 	<Fragment slot="actions">
 		{

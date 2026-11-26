@@ -158,7 +158,12 @@ export interface UserData {
 	user: { name: string; email: string | null; reference: string; joinedOn: string };
 	enrollments: UserEnrollment[];
 	/** What the user has done, newest first. */
-	activity: { text: string; when: string; icon: "user-plus" | "book" | "check" | "award" }[];
+	activity: {
+		text: string;
+		when: string;
+		at: string;
+		icon: "user-plus" | "book" | "check" | "award";
+	}[];
 	minutesLeft: number;
 }
 
@@ -230,7 +235,12 @@ export function userPage(context: PageContext): Promise<PageResult<UserData>> {
 			activity: events
 				.sort((a, b) => b.at.localeCompare(a.at))
 				.slice(0, ACTIVITY_SHOWN)
-				.map((event) => ({ text: event.text, when: dateAndTime(event.at), icon: event.icon })),
+				.map((event) => ({
+					text: event.text,
+					when: dateAndTime(event.at),
+					at: event.at,
+					icon: event.icon,
+				})),
 			minutesLeft: minutesLeft(session.expires),
 		};
 	});

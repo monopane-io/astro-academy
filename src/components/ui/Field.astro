@@ -61,7 +61,7 @@ const control = {
 };
 ---
 
-<div class={cx("flex w-full flex-col gap-2", extra)}>
+<div class={cx("flex w-full flex-col gap-3", error && "text-destructive", extra)} data-invalid={error ? "" : undefined}>
 	<label class="flex w-fit gap-1 font-medium text-sm leading-snug" for={id}>
 		{label}
 		{optional && <span class="font-normal text-muted-foreground"> (optional)</span>}

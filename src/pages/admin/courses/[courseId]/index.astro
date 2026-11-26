@@ -1,11 +1,15 @@
 ---
 import CourseHeader from "../../../../components/blocks/CourseHeader.astro";
+import DeleteAction from "../../../../components/blocks/DeleteAction.astro";
+import Facts from "../../../../components/blocks/Facts.astro";
 import ItemList from "../../../../components/blocks/ItemList.astro";
 import ItemRow from "../../../../components/blocks/ItemRow.astro";
 import Notice from "../../../../components/blocks/Notice.astro";
 import Section from "../../../../components/blocks/Section.astro";
+import Split from "../../../../components/blocks/Split.astro";
 import Badge from "../../../../components/ui/Badge.astro";
 import Button from "../../../../components/ui/Button.astro";
+import Input from "../../../../components/ui/Input.astro";
 import Menu from "../../../../components/ui/Menu.astro";
 import MenuItem from "../../../../components/ui/MenuItem.astro";
 import Admin from "../../../../layouts/Admin.astro";
@@ -15,8 +19,6 @@ const { response, data } = await courseOutlinePage(Astro);
 if (response) return response;
 const { course } = data;
 const status = (published: boolean) => (published ? "published" : "draft");
-const addInput =
-	"h-10 min-w-0 flex-1 rounded-md border border-border bg-card px-3 placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring";
 ---
 
 <Admin title={course.title} minutesLeft={data.minutesLeft}>
@@ -24,7 +26,6 @@ const addInput =
 	<CourseHeader
 		course={course}
 		tab="lessons"
-		facts={`${data.enrolled} enrolled, ${data.completed} completed`}
 	>
 		<Fragment slot="actions">
 			{
@@ -47,11 +48,24 @@ const addInput =
 		{
 			data.hasDrafts && (
 				<MenuItem slot="menu" fields={{ do: "toggle-course", status: status(course.published) }}>
-					{course.published ? "Move the course back to draft" : "Publish the course only"}
+					{course.published ? "Move course back to draft" : "Publish course only"}
 				</MenuItem>
 			)
 		}
 	</CourseHeader>
+
+	<Split>
+		<Facts
+			slot="aside"
+			title="About this course"
+			stacked
+			items={[
+				{ name: "Status", value: course.published ? "Published" : "Draft" },
+				{ name: "Enrolled", value: String(data.enrolled) },
+				{ name: "Completed", value: String(data.completed) },
+			]}
+			data-course-numbers={`${data.enrolled} enrolled, ${data.completed} completed`}
+		/>
 
 	{
 		data.sections.map((section) => (
@@ -84,14 +98,22 @@ const addInput =
 							>
 								Move down
 							</MenuItem>
-							<MenuItem
-								fields={{ do: "delete-module", id: section.module.id }}
+							<DeleteAction
+								part="item"
+								do="delete-module"
+								of={section.module.id}
+								label={section.lessons.length > 0 ? "Delete (move its lessons first)" : "Delete"}
 								disabled={section.lessons.length > 0}
-								destructive
-							>
-								{section.lessons.length > 0 ? "Delete (move its lessons first)" : "Delete"}
-							</MenuItem>
+							/>
 						</Menu>
+						<DeleteAction
+							part="dialog"
+							do="delete-module"
+							of={section.module.id}
+							fields={{ id: section.module.id }}
+							name={section.module.title}
+							consequence="The module is removed; a module with lessons in it cannot be deleted."
+						/>
 					</div>
 				)}
 
@@ -119,10 +141,9 @@ const addInput =
 						<form class="flex flex-wrap gap-2" method="post">
 							<input type="hidden" name="do" value="add-lesson" />
 							<input type="hidden" name="moduleId" value={section.module?.id ?? ""} />
-							<input
-								class={addInput}
+							<Input
+								class="min-w-0 flex-1"
 								name="title"
-								type="text"
 								required
 								maxlength="500"
 								placeholder="Title of a new lesson"
@@ -143,10 +164,9 @@ const addInput =
 	>
 		<form class="flex max-w-form flex-wrap gap-2" method="post">
 			<input type="hidden" name="do" value="add-module" />
-			<input
-				class={addInput}
+			<Input
+				class="min-w-0 flex-1"
 				name="title"
-				type="text"
 				required
 				maxlength="500"
 				placeholder="Title of a new module"
@@ -155,4 +175,5 @@ const addInput =
 			<Button type="submit">Add module</Button>
 		</form>
 	</Section>
+	</Split>
 </Admin>

@@ -6,7 +6,7 @@ import Breadcrumbs from "./Breadcrumbs.astro";
  * what you can do with it. Every admin page starts with one, so the title is
  * always in the same place and the main action is always top right.
  *
- * Slots: `status` (badges and a line of facts under the title) and `actions`
+ * Slots: `status` (a badge on the title's line, after it) and `actions`
  * (buttons and a menu, on the right).
  */
 interface Props {
@@ -24,15 +24,17 @@ const { title, trail, description } = Astro.props;
 	{trail && trail.length > 0 && <Breadcrumbs trail={trail} current={title} />}
 	<div class="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
 		<div class="min-w-0">
-			<h1 class="text-title-sm">{title}</h1>
+			<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+				<h1 class="text-title-sm">{title}</h1>
+				{
+					Astro.slots.has("status") && (
+						<div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-muted-foreground text-sm">
+							<slot name="status" />
+						</div>
+					)
+				}
+			</div>
 			{description && <p class="mt-2 max-w-prose text-muted-foreground">{description}</p>}
-			{
-				Astro.slots.has("status") && (
-					<div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-muted-foreground text-sm">
-						<slot name="status" />
-					</div>
-				)
-			}
 		</div>
 		{
 			Astro.slots.has("actions") && (

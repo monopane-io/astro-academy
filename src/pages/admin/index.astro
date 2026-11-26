@@ -1,8 +1,6 @@
 ---
 import Checklist from "../../components/blocks/Checklist.astro";
 import Empty from "../../components/blocks/Empty.astro";
-import ItemList from "../../components/blocks/ItemList.astro";
-import ItemRow from "../../components/blocks/ItemRow.astro";
 import PageHeader from "../../components/blocks/PageHeader.astro";
 import Section from "../../components/blocks/Section.astro";
 import Stats from "../../components/blocks/Stats.astro";
@@ -39,7 +37,11 @@ if (response) return response;
 		<Button slot="actions" href="/admin/courses" size="sm">All courses</Button>
 		{
 			data.courses.length === 0 ? (
-				<Empty icon="book" title="No courses yet" description="A course is a set of lessons." />
+				<Empty icon="book" title="Create your first course" description="A course is a set of lessons.">
+					<Button variant="primary" href="/admin/courses/new">
+						Create course
+					</Button>
+				</Empty>
 			) : (
 				<Table
 					label="Courses"
@@ -81,16 +83,23 @@ if (response) return response;
 					description="People appear here the first time they sign in to the academy."
 				/>
 			) : (
-				<ItemList>
+				<Table
+					label="Newest users"
+					columns={[{ label: "User" }, { label: "Email", hide: true }, { label: "Joined", align: "right" }]}
+				>
 					{data.recentUsers.map((user) => (
-						<ItemRow title={user.name} href={user.href} meta={user.email}>
-							<Avatar slot="media" name={user.name} />
-							<span slot="status" class="hidden text-muted-foreground text-sm sm:inline">
-								Joined on {user.joinedOn}
-							</span>
-						</ItemRow>
+						<tr>
+							<td>
+								<a class="flex items-center gap-3 font-medium hover:text-primary" href={user.href}>
+									<Avatar name={user.name} size="sm" />
+									{user.name}
+								</a>
+							</td>
+							<td class="hidden text-muted-foreground md:table-cell">{user.email ?? "Not given"}</td>
+							<td class="whitespace-nowrap text-right text-muted-foreground">{user.joinedOn}</td>
+						</tr>
 					))}
-				</ItemList>
+				</Table>
 			)
 		}
 	</Section>

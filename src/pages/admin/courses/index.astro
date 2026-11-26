@@ -1,9 +1,8 @@
 ---
 import Empty from "../../../components/blocks/Empty.astro";
-import ItemList from "../../../components/blocks/ItemList.astro";
-import ItemRow from "../../../components/blocks/ItemRow.astro";
 import Notice from "../../../components/blocks/Notice.astro";
 import PageHeader from "../../../components/blocks/PageHeader.astro";
+import Table from "../../../components/blocks/Table.astro";
 import Badge from "../../../components/ui/Badge.astro";
 import Button from "../../../components/ui/Button.astro";
 import Admin from "../../../layouts/Admin.astro";
@@ -23,7 +22,8 @@ if (response) return response;
 	{
 		data.courses.length === 0 ? (
 			<Empty
-				title="No courses yet"
+				icon="book"
+				title="Create your first course"
 				description="A course is a set of lessons. It starts as a draft, and users see it once you publish it."
 			>
 				<Button variant="primary" href="/admin/courses/new">
@@ -31,20 +31,25 @@ if (response) return response;
 				</Button>
 			</Empty>
 		) : (
-			<ItemList>
+			<Table label="Courses" columns={[{ label: "Course" }, { label: "Status" }, { label: "Changed", align: "right", hide: true }]}>
 				{data.courses.map((course) => (
-					<ItemRow
-						title={course.title}
-						href={course.editHref}
-						meta={`Changed on ${course.updatedOn}`}
-						data-admin-course={course.slug}
-					>
-						<Badge slot="status" variant={course.published ? "success" : "neutral"} data-state>
-							{course.published ? "Published" : "Draft"}
-						</Badge>
-					</ItemRow>
+					<tr data-admin-course={course.slug}>
+						<td class="font-medium">
+							<a class="hover:text-primary" href={course.editHref}>
+								{course.title}
+							</a>
+						</td>
+						<td>
+							<Badge variant={course.published ? "success" : "neutral"} data-state>
+								{course.published ? "Published" : "Draft"}
+							</Badge>
+						</td>
+						<td class="hidden whitespace-nowrap text-right text-muted-foreground md:table-cell">
+							{course.updatedOn}
+						</td>
+					</tr>
 				))}
-			</ItemList>
+			</Table>
 		)
 	}
 </Admin>

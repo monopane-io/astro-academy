@@ -14,7 +14,7 @@ const { items, ...rest } = Astro.props;
 	{
 		items.map((item) => (
 			<div
-				class="flex flex-col gap-6 rounded-xl border border-border bg-gradient-to-t from-primary/5 to-card py-6 shadow-xs dark:bg-card dark:bg-none"
+				class="flex flex-col gap-6 rounded-xl border border-border bg-gradient-to-t from-primary/5 to-card py-6 shadow-sm dark:bg-card dark:bg-none"
 				data-stat={item.label}
 			>
 				<div class="grid grid-cols-[1fr_auto] items-start gap-2 px-6">

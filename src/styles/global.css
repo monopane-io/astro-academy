@@ -130,8 +130,9 @@
 		@apply text-title;
 	}
 
+	/* One focus style everywhere: a soft ring, as on the controls. */
 	:focus-visible {
-		@apply outline-2 outline-primary outline-offset-2;
+		@apply rounded-sm outline-none ring-[3px] ring-ring/50;
 	}
 
 	/* Printing a certificate: the certificate and nothing around it. */

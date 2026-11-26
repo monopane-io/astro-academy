@@ -52,7 +52,7 @@ const {
 			</p>
 		)
 	}
-	{text && <p class:list={["text-muted-foreground", compact ? "mt-3 text-lg" : "mt-4 text-xl"]}>{text}</p>}
+	{text && <p class:list={["text-muted-foreground", compact ? "mt-3 text-base md:max-w-[80%]" : "mt-4 text-xl"]}>{text}</p>}
 	{
 		Astro.slots.has("meta") && (
 			<div class="mt-5 flex flex-wrap items-center gap-2 text-sm">

@@ -178,7 +178,7 @@ test("the user flow, from sign-in to a verified credential", async ({ page, brow
 		"aria-current",
 		"page",
 	);
-	await expect(curriculum.locator("[data-lesson-state=done]")).toHaveCount(1);
+	await expect(curriculum.locator("[data-outline=open] [data-lesson-state=done]")).toHaveCount(1);
 	await page.goto(COURSE);
 
 	// --- The quiz: fail, then pass -------------------------------------------
@@ -286,7 +286,7 @@ test("the user flow, from sign-in to a verified credential", async ({ page, brow
 
 	// --- Sign out ------------------------------------------------------------
 	// Signing out is in the account menu, behind the avatar.
-	await page.getByLabel("Account", { exact: true }).click();
+	await page.getByLabel(/^Account: /).click();
 	await page.getByRole("button", { name: "Sign out" }).click();
 	await expect(page.getByRole("banner").getByRole("link", { name: "Sign in" })).toBeVisible();
 	await page.goto(`${COURSE}/complete`);

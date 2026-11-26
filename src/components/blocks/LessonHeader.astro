@@ -36,7 +36,7 @@ const { course, lesson, tab } = Astro.props;
 			<input type="hidden" name="do" value="toggle-lesson" />
 			<input type="hidden" name="status" value={lesson.published ? "published" : "draft"} />
 			<Button type="submit" variant={lesson.published ? "secondary" : "primary"}>
-				{lesson.published ? "Move back to draft" : "Publish the lesson"}
+				{lesson.published ? "Move back to draft" : "Publish lesson"}
 			</Button>
 		</form>
 		<Menu label={`More actions for ${lesson.title}`}>

@@ -1,0 +1,14 @@
+---
+import { cx } from "../../lib/ui";
+
+/** The fields of one form, one under the other, with the same space between them everywhere. */
+interface Props {
+	class?: string;
+}
+
+const { class: extra } = Astro.props;
+---
+
+<div class={cx("flex w-full flex-col gap-7", extra)}>
+	<slot />
+</div>

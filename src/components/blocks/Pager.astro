@@ -29,16 +29,26 @@ const {
 	<p class="text-muted-foreground text-sm">{summary}</p>
 	<div class="flex gap-2">
 		{
-			firstHref && (
+			firstHref ? (
 				<Button href={firstHref} size="sm">
+					<Icon name="arrow-left" size="sm" />
+					{firstLabel}
+				</Button>
+			) : (
+				<Button size="sm" disabled>
 					<Icon name="arrow-left" size="sm" />
 					{firstLabel}
 				</Button>
 			)
 		}
 		{
-			nextHref && (
+			nextHref ? (
 				<Button href={nextHref} size="sm">
+					{nextLabel}
+					<Icon name="arrow-right" size="sm" />
+				</Button>
+			) : (
+				<Button size="sm" disabled>
 					{nextLabel}
 					<Icon name="arrow-right" size="sm" />
 				</Button>

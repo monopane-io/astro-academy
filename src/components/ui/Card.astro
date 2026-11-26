@@ -1,5 +1,5 @@
 ---
-import { cx } from "../../lib/ui";
+import { cx, surface } from "../../lib/ui";
 
 /**
  * A surface that holds one thing: a form, a list, a set of facts. With a
@@ -21,7 +21,7 @@ const hasFooter = Astro.slots.has("footer");
 
 <div
 	class={cx(
-		"flex flex-col rounded-xl border border-border bg-card text-foreground shadow-sm",
+		`flex flex-col text-foreground ${surface}`,
 		!flush && "gap-6 py-6",
 		extra,
 	)}

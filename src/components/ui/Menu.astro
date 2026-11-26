@@ -24,7 +24,7 @@ const custom = Astro.slots.has("trigger");
 <details class="group/menu relative" data-menu>
 	<summary
 		class:list={[
-			"inline-flex cursor-pointer list-none items-center justify-center gap-1.5 rounded-md font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 group-open/menu:bg-muted [&::-webkit-details-marker]:hidden",
+			"inline-flex cursor-pointer list-none items-center justify-center gap-1.5 rounded-md font-medium outline-none hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50 group-open/menu:bg-muted [&::-webkit-details-marker]:hidden",
 			// With words on it, it is a button like any other; without, a quiet icon in a row.
 			custom
 				? "gap-2 p-1 text-sm"

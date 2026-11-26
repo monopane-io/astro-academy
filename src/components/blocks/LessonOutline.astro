@@ -1,7 +1,12 @@
 ---
 import type { LessonPage } from "../../lib/pages";
+import LessonOutlineList from "./LessonOutlineList.astro";
 
-/** A course's lessons as a track, with the one being read marked. Folds away on a small screen. */
+/**
+ * A course's lessons beside a lesson, with the one being read marked. A wide
+ * screen shows them; a narrow one folds them away above the lesson, closed
+ * until asked for.
+ */
 interface Props {
 	course: { title: string; href: string };
 	outline: LessonPage["outline"];
@@ -13,33 +18,12 @@ const { course, outline } = Astro.props;
 <p class="mb-4 text-sm">
 	<a class="text-muted-foreground hover:text-primary" href={course.href}>{course.title}</a>
 </p>
-{/* Open on a wide screen; on a narrow one it folds away above the lesson. */}
-<details class="group rounded-xl border border-border bg-card lg:border-0 lg:bg-transparent" open>
-	<summary class="cursor-pointer px-4 py-3 font-semibold lg:hidden">Course contents</summary>
-	<div class="px-4 pb-3 lg:p-0">
-		{
-			outline.map((section) => (
-				<>
-					{section.moduleTitle && (
-						<h2 class="mt-5 mb-1 text-label first:mt-0">
-							{section.moduleTitle}
-						</h2>
-					)}
-					<ol class="track">
-						{section.lessons.map((item) => (
-							<li data-lesson-state={item.status}>
-								<a
-									class="text-muted-foreground hover:text-foreground aria-[current=page]:font-semibold aria-[current=page]:text-foreground"
-									href={item.href}
-									aria-current={item.current ? "page" : undefined}
-								>
-									{item.title}
-								</a>
-							</li>
-						))}
-					</ol>
-				</>
-			))
-		}
+<details class="rounded-xl border border-border bg-card shadow-sm lg:hidden" data-outline="folded">
+	<summary class="cursor-pointer px-4 py-3 font-semibold text-sm">Course contents</summary>
+	<div class="px-4 pb-3">
+		<LessonOutlineList outline={outline} />
 	</div>
 </details>
+<div class="hidden lg:block" data-outline="open">
+	<LessonOutlineList outline={outline} />
+</div>

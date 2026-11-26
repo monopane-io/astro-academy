@@ -21,7 +21,7 @@ const { title, description, icon = "inbox", bare = false } = Astro.props;
 >
 	<div class="flex max-w-sm flex-col items-center gap-2">
 		<span class="mb-2 flex size-10 items-center justify-center rounded-lg bg-muted text-foreground">
-			<Icon name={icon} size="lg" />
+			<Icon name={icon} class="size-6" />
 		</span>
 		<p class="font-medium text-lg tracking-tight">{title}</p>
 		{description && <p class="text-muted-foreground text-sm/relaxed">{description}</p>}

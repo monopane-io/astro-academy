@@ -1,4 +1,6 @@
 ---
+import { radio } from "../../lib/ui";
+
 /** One choice out of a few, all visible. For a longer list, use a select. */
 interface Props {
 	label: string;
@@ -17,7 +19,7 @@ const { label, name, options, value, required = false } = Astro.props;
 		options.map((option) => (
 			<label class="flex cursor-pointer items-start gap-3 text-sm">
 				<input
-					class="mt-1 size-4 accent-primary"
+					class={`${radio} mt-0.5`}
 					type="radio"
 					name={name}
 					value={option.value}
@@ -25,7 +27,7 @@ const { label, name, options, value, required = false } = Astro.props;
 					required={required}
 				/>
 				<span class="flex flex-col">
-					<span>{option.label}</span>
+					<span class="font-medium leading-snug">{option.label}</span>
 					{option.hint && <span class="text-muted-foreground text-sm">{option.hint}</span>}
 				</span>
 			</label>

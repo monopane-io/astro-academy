@@ -4,45 +4,75 @@ import Dialog from "../ui/Dialog.astro";
 import MenuItem from "../ui/MenuItem.astro";
 
 /**
- * Deleting something for good: the last line of a page's menu of actions,
+ * Deleting something for good: the last line of a menu of actions, in red,
  * which asks once more in a dialog before anything is sent.
  *
  * It has two parts, placed separately: `part="item"` inside the <Menu>, and
  * `part="dialog"` outside it (a menu hides what is in it when it closes).
+ * Give both the same `do` and, where a page has several, the same `of`.
  */
 interface Props {
 	part: "item" | "dialog";
 	/** The form's `do` value. */
 	do: string;
-	/** The page that carries out the delete. */
-	action: string;
+	/** Tells one row's delete from another's: the row's id. */
+	of?: string;
+	/** The page that carries out the delete; this page when left out. */
+	action?: string;
+	/** Other values the form sends: the id of what is deleted. */
+	fields?: Record<string, string>;
 	/** What the menu line says: "Delete course". */
-	label: string;
+	label?: string;
 	/** Its name, for the question. */
-	name: string;
-	consequence: string;
+	name?: string;
+	consequence?: string;
+	/** Shown, but cannot be chosen: something must be done first. */
+	disabled?: boolean;
 }
 
-const { part, do: task, action, label, name, consequence } = Astro.props;
-const dialog = `confirm-${task}`;
+const {
+	part,
+	do: task,
+	of,
+	action,
+	fields = {},
+	label = "Delete",
+	name = "this",
+	consequence = "",
+	disabled = false,
+} = Astro.props;
+const dialog = `confirm-${task}${of ? `-${of}` : ""}`.replace(/[^a-zA-Z0-9_-]/g, "-");
 ---
 
-{part === "item" && <MenuItem dialog={dialog} destructive>{label}</MenuItem>}
+{
+	part === "item" && (
+		<MenuItem dialog={dialog} destructive disabled={disabled}>
+			{label}
+		</MenuItem>
+	)
+}
 
 {
 	part === "dialog" && (
-<Dialog id={dialog} title={`Delete ${name}?`}>
-	{consequence} This cannot be undone.
-	<Fragment slot="actions">
-		<form method="dialog">
-			<Button type="submit" class="w-full">Cancel</Button>
-		</form>
-		<form method="post" action={action}>
-			<input type="hidden" name="do" value={task} />
-			<input type="hidden" name="confirm" value="yes" />
-			<Button variant="destructive" type="submit" class="w-full">Delete</Button>
-		</form>
-	</Fragment>
-</Dialog>
+		<Dialog id={dialog} title={`Delete ${name}?`} alert>
+			{consequence} This cannot be undone.
+			<Fragment slot="actions">
+				<form method="dialog">
+					<Button type="submit" class="w-full">
+						Cancel
+					</Button>
+				</form>
+				<form method="post" action={action}>
+					<input type="hidden" name="do" value={task} />
+					<input type="hidden" name="confirm" value="yes" />
+					{Object.entries(fields).map(([key, value]) => (
+						<input type="hidden" name={key} value={value} />
+					))}
+					<Button variant="destructive" type="submit" class="w-full">
+						Delete
+					</Button>
+				</form>
+			</Fragment>
+		</Dialog>
 	)
 }

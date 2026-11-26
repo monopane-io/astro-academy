@@ -12,12 +12,12 @@ interface Props {
 const { previous, following, courseHref } = Astro.props;
 ---
 
-<nav class="mt-12 flex flex-wrap justify-between gap-4 border-border border-t pt-6" aria-label="Lessons">
+<nav class="mt-12 flex h-16 flex-wrap items-center justify-between gap-2" aria-label="Lessons">
 	{
 		previous ? (
-			<Button variant="secondary" size="lg" href={previous.href}>
+			<Button variant="secondary" size="sm" href={previous.href} class="max-w-full">
 				<Icon name="arrow-left" />
-				Previous: {previous.title}
+				<span class="truncate">Previous: {previous.title}</span>
 			</Button>
 		) : (
 			<span />
@@ -25,12 +25,12 @@ const { previous, following, courseHref } = Astro.props;
 	}
 	{
 		following ? (
-			<Button variant="primary" size="lg" href={following.href}>
-				Next: {following.title}
+			<Button variant="secondary" size="sm" href={following.href} class="max-w-full">
+				<span class="truncate">Next: {following.title}</span>
 				<Icon name="arrow-right" />
 			</Button>
 		) : (
-			<Button variant="primary" size="lg" href={courseHref}>
+			<Button variant="secondary" size="sm" href={courseHref}>
 				Back to the course
 			</Button>
 		)

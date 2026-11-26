@@ -1,0 +1,33 @@
+---
+import type { LessonPage } from "../../lib/pages";
+
+/** The list inside <LessonOutline>: each module's lessons on the track, the current one marked. */
+interface Props {
+	outline: LessonPage["outline"];
+}
+
+const { outline } = Astro.props;
+const said = { todo: "not started", started: "in progress", done: "done" };
+---
+
+{
+	outline.map((section) => (
+		<>
+			{section.moduleTitle && <h2 class="mt-5 mb-1 text-label first:mt-0">{section.moduleTitle}</h2>}
+			<ol class="track">
+				{section.lessons.map((item) => (
+					<li data-lesson-state={item.status}>
+						<a
+							class="text-muted-foreground hover:text-foreground aria-[current=page]:font-semibold aria-[current=page]:text-foreground"
+							href={item.href}
+							aria-current={item.current ? "page" : undefined}
+						>
+							{item.title}
+							<span class="sr-only"> ({said[item.status]})</span>
+						</a>
+					</li>
+				))}
+			</ol>
+		</>
+	))
+}

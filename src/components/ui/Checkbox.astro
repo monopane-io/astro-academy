@@ -1,4 +1,6 @@
 ---
+import { checkbox } from "../../lib/ui";
+
 /** A box to tick, with its label beside it. */
 interface Props {
 	label: string;
@@ -11,9 +13,9 @@ interface Props {
 const { label, name, value = "on", checked = false, required = false } = Astro.props;
 ---
 
-<label class="flex cursor-pointer items-center gap-2.5">
+<label class="flex cursor-pointer items-center gap-3 font-medium text-sm leading-snug has-disabled:cursor-not-allowed has-disabled:opacity-50">
 	<input
-		class="size-4 accent-primary"
+		class={checkbox}
 		type="checkbox"
 		name={name}
 		value={value}

@@ -1,6 +1,7 @@
 ---
 import { sitePages } from "../../lib/ui";
 import Avatar from "../ui/Avatar.astro";
+import AvatarLabel from "../ui/AvatarLabel.astro";
 import Button from "../ui/Button.astro";
 import Drawer from "../ui/Drawer.astro";
 import Icon from "../ui/Icon.astro";
@@ -47,7 +48,7 @@ const drawerLink =
 		<div class="ml-auto hidden items-center gap-3 sm:flex">
 			{
 				user ? (
-					<Menu label="Account">
+					<Menu label={`Account: ${user.name}`}>
 						<Fragment slot="trigger">
 							<Avatar name={user.name} size="sm" />
 							<span class="max-w-40 truncate font-semibold" data-signed-in-as>
@@ -56,11 +57,7 @@ const drawerLink =
 							<Icon name="chevron-down" class="text-muted-foreground" />
 						</Fragment>
 						<div class="flex items-center gap-3 border-border border-b px-2 py-2.5">
-							<Avatar name={user.name} />
-							<p class="min-w-0">
-								<span class="block truncate font-semibold text-sm">{user.name}</span>
-								{user.email && <span class="block truncate text-muted-foreground text-sm">{user.email}</span>}
-							</p>
+							<AvatarLabel name={user.name} detail={user.email} />
 						</div>
 						<div class="flex flex-col pt-1">
 							<MenuItem action="/sign-out" stay={false}>
@@ -112,13 +109,7 @@ const drawerLink =
 									</button>
 								</form>
 								<div class="flex items-center gap-3 rounded-xl p-3 ring-1 ring-border ring-inset" data-account-card>
-									<Avatar name={user.name} />
-									<p class="min-w-0">
-										<span class="block truncate font-semibold text-sm">{user.name}</span>
-										{user.email && (
-											<span class="block truncate text-muted-foreground text-sm">{user.email}</span>
-										)}
-									</p>
+									<AvatarLabel name={user.name} detail={user.email} />
 								</div>
 							</>
 						) : (

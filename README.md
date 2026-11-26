@@ -293,7 +293,7 @@ There are four layers, and a page only uses the one above it:
   (`src/lib/ui.ts`). Icons are [Lucide](https://lucide.dev)'s.
 - **Blocks** in `src/components/blocks`: pieces of a screen, such as
   `PageHeader`, `Tabs`, `Section`, `ItemList`, `Table`, `Stats`, `FormCard`,
-  `SettingsForm`, `Feed`, `Checklist` and `DeleteAction`.
+  `Feed`, `Checklist` and `DeleteAction`.
 - **Layouts** in `src/layouts`: `Base` for the user pages, `Lesson` for a
   lesson, `Auth` for signing in and `Admin` for the admin area.
 

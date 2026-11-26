@@ -1,4 +1,5 @@
 ---
+import DeleteAction from "../../../../../../../../components/blocks/DeleteAction.astro";
 import FormCard from "../../../../../../../../components/blocks/FormCard.astro";
 import ItemList from "../../../../../../../../components/blocks/ItemList.astro";
 import ItemRow from "../../../../../../../../components/blocks/ItemRow.astro";
@@ -124,7 +125,7 @@ const title = making ? `New ${kind}` : values.title || data.typeLabel;
 		data.addQuestionHref && (
 			<Section title="Questions" id="questions" class="max-w-form">
 				<Button slot="actions" href={data.addQuestionHref}>
-					Add a question
+					Add question
 				</Button>
 				<ItemList ordered>
 					{data.questions.map((question, index) => (
@@ -136,14 +137,22 @@ const title = making ? `New ${kind}` : values.title || data.typeLabel;
 						>
 							<Menu slot="actions" label={`Actions for question ${index + 1}`}>
 								<MenuItem href={question.href}>Edit</MenuItem>
-								<MenuItem
-									fields={{ do: "delete-question", questionId: question.id }}
+								<DeleteAction
+									part="item"
+									do="delete-question"
+									of={question.id}
 									disabled={data.questions.length <= 1}
-									destructive
-								>
-									Delete
-								</MenuItem>
+								/>
 							</Menu>
+							<DeleteAction
+								slot="actions"
+								part="dialog"
+								do="delete-question"
+								of={question.id}
+								fields={{ questionId: question.id }}
+								name={`question ${index + 1}`}
+								consequence="The question is removed from the quiz."
+							/>
 						</ItemRow>
 					))}
 				</ItemList>

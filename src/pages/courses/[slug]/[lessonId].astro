@@ -4,6 +4,7 @@ import LessonNav from "../../../components/blocks/LessonNav.astro";
 import LessonOutline from "../../../components/blocks/LessonOutline.astro";
 import PageIntro from "../../../components/blocks/PageIntro.astro";
 import Alert from "../../../components/ui/Alert.astro";
+import TextLink from "../../../components/ui/TextLink.astro";
 import Lesson from "../../../layouts/Lesson.astro";
 import { lessonPage } from "../../../lib/pages";
 
@@ -30,9 +31,9 @@ const { course, lesson } = data;
 				data.courseCompleted && (
 					<Alert variant="success" class="mt-10" data-course-complete>
 						You have completed {course.title}.{" "}
-						<a class="font-semibold underline underline-offset-4" href={data.certificateHref}>
+						<TextLink class="text-inherit decoration-current/40" href={data.certificateHref}>
 							See your certificate
-						</a>
+						</TextLink>
 					</Alert>
 				)
 			}

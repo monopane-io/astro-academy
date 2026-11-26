@@ -161,9 +161,9 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 	const slug = title.toLowerCase().replace(/ /g, "-");
 	const done = page.locator("[data-admin-done]");
 	const heading = page.getByRole("heading", { level: 1 });
-	/** Open the "Add an activity" menu and choose a kind. */
+	/** Open the "Add activity" menu and choose a kind. */
 	const addActivity = async (kind: string) => {
-		await page.getByText("Add an activity", { exact: true }).click();
+		await page.getByText("Add activity", { exact: true }).click();
 		await page.getByRole("link", { name: kind, exact: true }).click();
 	};
 	/** Open the menu of a row and press one of its actions. */
@@ -220,7 +220,7 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 
 	// --- Activities, each made on a page of its own ---------------------------
 	// An empty lesson offers the four kinds outright.
-	await page.getByRole("link", { name: "Reading", exact: true }).click();
+	await page.getByRole("link", { name: "Add reading", exact: true }).click();
 	await expect(heading).toHaveText("New reading");
 	await page.getByLabel("Title").fill("Welcome aboard");
 	await page.getByLabel("Text").fill("# Hello\n\nThis is **your** first day.");
@@ -253,7 +253,7 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 	await expect(heading).toHaveText("Check in");
 	await expect(page.locator("[data-admin-question]")).toHaveCount(1);
 
-	await page.getByRole("link", { name: "Add a question" }).click();
+	await page.getByRole("link", { name: "Add question" }).click();
 	await expect(heading).toHaveText("New question");
 	await page.getByLabel("Kind of question").selectOption("fill_in_blank");
 	await page.getByLabel("Question", { exact: true }).fill("A course is made of ___.");
@@ -363,7 +363,10 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 	await page.goto(`/courses/${slug}`);
 	await page.getByRole("link", { name: "Edit this course" }).click();
 	await expect(page).toHaveURL(courseUrl);
-	await expect(page.locator("[data-course-numbers]")).toHaveText("1 enrolled, 0 completed");
+	await expect(page.locator("[data-course-numbers]")).toHaveAttribute(
+		"data-course-numbers",
+		"1 enrolled, 0 completed",
+	);
 
 	// --- Take it down, then delete it -----------------------------------------
 	await page.getByRole("button", { name: "Move back to draft" }).click();
@@ -372,7 +375,7 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 	await page.getByRole("link", { name: "Details", exact: true }).click();
 	// Deleting is the last line of the course's menu. It asks once more, and
 	// Cancel leaves everything as it was.
-	const confirm = page.getByRole("dialog", { name: `Delete ${title}?` });
+	const confirm = page.getByRole("alertdialog", { name: `Delete ${title}?` });
 	const openDelete = async () => {
 		await page.getByLabel(`More actions for ${title}`, { exact: true }).click();
 		await page.getByRole("button", { name: "Delete course", exact: true }).click();

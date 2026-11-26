@@ -1,5 +1,5 @@
 ---
-import Avatar from "../ui/Avatar.astro";
+import AvatarLabel from "../ui/AvatarLabel.astro";
 import Icon from "../ui/Icon.astro";
 
 /**
@@ -71,12 +71,19 @@ const left = `Signed in for ${minutesLeft} more ${minutesLeft === 1 ? "minute" :
 			</form>
 		</li>
 	</ul>
-	<div class="flex items-center gap-3 rounded-xl p-3 ring-1 ring-border ring-inset" data-admin-account>
-		{admin?.name && <Avatar name={admin.name} />}
-		<p class="min-w-0 text-sm">
-			{admin?.name && <span class="block truncate font-semibold">{admin.name}</span>}
-			{admin?.email && <span class="block truncate text-muted-foreground">{admin.email}</span>}
-			<span class="block text-muted-foreground" data-admin-time-left>{left}</span>
-		</p>
+	<div class="rounded-xl p-3 ring-1 ring-border ring-inset" data-admin-account>
+		{
+			admin?.name ? (
+				<AvatarLabel name={admin.name} detail={admin.email}>
+					<span class="block text-muted-foreground" data-admin-time-left>
+						{left}
+					</span>
+				</AvatarLabel>
+			) : (
+				<p class="text-muted-foreground text-sm" data-admin-time-left>
+					{left}
+				</p>
+			)
+		}
 	</div>
 </div>

@@ -1,0 +1,21 @@
+---
+import Avatar from "./Avatar.astro";
+
+/** A person: their avatar with their name beside it and a quieter line under it (an email). */
+interface Props {
+	name: string;
+	detail?: string | null;
+	size?: "sm" | "md";
+}
+
+const { name, detail, size = "md" } = Astro.props;
+---
+
+<span class="flex min-w-0 items-center gap-3">
+	<Avatar name={name} size={size} />
+	<span class="min-w-0 text-sm">
+		<span class="block truncate font-semibold text-foreground">{name}</span>
+		{detail && <span class="block truncate text-muted-foreground">{detail}</span>}
+		<slot />
+	</span>
+</span>

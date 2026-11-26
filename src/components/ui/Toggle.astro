@@ -11,7 +11,7 @@ interface Props {
 const { label, name, value = "on", checked = false, hint } = Astro.props;
 ---
 
-<label class="flex cursor-pointer items-start gap-3">
+<label class="flex cursor-pointer items-start gap-3 has-disabled:cursor-not-allowed has-disabled:opacity-50">
 	<input class="peer sr-only" type="checkbox" role="switch" name={name} value={value} checked={checked} />
 	<span
 		class="mt-0.5 inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full bg-border p-px shadow-xs transition-colors after:size-4 after:rounded-full after:bg-card after:shadow-sm after:transition-transform after:content-[''] peer-checked:bg-brand peer-checked:after:translate-x-[calc(100%-2px)] peer-focus-visible:ring-[3px] peer-focus-visible:ring-ring/50"

@@ -23,7 +23,7 @@ const { title, description, wide = false } = Astro.props;
 		<DemoNotice />
 		<SiteHeader />
 		<slot name="band" />
-		<main
+		<main id="main"
 			class:list={[
 				"mx-auto w-full flex-1 px-4 py-10 sm:px-6 sm:py-14",
 				wide ? "max-w-page" : "max-w-prose",

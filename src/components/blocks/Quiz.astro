@@ -1,5 +1,6 @@
 ---
 import type { QuizView } from "../../lib/pages";
+import { checkbox, radio } from "../../lib/ui";
 import Button from "../ui/Button.astro";
 import Input from "../ui/Input.astro";
 import ActivityHeader from "./ActivityHeader.astro";
@@ -35,7 +36,7 @@ const choice =
 		<form class="flex flex-col gap-8" method="post" action={`${action}#${quiz.id}`}>
 			<input type="hidden" name="activityId" value={quiz.id} />
 			{quiz.questions.map((question) => (
-				<fieldset class="flex min-w-0 flex-col gap-2" data-question={question.type}>
+				<fieldset class="flex min-w-0 flex-col gap-3" data-question={question.type}>
 					<legend class="mb-3 font-medium text-lg">
 						{question.text}
 						{question.correct !== null && (
@@ -54,7 +55,7 @@ const choice =
 							<label class={choice}>
 								<span>{option}</span>
 								<input
-									class="mt-0.5 size-4 shrink-0 accent-primary"
+									class={`${radio} mt-0.5`}
 									type="radio"
 									name={question.field}
 									value={option}
@@ -69,7 +70,7 @@ const choice =
 								<label class={choice}>
 									<span>{option}</span>
 									<input
-										class="mt-0.5 size-4 shrink-0 accent-primary"
+										class={`${checkbox} mt-0.5`}
 										type="checkbox"
 										name={question.field}
 										value={option}
