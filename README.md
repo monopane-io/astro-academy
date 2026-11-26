@@ -278,7 +278,7 @@ The end-to-end test needs the site running (`npm run dev`) in demo mode against 
 - **Name and tagline:** `SITE_NAME` and `SITE_TAGLINE`.
 - **Pages:** each is one `.astro` file under `src/pages`, and is almost all HTML. What a page does (who may see it, what a form does, what it shows) is a function in `src/lib/pages.ts`; the page calls it and draws the result. So you can rewrite every page's HTML, or rebuild the site on a UI library, without touching how it behaves.
 - **Words:** all the text users see is in those page files and in `layouts/Base.astro`.
-- **Course tiles:** a course with an `imageUrl` shows that image; one without gets its first letter on a tinted cover (`src/components/CourseTile.astro`).
+- **Course tiles:** a course with an `imageUrl` shows that image; one without gets its first letter on a tinted cover (`src/components/blocks/CourseTile.astro`).
 
 ### How the pages are built
 

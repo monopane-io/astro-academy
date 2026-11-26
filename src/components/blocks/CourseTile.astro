@@ -1,8 +1,9 @@
 ---
-import type { CourseCard } from "../lib/pages";
-import Badge from "./ui/Badge.astro";
-import Tag from "./ui/Tag.astro";
+import type { CourseCard } from "../../lib/pages";
+import Badge from "../ui/Badge.astro";
+import Tag from "../ui/Tag.astro";
 
+/** One course in the catalogue: its cover, name, a line about it, and where the user stands. */
 interface Props {
 	course: CourseCard;
 }

@@ -1,0 +1,39 @@
+---
+import type { VideoView } from "../../lib/pages";
+import Alert from "../ui/Alert.astro";
+import TextLink from "../ui/TextLink.astro";
+
+/** A video, played the way its address allows: embedded, as a file, or as a link out. */
+interface Props {
+	title: string;
+	player: VideoView["player"];
+}
+
+const { title, player } = Astro.props;
+const frame = "aspect-video w-full rounded-xl bg-foreground";
+---
+
+{
+	player?.kind === "embed" && (
+		<iframe
+			class={frame}
+			src={player.src}
+			title={title}
+			loading="lazy"
+			referrerpolicy="strict-origin-when-cross-origin"
+			allow="fullscreen; picture-in-picture; encrypted-media"
+			allowfullscreen
+		/>
+	)
+}
+{player?.kind === "file" && <video class={frame} src={player.src} controls preload="metadata" />}
+{
+	player?.kind === "link" && (
+		<p>
+			<TextLink href={player.href} target="_blank" rel="noopener noreferrer">
+				Watch the video
+			</TextLink>
+		</p>
+	)
+}
+{!player && <Alert variant="error">This video's address cannot be played.</Alert>}

@@ -1,0 +1,15 @@
+---
+import type { CourseCard } from "../../lib/pages";
+import CourseTile from "./CourseTile.astro";
+
+/** The catalogue: every course as a tile, one, two or three across. */
+interface Props {
+	courses: CourseCard[];
+}
+
+const { courses } = Astro.props;
+---
+
+<ul class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+	{courses.map((course) => <CourseTile course={course} />)}
+</ul>

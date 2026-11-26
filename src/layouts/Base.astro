@@ -1,10 +1,14 @@
 ---
 import DemoNotice from "../components/blocks/DemoNotice.astro";
-import Button from "../components/ui/Button.astro";
-import Menu from "../components/ui/Menu.astro";
-import MenuItem from "../components/ui/MenuItem.astro";
+import SiteFooter from "../components/blocks/SiteFooter.astro";
+import SiteHeader from "../components/blocks/SiteHeader.astro";
 import Document from "./Document.astro";
 
+/**
+ * A user page: the notice and the bar across the top, the page in a centred
+ * column (a wide one with `wide`), and the foot. The `band` slot runs the full
+ * width under the bar, for a hero.
+ */
 interface Props {
 	title: string;
 	description?: string | null;
@@ -13,69 +17,11 @@ interface Props {
 }
 
 const { title, description, wide = false } = Astro.props;
-const { config, user, admin } = Astro.locals;
-const path = Astro.url.pathname;
-const pages = [
-	{ href: "/", label: "Courses", current: path === "/" },
-	...(user
-		? [{ href: "/my-learning", label: "My learning", current: path === "/my-learning" }]
-		: []),
-	...(admin ? [{ href: "/admin", label: "Admin", current: false }] : []),
-];
-const navLink =
-	"rounded-md px-3 py-1.5 font-medium text-muted-foreground hover:text-foreground aria-[current=page]:bg-border/60 aria-[current=page]:text-foreground";
 ---
 
 <Document title={title} description={description}>
 		<DemoNotice />
-		<header
-			class="sticky top-0 z-40 border-border border-b bg-background/85 backdrop-blur"
-			transition:name="site-header"
-		>
-			<div class="mx-auto flex h-14 max-w-page items-center gap-2 px-4 sm:gap-6 sm:px-6">
-				<a class="mr-auto font-bold text-lg tracking-tight sm:mr-0" href="/">{config.siteName}</a>
-				<nav class="hidden items-center gap-1 sm:mr-auto sm:flex" aria-label="Main">
-					{
-						pages.map((page) => (
-							<a class={navLink} href={page.href} aria-current={page.current ? "page" : undefined}>
-								{page.label}
-							</a>
-						))
-					}
-				</nav>
-				<div class="flex items-center gap-3 text-sm">
-					{
-						user ? (
-							<>
-								<span class="hidden max-w-40 truncate text-muted-foreground sm:inline" data-signed-in-as>
-									{user.name}
-								</span>
-								<form method="post" action="/sign-out">
-									<button class="cursor-pointer font-medium hover:text-primary" type="submit">
-										Sign out
-									</button>
-								</form>
-							</>
-						) : admin ? (
-							// Signed in to run the academy, not to learn in it.
-							<a class="font-medium hover:text-primary" href="/sign-in">
-								Sign in to learn
-							</a>
-						) : (
-							<Button variant="primary" size="md" href="/sign-in">
-								Sign in
-							</Button>
-						)
-					}
-				</div>
-				{/* On a small screen the pages are behind a menu button. */}
-				<div class="sm:hidden">
-					<Menu label="Pages" icon="menu">
-						{pages.map((page) => <MenuItem href={page.href}>{page.label}</MenuItem>)}
-					</Menu>
-				</div>
-			</div>
-		</header>
+		<SiteHeader />
 		<slot name="band" />
 		<main
 			class:list={[
@@ -85,16 +31,5 @@ const navLink =
 		>
 			<slot />
 		</main>
-		<footer class="no-print border-border border-t">
-			<div class="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-8 gap-y-3 px-4 py-6 text-muted-foreground text-sm sm:px-6">
-				<p>
-					<span class="font-semibold text-foreground">{config.siteName}</span>
-					{config.tagline && <span class="ml-2 hidden sm:inline">{config.tagline}</span>}
-				</p>
-				<nav class="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
-					{pages.map((page) => <a class="hover:text-foreground" href={page.href}>{page.label}</a>)}
-					{!user && <a class="hover:text-foreground" href="/sign-in">Sign in</a>}
-				</nav>
-			</div>
-		</footer>
+		<SiteFooter />
 </Document>

@@ -1,0 +1,51 @@
+---
+import type { CoursePage } from "../../lib/pages";
+import Button from "../ui/Button.astro";
+import Card from "../ui/Card.astro";
+import ProgressRing from "../ui/ProgressRing.astro";
+
+/**
+ * What a visitor does next with a course: enrol, start, carry on, or see
+ * the certificate, with how far along they are.
+ */
+interface Props {
+	page: CoursePage;
+}
+
+const { page } = Astro.props;
+const { progress } = page;
+---
+
+<Card class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+	{
+		progress && (
+			<div class="flex min-w-56 flex-1 items-center gap-4" data-course-progress>
+				<ProgressRing value={progress.done} max={progress.total} />
+				<p class="font-medium">
+					{page.completed
+						? "You have completed this course."
+						: `${progress.done} of ${progress.total} activities done`}
+				</p>
+			</div>
+		)
+	}
+	{
+		page.completed ? (
+			<Button variant="primary" size="lg" href={page.certificateHref}>
+				See your certificate
+			</Button>
+		) : page.enrolled && page.nextHref ? (
+			<Button variant="primary" size="lg" href={page.nextHref}>
+				{progress && progress.done > 0 ? "Continue" : "Start the course"}
+			</Button>
+		) : !page.enrolled && page.hasLessons ? (
+			<form class="flex flex-wrap items-center gap-x-4 gap-y-2" method="post">
+				<Button variant="primary" size="lg" type="submit">
+					Enrol in this course
+				</Button>
+				{!page.signedIn && <p class="text-muted-foreground text-sm">You will be asked to sign in first.</p>}
+			</form>
+		) : null
+	}
+	{!page.hasLessons && <p class="text-muted-foreground">This course has no published lessons yet.</p>}
+</Card>

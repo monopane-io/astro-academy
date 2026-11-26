@@ -1,11 +1,9 @@
 ---
-import ActivityHeader from "../../../components/blocks/ActivityHeader.astro";
+import Activity from "../../../components/blocks/Activity.astro";
 import LessonNav from "../../../components/blocks/LessonNav.astro";
 import LessonOutline from "../../../components/blocks/LessonOutline.astro";
-import Quiz from "../../../components/blocks/Quiz.astro";
+import PageIntro from "../../../components/blocks/PageIntro.astro";
 import Alert from "../../../components/ui/Alert.astro";
-import Button from "../../../components/ui/Button.astro";
-import TextLink from "../../../components/ui/TextLink.astro";
 import Lesson from "../../../layouts/Lesson.astro";
 import { lessonPage } from "../../../lib/pages";
 
@@ -17,118 +15,15 @@ const { course, lesson } = data;
 <Lesson title={lesson.title} description={lesson.description}>
 	<LessonOutline slot="contents" course={course} outline={data.outline} />
 
-			<h1>{lesson.title}</h1>
-			{
-				data.editHref && (
-					<p class="mt-3">
-						<Button variant="secondary" size="sm" href={data.editHref} data-admin-edit>
-							Edit this lesson
-						</Button>
-					</p>
-				)
-			}
-			{lesson.description && <p class="mt-4 text-muted-foreground text-xl">{lesson.description}</p>}
+			<PageIntro
+				title={lesson.title}
+				text={lesson.description}
+				editHref={data.editHref}
+				editLabel="Edit this lesson"
+			/>
 
 			{data.activities.length === 0 && <Alert variant="info" class="mt-8">This lesson has nothing in it yet.</Alert>}
-
-			{
-				data.activities.map((activity) => (
-					<section
-						class="mt-10 flex flex-col gap-4 border-border border-t pt-10"
-						id={activity.id}
-						data-activity={activity.type}
-					>
-						{activity.type === "quiz" && <Quiz quiz={activity} action={data.action} />}
-
-						{activity.type === "video" && (
-							<>
-								<ActivityHeader
-									title={activity.title}
-									state={activity.done ? "Watched" : "Not watched"}
-									tone={activity.done ? "success" : "neutral"}
-									meta={activity.duration}
-								/>
-								{activity.description && <p class="text-lg">{activity.description}</p>}
-								{activity.player?.kind === "embed" && (
-									<iframe
-										class="aspect-video w-full rounded-xl bg-foreground"
-										src={activity.player.src}
-										title={activity.title}
-										loading="lazy"
-										referrerpolicy="strict-origin-when-cross-origin"
-										allow="fullscreen; picture-in-picture; encrypted-media"
-										allowfullscreen
-									/>
-								)}
-								{activity.player?.kind === "file" && (
-									<video
-										class="aspect-video w-full rounded-xl bg-foreground"
-										src={activity.player.src}
-										controls
-										preload="metadata"
-									/>
-								)}
-								{activity.player?.kind === "link" && (
-									<p>
-										<TextLink href={activity.player.href} target="_blank" rel="noopener noreferrer">
-											Watch the video
-										</TextLink>
-									</p>
-								)}
-								{!activity.player && <Alert variant="error">This video's address cannot be played.</Alert>}
-							</>
-						)}
-
-						{activity.type === "reading" && (
-							<>
-								<ActivityHeader
-									title={activity.title}
-									state={activity.done ? "Done" : "Not done"}
-									tone={activity.done ? "success" : "neutral"}
-									meta={activity.minutes !== null ? `About ${activity.minutes} min to read.` : null}
-								/>
-								<div class="reading" set:html={activity.html} />
-							</>
-						)}
-
-						{activity.type === "external_link" && (
-							<>
-								<ActivityHeader
-									title={activity.title}
-									state={activity.done ? "Done" : "Not done"}
-									tone={activity.done ? "success" : "neutral"}
-								/>
-								{activity.description && <p class="text-lg">{activity.description}</p>}
-								{activity.url && (
-									<p>
-										<TextLink
-											class="break-all"
-											href={activity.url}
-											target={activity.newTab ? "_blank" : undefined}
-											rel="noopener noreferrer"
-										>
-											{activity.url}
-										</TextLink>
-									</p>
-								)}
-							</>
-						)}
-
-						{activity.type !== "quiz" && !activity.done && (
-							<form method="post" action={data.action} data-stay>
-								<input type="hidden" name="activityId" value={activity.id} />
-								<Button variant="secondary" size="lg" type="submit">
-									{activity.type === "video"
-										? "Mark as watched"
-										: activity.type === "reading"
-											? "Mark as read"
-											: "Mark as done"}
-								</Button>
-							</form>
-						)}
-					</section>
-				))
-			}
+			{data.activities.map((activity) => <Activity activity={activity} action={data.action} />)}
 
 			{
 				data.courseCompleted && (

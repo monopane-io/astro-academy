@@ -1,0 +1,64 @@
+---
+import { sitePages } from "../../lib/ui";
+import Button from "../ui/Button.astro";
+import Menu from "../ui/Menu.astro";
+import MenuItem from "../ui/MenuItem.astro";
+
+/**
+ * The bar across the top of every user page: the academy's name, its pages,
+ * and who is signed in. On a small screen the pages are behind a menu button.
+ */
+const { config, user, admin } = Astro.locals;
+const pages = sitePages(Astro.url.pathname, Boolean(user), Boolean(admin));
+const navLink =
+	"rounded-md px-3 py-1.5 font-medium text-muted-foreground hover:text-foreground aria-[current=page]:bg-border/60 aria-[current=page]:text-foreground";
+---
+
+<header
+	class="sticky top-0 z-40 border-border border-b bg-background/85 backdrop-blur"
+	transition:name="site-header"
+>
+	<div class="mx-auto flex h-14 max-w-page items-center gap-2 px-4 sm:gap-6 sm:px-6">
+		<a class="mr-auto font-bold text-lg tracking-tight sm:mr-0" href="/">{config.siteName}</a>
+		<nav class="hidden items-center gap-1 sm:mr-auto sm:flex" aria-label="Main">
+			{
+				pages.map((page) => (
+					<a class={navLink} href={page.href} aria-current={page.current ? "page" : undefined}>
+						{page.label}
+					</a>
+				))
+			}
+		</nav>
+		<div class="flex items-center gap-3 text-sm">
+			{
+				user ? (
+					<>
+						<span class="hidden max-w-40 truncate text-muted-foreground sm:inline" data-signed-in-as>
+							{user.name}
+						</span>
+						<form method="post" action="/sign-out">
+							<button class="cursor-pointer font-medium hover:text-primary" type="submit">
+								Sign out
+							</button>
+						</form>
+					</>
+				) : admin ? (
+					// Signed in to run the academy, not to learn in it.
+					<a class="font-medium hover:text-primary" href="/sign-in">
+						Sign in to learn
+					</a>
+				) : (
+					<Button variant="primary" size="md" href="/sign-in">
+						Sign in
+					</Button>
+				)
+			}
+		</div>
+		{/* On a small screen the pages are behind a menu button. */}
+		<div class="sm:hidden">
+			<Menu label="Pages" icon="menu">
+				{pages.map((page) => <MenuItem href={page.href}>{page.label}</MenuItem>)}
+			</Menu>
+		</div>
+	</div>
+</header>

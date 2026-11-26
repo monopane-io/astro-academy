@@ -52,3 +52,14 @@ export const focusRing =
 export function fieldId(name: string, suffix = ""): string {
 	return `f-${name}${suffix ? `-${suffix}` : ""}`.replace(/[^a-zA-Z0-9_-]/g, "-");
 }
+
+/** The pages a visitor can go to from the top bar and the foot, by who they are. */
+export function sitePages(path: string, signedIn: boolean, admin: boolean) {
+	return [
+		{ href: "/", label: "Courses", current: path === "/" },
+		...(signedIn
+			? [{ href: "/my-learning", label: "My learning", current: path === "/my-learning" }]
+			: []),
+		...(admin ? [{ href: "/admin", label: "Admin", current: false }] : []),
+	];
+}

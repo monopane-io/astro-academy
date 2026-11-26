@@ -1,6 +1,6 @@
 ---
-import CourseTile from "../components/CourseTile.astro";
 import Continue from "../components/blocks/Continue.astro";
+import CourseGrid from "../components/blocks/CourseGrid.astro";
 import FeaturedCourse from "../components/blocks/FeaturedCourse.astro";
 import Hero from "../components/blocks/Hero.astro";
 import Alert from "../components/ui/Alert.astro";
@@ -42,11 +42,7 @@ if (response) return response;
 				minute.
 			</Alert>
 		) : (
-			<ul class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-				{data.courses.map((course) => (
-					<CourseTile course={course} />
-				))}
-			</ul>
+			<CourseGrid courses={data.courses} />
 		)
 	}
 </Base>

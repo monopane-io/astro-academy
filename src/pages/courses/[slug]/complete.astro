@@ -1,6 +1,7 @@
 ---
 import Certificate from "../../../components/blocks/Certificate.astro";
 import Message from "../../../components/blocks/Message.astro";
+import PageIntro from "../../../components/blocks/PageIntro.astro";
 import Button from "../../../components/ui/Button.astro";
 import TextLink from "../../../components/ui/TextLink.astro";
 import Base from "../../../layouts/Base.astro";
@@ -13,13 +14,14 @@ const { course, certificate } = data;
 ---
 
 <Base title={`${course.title}: certificate`}>
-	<p class="no-print mb-6 text-sm">
-		<a class="text-muted-foreground hover:text-primary" href={course.href}>{course.title}</a>
-	</p>
 	{
 		certificate ? (
 			<>
-				<h1 class="no-print">You completed {course.title}</h1>
+				<PageIntro
+					class="no-print"
+					title={`You completed ${course.title}`}
+					back={{ href: course.href, label: course.title }}
+				/>
 				<div class="mt-8">
 					<Certificate
 						issuer={config.siteName}

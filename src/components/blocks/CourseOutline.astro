@@ -1,0 +1,40 @@
+---
+import type { Outline } from "../../lib/pages";
+
+/**
+ * A course's lessons on its own page, module by module, joined by the track
+ * that fills in as the user goes. Lessons are links once the user is enrolled.
+ */
+interface Props {
+	outline: Outline[];
+	enrolled: boolean;
+}
+
+const { outline, enrolled } = Astro.props;
+---
+
+{
+	outline.map((section) => (
+		<section class="mt-10">
+			{section.moduleTitle && <h2 class="font-semibold text-2xl tracking-tight">{section.moduleTitle}</h2>}
+			{section.moduleDescription && <p class="mt-1 text-muted-foreground">{section.moduleDescription}</p>}
+			<ol class="track mt-3">
+				{section.lessons.map((lesson) => (
+					<li data-lesson-state={lesson.status}>
+						{enrolled ? (
+							<a class="font-medium text-lg hover:text-primary" href={lesson.href}>
+								{lesson.title}
+							</a>
+						) : (
+							<span class="font-medium text-lg">{lesson.title}</span>
+						)}
+						{enrolled && <span class="text-muted-foreground text-sm">{lesson.statusLabel}</span>}
+						{!enrolled && lesson.description && (
+							<span class="basis-full text-muted-foreground">{lesson.description}</span>
+						)}
+					</li>
+				))}
+			</ol>
+		</section>
+	))
+}

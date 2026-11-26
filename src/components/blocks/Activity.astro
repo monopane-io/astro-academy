@@ -1,0 +1,90 @@
+---
+import type { ActivityView } from "../../lib/pages";
+import Button from "../ui/Button.astro";
+import TextLink from "../ui/TextLink.astro";
+import ActivityHeader from "./ActivityHeader.astro";
+import Quiz from "./Quiz.astro";
+import VideoPlayer from "./VideoPlayer.astro";
+
+/**
+ * One activity in a lesson, whatever its kind: a reading, a video, a link
+ * or a quiz, with the button that marks it done.
+ */
+interface Props {
+	activity: ActivityView;
+	/** Where "done" and quiz answers are sent. */
+	action: string;
+}
+
+const { activity, action } = Astro.props;
+const tone = activity.done ? "success" : "neutral";
+---
+
+<section class="mt-10 flex flex-col gap-4 border-border border-t pt-10" id={activity.id} data-activity={activity.type}>
+	{activity.type === "quiz" && <Quiz quiz={activity} action={action} />}
+
+	{
+		activity.type === "video" && (
+			<>
+				<ActivityHeader
+					title={activity.title}
+					state={activity.done ? "Watched" : "Not watched"}
+					tone={tone}
+					meta={activity.duration}
+				/>
+				{activity.description && <p class="text-lg">{activity.description}</p>}
+				<VideoPlayer title={activity.title} player={activity.player} />
+			</>
+		)
+	}
+
+	{
+		activity.type === "reading" && (
+			<>
+				<ActivityHeader
+					title={activity.title}
+					state={activity.done ? "Done" : "Not done"}
+					tone={tone}
+					meta={activity.minutes !== null ? `About ${activity.minutes} min to read.` : null}
+				/>
+				<div class="reading" set:html={activity.html} />
+			</>
+		)
+	}
+
+	{
+		activity.type === "external_link" && (
+			<>
+				<ActivityHeader title={activity.title} state={activity.done ? "Done" : "Not done"} tone={tone} />
+				{activity.description && <p class="text-lg">{activity.description}</p>}
+				{activity.url && (
+					<p>
+						<TextLink
+							class="break-all"
+							href={activity.url}
+							target={activity.newTab ? "_blank" : undefined}
+							rel="noopener noreferrer"
+						>
+							{activity.url}
+						</TextLink>
+					</p>
+				)}
+			</>
+		)
+	}
+
+	{
+		activity.type !== "quiz" && !activity.done && (
+			<form method="post" action={action} data-stay>
+				<input type="hidden" name="activityId" value={activity.id} />
+				<Button variant="secondary" size="lg" type="submit">
+					{activity.type === "video"
+						? "Mark as watched"
+						: activity.type === "reading"
+							? "Mark as read"
+							: "Mark as done"}
+				</Button>
+			</form>
+		)
+	}
+</section>

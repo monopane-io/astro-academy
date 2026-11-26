@@ -1,125 +1,47 @@
 ---
-import Button from "../../../components/ui/Button.astro";
-import Progress from "../../../components/ui/Progress.astro";
+import CourseAction from "../../../components/blocks/CourseAction.astro";
+import CourseOutline from "../../../components/blocks/CourseOutline.astro";
+import PageIntro from "../../../components/blocks/PageIntro.astro";
 import Tag from "../../../components/ui/Tag.astro";
 import Base from "../../../layouts/Base.astro";
 import { coursePage } from "../../../lib/pages";
 
 const { response, data } = await coursePage(Astro);
 if (response) return response;
-const { course, progress } = data;
+const { course } = data;
 ---
 
 <Base title={course.title} description={course.description}>
-	<p class="mb-6 text-sm">
-		<a class="text-muted-foreground hover:text-primary" href="/">All courses</a>
-	</p>
-	<h1>{course.title}</h1>
-	{
-		data.editHref && (
-			<p class="mt-3">
-				<Button variant="secondary" size="sm" href={data.editHref} data-admin-edit>
-					Edit this course
-				</Button>
-			</p>
-		)
-	}
-	{course.description && <p class="mt-4 text-muted-foreground text-xl">{course.description}</p>}
-	{
-		(course.duration || course.tags.length > 0) && (
-			<p class="mt-5 flex flex-wrap items-center gap-2 text-sm">
-				{course.duration && (
-					<span class="mr-1 font-medium" data-course-duration>
-						{course.duration}
-					</span>
-				)}
-				{course.tags.map((tag) => (
-					<Tag size="sm" href={tag.href}>
-						{tag.name}
-					</Tag>
-				))}
-			</p>
-		)
-	}
+	<PageIntro
+		title={course.title}
+		text={course.description}
+		back={{ href: "/", label: "All courses" }}
+		editHref={data.editHref}
+		editLabel="Edit this course"
+	>
+		{
+			(course.duration || course.tags.length > 0) && (
+				<Fragment slot="meta">
+					{course.duration && (
+						<span class="mr-1 font-medium" data-course-duration>
+							{course.duration}
+						</span>
+					)}
+					{course.tags.map((tag) => (
+						<Tag size="sm" href={tag.href}>
+							{tag.name}
+						</Tag>
+					))}
+				</Fragment>
+			)
+		}
+	</PageIntro>
 	{
 		course.imageUrl && (
 			<img class="mt-8 aspect-[16/9] w-full rounded-xl object-cover" src={course.imageUrl} alt="" />
 		)
 	}
 
-	<div class="mt-8 flex flex-col gap-5 rounded-xl border border-border bg-card p-5 empty:hidden">
-		{
-			progress && (
-				<div data-course-progress>
-					<p class="font-medium">
-						{data.completed
-							? "You have completed this course."
-							: `${progress.done} of ${progress.total} activities done`}
-					</p>
-					<Progress class="mt-3" value={progress.done} max={progress.total} />
-				</div>
-			)
-		}
-		{
-			data.completed ? (
-				<p>
-					<Button variant="primary" size="lg" href={data.certificateHref}>
-						See your certificate
-					</Button>
-				</p>
-			) : data.enrolled && data.nextHref ? (
-				<p>
-					<Button variant="primary" size="lg" href={data.nextHref}>
-						{progress && progress.done > 0 ? "Continue" : "Start the course"}
-					</Button>
-				</p>
-			) : !data.enrolled && data.hasLessons ? (
-				<form class="flex flex-wrap items-center gap-x-4 gap-y-2" method="post">
-					<Button variant="primary" size="lg" type="submit">
-						Enrol in this course
-					</Button>
-					{!data.signedIn && (
-						<p class="text-muted-foreground text-sm">You will be asked to sign in first.</p>
-					)}
-				</form>
-			) : null
-		}
-		{
-			!data.hasLessons && (
-				<p class="text-muted-foreground">This course has no published lessons yet.</p>
-			)
-		}
-	</div>
-
-	{
-		data.outline.map((section) => (
-			<section class="mt-10">
-				{section.moduleTitle && (
-					<h2 class="font-semibold text-2xl tracking-tight">{section.moduleTitle}</h2>
-				)}
-				{section.moduleDescription && (
-					<p class="mt-1 text-muted-foreground">{section.moduleDescription}</p>
-				)}
-				<ol class="track mt-3">
-					{section.lessons.map((lesson) => (
-						<li data-lesson-state={lesson.status}>
-							{data.enrolled ? (
-								<a class="font-medium text-lg hover:text-primary" href={lesson.href}>
-									{lesson.title}
-								</a>
-							) : (
-								<span class="font-medium text-lg">{lesson.title}</span>
-							)}
-							{data.enrolled && (
-								<span class="text-muted-foreground text-sm">{lesson.statusLabel}</span>
-							)}
-							{!data.enrolled && lesson.description && (
-								<span class="basis-full text-muted-foreground">{lesson.description}</span>
-							)}
-						</li>
-					))}
-				</ol>
-			</section>
-		))
-	}
+	<CourseAction page={data} />
+	<CourseOutline outline={data.outline} enrolled={data.enrolled} />
 </Base>

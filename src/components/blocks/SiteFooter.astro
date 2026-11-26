@@ -1,0 +1,20 @@
+---
+import { sitePages } from "../../lib/ui";
+
+/** The foot of every user page: the academy's name and its pages once more. */
+const { config, user, admin } = Astro.locals;
+const pages = sitePages(Astro.url.pathname, Boolean(user), Boolean(admin));
+---
+
+<footer class="no-print border-border border-t">
+	<div class="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-8 gap-y-3 px-4 py-6 text-muted-foreground text-sm sm:px-6">
+		<p>
+			<span class="font-semibold text-foreground">{config.siteName}</span>
+			{config.tagline && <span class="ml-2 hidden sm:inline">{config.tagline}</span>}
+		</p>
+		<nav class="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
+			{pages.map((page) => <a class="hover:text-foreground" href={page.href}>{page.label}</a>)}
+			{!user && <a class="hover:text-foreground" href="/sign-in">Sign in</a>}
+		</nav>
+	</div>
+</footer>

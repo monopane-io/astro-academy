@@ -1,4 +1,8 @@
 ---
+import LearningList from "../components/blocks/LearningList.astro";
+import LearningRow from "../components/blocks/LearningRow.astro";
+import Message from "../components/blocks/Message.astro";
+import PageIntro from "../components/blocks/PageIntro.astro";
 import Button from "../components/ui/Button.astro";
 import ProgressRing from "../components/ui/ProgressRing.astro";
 import Base from "../layouts/Base.astro";
@@ -8,80 +12,57 @@ import { myLearningPage } from "../lib/pages";
 const { response, data } = await myLearningPage(Astro);
 if (response) return response;
 const { inProgress, completed } = data;
-const row =
-	"flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-xl border border-border bg-card p-5";
 ---
 
 <Base title="My learning">
-	<h1>My learning</h1>
-
 	{
-		inProgress.length + completed.length === 0 && (
-			<>
-				<p class="mt-4 text-lg text-muted-foreground">You are not enrolled in anything yet.</p>
-				<p class="mt-8">
-					<Button variant="primary" size="lg" href="/">
-						Browse courses
-					</Button>
-				</p>
-			</>
+		inProgress.length + completed.length === 0 ? (
+			<Message title="My learning" text="You are not enrolled in anything yet.">
+				<Button variant="primary" size="lg" href="/">
+					Browse courses
+				</Button>
+			</Message>
+		) : (
+			<PageIntro title="My learning" />
 		)
 	}
 
 	{
 		inProgress.length > 0 && (
-			<section class="mt-10" data-in-progress>
-				<h2 class="font-semibold text-muted-foreground">In progress</h2>
-				<ul class="mt-3 flex flex-col gap-3">
-					{inProgress.map(({ course, progress, nextHref, started }) => (
-						<li class={row}>
-							<ProgressRing value={progress.done} max={progress.total} />
-							<div class="min-w-48 flex-1">
-								<h3 class="font-semibold text-xl tracking-tight">
-									<a class="hover:text-primary" href={course.href}>
-										{course.title}
-									</a>
-								</h3>
-								<p class="mt-1 text-muted-foreground text-sm">
-									{progress.done} of {progress.total} activities done
-								</p>
-							</div>
-							{nextHref && (
-								<Button variant="primary" size="lg" href={nextHref}>
-									{started ? "Continue" : "Start"}
-								</Button>
-							)}
-						</li>
-					))}
-				</ul>
-			</section>
+			<LearningList title="In progress" data-in-progress>
+				{inProgress.map(({ course, progress, nextHref, started }) => (
+					<LearningRow
+						title={course.title}
+						href={course.href}
+						meta={`${progress.done} of ${progress.total} activities done`}
+					>
+						<ProgressRing slot="lead" value={progress.done} max={progress.total} />
+						{nextHref && (
+							<Button slot="action" variant="primary" size="lg" href={nextHref}>
+								{started ? "Continue" : "Start"}
+							</Button>
+						)}
+					</LearningRow>
+				))}
+			</LearningList>
 		)
 	}
 
 	{
 		completed.length > 0 && (
-			<section class="mt-10" data-completed>
-				<h2 class="font-semibold text-muted-foreground">Completed</h2>
-				<ul class="mt-3 flex flex-col gap-3">
-					{completed.map(({ course, completedOn, certificateHref }) => (
-						<li class={row}>
-							<div class="min-w-56 flex-1">
-								<h3 class="font-semibold text-xl tracking-tight">
-									<a class="hover:text-primary" href={course.href}>
-										{course.title}
-									</a>
-								</h3>
-								{completedOn && (
-									<p class="mt-1 text-muted-foreground text-sm">Completed on {completedOn}</p>
-								)}
-							</div>
-							<Button variant="secondary" size="lg" href={certificateHref}>
-								See your certificate
-							</Button>
-						</li>
-					))}
-				</ul>
-			</section>
+			<LearningList title="Completed" data-completed>
+				{completed.map(({ course, completedOn, certificateHref }) => (
+					<LearningRow
+						title={course.title}
+						href={course.href}
+						meta={completedOn ? `Completed on ${completedOn}` : null}
+					>
+						<Button slot="action" variant="secondary" size="lg" href={certificateHref}>
+							See your certificate
+						</Button>
+					</LearningRow>
+				))}
+			</LearningList>
 		)
 	}
 </Base>
