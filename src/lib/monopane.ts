@@ -364,13 +364,34 @@ export async function readEnrollment(enrollmentId: string): Promise<Enrollment> 
 	return data;
 }
 
-/** Progress records of an enrollment, keyed by activity ID. */
-export async function progressByActivity(enrollmentId: string): Promise<Map<string, Progress>> {
+interface ProgressPage {
+	data: Progress[];
+	nextCursor: string | null;
+	hasMore: boolean;
+}
+
+/** One page of an enrollment's progress records, after `cursor`. */
+async function progressPage(enrollmentId: string, cursor: string | null): Promise<ProgressPage> {
+	// The SDK version this was written against does not type the list's two
+	// query parameters yet, hence the cast.
 	const { data } = await listProgress({
 		throwOnError: true,
 		path: { projectId: project(), enrollmentId },
+		query: { limit: 100, ...(cursor ? { cursor } : {}) } as never,
 	});
-	return new Map(data.data.map((record) => [record.activityId, record]));
+	return data;
+}
+
+/** Progress records of an enrollment, keyed by activity ID. All of them, a page at a time. */
+export async function progressByActivity(enrollmentId: string): Promise<Map<string, Progress>> {
+	const records = new Map<string, Progress>();
+	let cursor: string | null = null;
+	do {
+		const page: ProgressPage = await progressPage(enrollmentId, cursor);
+		for (const record of page.data) records.set(record.activityId, record);
+		cursor = page.hasMore ? page.nextCursor : null;
+	} while (cursor);
+	return records;
 }
 
 /** Mark a reading or link as done. Monopane completes the course when all are. */
