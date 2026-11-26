@@ -11,22 +11,17 @@ interface Props {
 const { items, ...rest } = Astro.props;
 ---
 
-<ol class="flex flex-col" {...rest}>
+<ol class="relative ms-4 border-border border-s" {...rest}>
 	{
-		items.map((item, index) => (
-			<li class="relative flex gap-3 pb-5 last:pb-0">
-				{index < items.length - 1 && (
-					<span class="absolute top-8 bottom-0 left-4 w-0.5 bg-border" aria-hidden="true" />
-				)}
-				<span class="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+		items.map((item) => (
+			<li class="ms-7 mb-6 last:mb-0">
+				<span class="-start-4 absolute flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground ring-4 ring-background">
 					<Icon name={item.icon ?? "check"} />
 				</span>
-				<div class="min-w-0 pt-1">
-					<p>{item.text}</p>
-					<p class="text-muted-foreground text-sm">
-						{item.at ? <time datetime={item.at}>{item.when}</time> : item.when}
-					</p>
-				</div>
+				<p class="pt-1 font-medium leading-tight">{item.text}</p>
+				<p class="mt-1 text-muted-foreground text-sm">
+					{item.at ? <time datetime={item.at}>{item.when}</time> : item.when}
+				</p>
 			</li>
 		))
 	}

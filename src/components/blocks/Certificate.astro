@@ -17,9 +17,9 @@ const { issuer, name, course, issuedOn, code } = Astro.props;
 >
 	<p class="font-bold text-lg tracking-tight">{issuer}</p>
 	<p class="mt-10 text-muted-foreground">This certifies that</p>
-	<p class="mt-2 text-balance font-bold text-4xl tracking-tight">{name}</p>
+	<p class="mt-2 text-display">{name}</p>
 	<p class="mt-6 text-muted-foreground">has completed</p>
-	<p class="mt-2 text-balance font-semibold text-2xl tracking-tight">{course}</p>
+	<p class="mt-2 text-balance text-heading">{course}</p>
 	<p class="mt-6 text-muted-foreground">on {issuedOn}</p>
 	<p
 		class="mt-10 inline-block rounded-full bg-mark px-4 py-1.5 font-semibold text-mark-foreground tabular-nums tracking-wider [print-color-adjust:exact]"

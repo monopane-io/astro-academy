@@ -5,6 +5,7 @@ import PageHeader from "../../../components/blocks/PageHeader.astro";
 import Table from "../../../components/blocks/Table.astro";
 import Badge from "../../../components/ui/Badge.astro";
 import Button from "../../../components/ui/Button.astro";
+import Input from "../../../components/ui/Input.astro";
 import Admin from "../../../layouts/Admin.astro";
 import { coursesPage } from "../../../lib/admin/pages";
 
@@ -20,7 +21,7 @@ if (response) return response;
 	</PageHeader>
 
 	{
-		data.courses.length === 0 ? (
+		data.total === 0 ? (
 			<Empty
 				icon="book"
 				title="Create your first course"
@@ -31,7 +32,46 @@ if (response) return response;
 				</Button>
 			</Empty>
 		) : (
-			<Table label="Courses" columns={[{ label: "Course" }, { label: "Status" }, { label: "Changed", align: "right", hide: true }]}>
+			<Table
+				label="Courses"
+				columns={[
+					{ label: "Course", sortHref: data.sort.title.href, sorted: data.sort.title.sorted },
+					{ label: "Status" },
+					{
+						label: "Changed",
+						align: "right",
+						hide: true,
+						sortHref: data.sort.changed.href,
+						sorted: data.sort.changed.sorted,
+					},
+				]}
+			>
+				<form slot="toolbar" class="flex w-full flex-wrap items-center gap-2" method="get" role="search">
+					<Input
+						class="max-w-xs flex-1"
+						type="search"
+						name="q"
+						icon="search"
+						value={data.search}
+						placeholder="Title or address"
+						aria-label="Search courses"
+					/>
+					<Button type="submit">Search</Button>
+					{data.search && (
+						<Button href={data.clearHref} variant="ghost">
+							Clear
+						</Button>
+					)}
+				</form>
+				{data.courses.length === 0 && (
+					<Empty
+						slot="empty"
+						icon="book"
+						bare
+						title={`No course matches "${data.search}"`}
+						description="Try part of a title or an address."
+					/>
+				)}
 				{data.courses.map((course) => (
 					<tr data-admin-course={course.slug}>
 						<td class="font-medium">

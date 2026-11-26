@@ -13,11 +13,19 @@ interface Props {
 const rest = Astro.props;
 ---
 
-<p
-	class="fixed inset-x-4 bottom-4 z-50 flex sm:left-auto sm:max-w-sm animate-toast items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 font-medium text-sm shadow-lg"
+<div
+	class="fixed inset-x-4 bottom-4 z-50 flex sm:left-auto sm:max-w-sm animate-toast items-center hover:[animation-play-state:paused] focus-within:[animation-play-state:paused] gap-2.5 rounded-lg border border-border bg-card px-4 py-3 font-medium text-sm shadow-lg"
 	role="status"
 	{...rest}
 >
 	<Icon name="circle-check" size="lg" class="text-success" />
-	<span><slot /></span>
-</p>
+	<span class="flex-1"><slot /></span>
+	<button
+		class="cursor-pointer rounded-xs opacity-70 outline-none hover:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+		type="button"
+		aria-label="Dismiss"
+		data-dismiss
+	>
+		<Icon name="x" />
+	</button>
+</div>

@@ -1,6 +1,6 @@
 ---
-import { surface } from "../../lib/ui";
 import Button from "../ui/Button.astro";
+import LearningRow from "./LearningRow.astro";
 
 /** For a signed-in user on the home page: the courses they are part-way through. */
 interface Props {
@@ -15,12 +15,11 @@ const { courses } = Astro.props;
 	<ul class="mt-4 grid gap-3 sm:grid-cols-2">
 		{
 			courses.map((course) => (
-				<li class={`flex items-center justify-between gap-4 p-4 sm:p-5 ${surface}`}>
-					<p class="min-w-0 truncate text-subheading">{course.title}</p>
-					<Button variant="primary" href={course.href}>
+				<LearningRow title={course.title} href={course.href}>
+					<Button slot="action" variant="primary" href={course.href}>
 						Continue
 					</Button>
-				</li>
+				</LearningRow>
 			))
 		}
 	</ul>

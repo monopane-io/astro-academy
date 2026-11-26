@@ -17,7 +17,10 @@ interface Props {
 const { title, href, meta, id, ...rest } = Astro.props;
 ---
 
-<li class="flex flex-wrap items-center gap-4 p-4 text-sm first:rounded-t-xl last:rounded-b-xl" id={id} {...rest}>
+<li class:list={[
+		"relative flex flex-wrap items-center gap-4 p-4 text-sm first:rounded-t-xl last:rounded-b-xl",
+		href && "transition-colors hover:bg-muted/50",
+	]} id={id} {...rest}>
 	<slot name="media" />
 	{
 		Astro.slots.has("lead") && (
@@ -28,11 +31,11 @@ const { title, href, meta, id, ...rest } = Astro.props;
 	}
 	<div class="flex min-w-0 flex-1 flex-col gap-1">
 		<p class="truncate font-medium leading-snug">
-			{href ? <a class="hover:text-primary" href={href}>{title}</a> : title}
+			{href ? <a class="outline-none after:absolute after:inset-0 focus-visible:underline" href={href}>{title}</a> : title}
 		</p>
 		{meta && <p class="line-clamp-2 text-muted-foreground leading-normal">{meta}</p>}
 	</div>
-	<div class="flex shrink-0 items-center gap-2">
+	<div class="relative z-10 flex shrink-0 items-center gap-2">
 		<slot name="status" />
 		<slot name="actions" />
 	</div>

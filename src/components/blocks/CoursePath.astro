@@ -15,27 +15,11 @@ const said = { todo: "", started: " (in progress)", done: " (completed)" };
 ---
 
 <div data-course-path>
-	<ol class="flex flex-wrap items-center gap-y-3">
+	<ol class="track-row">
 		{
-			shown.map((step, index) => (
-				<li class="flex items-center" data-path-state={step.state}>
-					<a
-						class:list={[
-							"block size-4 rounded-full border-2 transition-transform hover:scale-125 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
-							step.state === "done" && "border-primary bg-primary",
-							step.state === "started" && "border-primary bg-background",
-							step.state === "todo" && "border-border bg-background",
-						]}
-						href={step.href}
-						title={step.title}
-						aria-label={`${step.title}${said[step.state]}`}
-					/>
-					{index < shown.length - 1 && (
-						<span
-							class:list={["h-0.5 w-8 sm:w-12", step.state === "done" ? "bg-primary" : "bg-border"]}
-							aria-hidden="true"
-						/>
-					)}
+			shown.map((step) => (
+				<li data-track={step.state} data-path-state={step.state}>
+					<a href={step.href} title={step.title} aria-label={`${step.title}${said[step.state]}`} />
 				</li>
 			))
 		}

@@ -15,12 +15,18 @@ const { items, title, stacked = false, class: extra, ...rest } = Astro.props;
 ---
 
 <Card flush title={title} class={extra} {...rest}>
-	<dl class="divide-y divide-border">
+	<dl class="divide-y divide-border text-sm">
 		{
 			items.map((item) => (
-				<div class:list={["px-5 py-3", !stacked && "flex flex-wrap justify-between gap-x-6 gap-y-1"]}>
-					<dt class:list={["text-muted-foreground", stacked && "text-sm"]}>{item.name}</dt>
-					<dd class:list={["break-words font-medium", item.code && "tabular-nums tracking-wider"]}>
+				<div class:list={["grid grid-cols-1 gap-1 p-3 sm:px-4", !stacked && "sm:grid-cols-3 sm:gap-4"]}>
+					<dt class="font-medium text-foreground">{item.name}</dt>
+					<dd
+						class:list={[
+							"break-words text-muted-foreground",
+							!stacked && "sm:col-span-2",
+							item.code && "tabular-nums tracking-wider",
+						]}
+					>
 						{item.value}
 					</dd>
 				</div>

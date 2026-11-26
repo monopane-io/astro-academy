@@ -12,7 +12,7 @@ const { variant = "mark", ...rest } = Astro.props;
 
 <div
 	class={cx(
-		"no-print px-4 py-2 text-center text-sm",
+		"no-print border-black/10 border-b px-4 py-2 text-center font-medium text-sm",
 		variant === "mark" ? "bg-mark text-mark-foreground" : "bg-primary-soft text-primary",
 	)}
 	role="note"

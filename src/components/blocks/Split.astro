@@ -2,11 +2,11 @@
 /**
  * A page about one thing, in two columns (two thirds and one third): what it holds on the left, and the
  * facts about it in the `aside` slot on the right. On a small screen the
- * aside comes first, above the rest.
+ * aside follows the rest.
  */
 ---
 
-<div class="flex flex-col-reverse gap-4 md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:items-start">
+<div class="flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:items-start">
 	<div class="min-w-0">
 		<slot />
 	</div>

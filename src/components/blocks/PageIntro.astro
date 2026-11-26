@@ -41,10 +41,11 @@ const {
 			</p>
 		)
 	}
-	<h1 class:list={[compact && "font-semibold text-3xl tracking-tight sm:text-3xl"]}>{title}</h1>
+	<h1 class={compact ? "text-title-sm" : "text-title"}>{title}</h1>
+	{text && <p class:list={["text-muted-foreground", compact ? "mt-3 text-base md:max-w-[80%]" : "mt-3 text-balance text-base sm:text-lg"]}>{text}</p>}
 	{
 		editHref && (
-			<p class="mt-3">
+			<p class="pt-4">
 				<Button variant="secondary" size="sm" href={editHref} data-admin-edit>
 					<Icon name="pencil" size="sm" />
 					{editLabel}
@@ -52,7 +53,6 @@ const {
 			</p>
 		)
 	}
-	{text && <p class:list={["text-muted-foreground", compact ? "mt-3 text-base md:max-w-[80%]" : "mt-4 text-xl"]}>{text}</p>}
 	{
 		Astro.slots.has("meta") && (
 			<div class="mt-5 flex flex-wrap items-center gap-2 text-sm">

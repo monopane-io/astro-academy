@@ -1,7 +1,8 @@
 ---
 /**
  * A few words that appear over something when the pointer or the keyboard is
- * on it. For an explanation only: a control still needs a label of its own.
+ * on it. It is for the eye only and is not read out: the control it explains
+ * must carry a label of its own.
  */
 interface Props {
 	text: string;
@@ -13,8 +14,8 @@ const { text } = Astro.props;
 <span class="group/tip relative inline-flex">
 	<slot />
 	<span
-		class="-translate-x-1/2 pointer-events-none absolute bottom-full left-1/2 z-40 mb-1.5 whitespace-nowrap rounded-md bg-foreground px-2 py-1 font-medium text-background text-xs opacity-0 transition-opacity delay-150 group-focus-within/tip:opacity-100 group-hover/tip:opacity-100"
-		role="tooltip"
+		class="-translate-x-1/2 pointer-events-none invisible absolute bottom-full left-1/2 z-50 mb-1.5 w-max max-w-56 text-balance rounded-md bg-foreground px-3 py-1.5 text-background text-xs opacity-0 transition-opacity delay-150 group-focus-within/tip:visible group-focus-within/tip:opacity-100 group-hover/tip:visible group-hover/tip:opacity-100"
+		aria-hidden="true"
 	>
 		{text}
 	</span>

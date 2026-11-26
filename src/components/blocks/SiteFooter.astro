@@ -7,14 +7,32 @@ const pages = sitePages(Astro.url.pathname, Boolean(user), Boolean(admin));
 ---
 
 <footer class="no-print border-border border-t">
-	<div class="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-8 gap-y-3 px-4 py-6 text-muted-foreground text-sm sm:px-6">
+	<div class="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-8 gap-y-3 p-4 text-muted-foreground text-sm sm:px-6">
 		<p>
 			<span class="font-semibold text-foreground">{config.siteName}</span>
 			{config.tagline && <span class="ml-2 hidden sm:inline">{config.tagline}</span>}
 		</p>
-		<nav class="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
-			{pages.map((page) => <a class="hover:text-foreground" href={page.href}>{page.label}</a>)}
-			{!user && <a class="hover:text-foreground" href="/sign-in">Sign in</a>}
+		<nav aria-label="Footer">
+			<ul class="flex flex-wrap items-center gap-x-4 gap-y-2 font-medium md:gap-x-6">
+				{
+					pages.map((page) => (
+						<li>
+							<a class="hover:underline" href={page.href}>
+								{page.label}
+							</a>
+						</li>
+					))
+				}
+				{
+					!user && (
+						<li>
+							<a class="hover:underline" href="/sign-in">
+								Sign in
+							</a>
+						</li>
+					)
+				}
+			</ul>
 		</nav>
 	</div>
 </footer>

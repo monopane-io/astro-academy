@@ -1,4 +1,6 @@
 ---
+import Icon, { type IconName } from "../ui/Icon.astro";
+
 /**
  * A page that says one thing and offers a way on: not found, something went
  * wrong, not finished yet. Buttons go in the slot.
@@ -6,17 +8,23 @@
 interface Props {
 	title: string;
 	text?: string;
+	icon?: IconName;
 }
 
-const { title, text } = Astro.props;
+const { title, text, icon = "info" } = Astro.props;
 ---
 
-<div>
-	<h1>{title}</h1>
-	{text && <p class="mt-4 text-lg text-muted-foreground">{text}</p>}
+<div class="flex min-w-0 flex-col items-center justify-center gap-6 text-balance py-6 text-center md:py-12">
+	<div class="flex max-w-sm flex-col items-center gap-2">
+		<span class="mb-2 flex size-10 items-center justify-center rounded-lg bg-muted text-foreground">
+			<Icon name={icon} class="size-6" />
+		</span>
+		<h1 class="text-heading">{title}</h1>
+		{text && <p class="text-muted-foreground text-sm/relaxed">{text}</p>}
+	</div>
 	{
 		Astro.slots.has("default") && (
-			<div class="mt-8 flex flex-wrap gap-3">
+			<div class="flex w-full max-w-sm flex-wrap items-center justify-center gap-2">
 				<slot />
 			</div>
 		)

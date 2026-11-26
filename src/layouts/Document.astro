@@ -95,6 +95,12 @@ const { config } = Astro.locals;
 				}
 			});
 
+			// A toast's close button takes the toast away at once.
+			document.addEventListener("click", (event) => {
+				const button = event.target instanceof Element ? event.target.closest("[data-dismiss]") : null;
+				button?.parentElement?.remove();
+			});
+
 			// A menu (a <details data-menu>) closes when something outside it is
 			// pressed, or on Escape, as menus do.
 			document.addEventListener("click", (event) => {

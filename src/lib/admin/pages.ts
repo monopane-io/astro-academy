@@ -95,6 +95,16 @@ export interface AdminCourseRow {
 
 export interface AdminHomeData {
 	courses: AdminCourseRow[];
+	/** How many courses there are before the search narrows them. */
+	total: number;
+	/** What was searched for; empty when nothing was. */
+	search: string;
+	clearHref: string;
+	/** The link that orders by each column, and which one the list is ordered by. */
+	sort: {
+		title: { href: string; sorted?: "ascending" | "descending" };
+		changed: { href: string; sorted?: "ascending" | "descending" };
+	};
 	done?: string;
 	published: number;
 	drafts: number;
@@ -105,10 +115,39 @@ export interface AdminHomeData {
 const longDate = (iso: string) =>
 	new Date(iso).toLocaleDateString("en-GB", { dateStyle: "long", timeZone: "UTC" });
 
+const COURSE_SORTS = ["-changed", "changed", "title", "-title"] as const;
+type CourseSort = (typeof COURSE_SORTS)[number];
+
+function coursesHref(search: string, sort: CourseSort): string {
+	const params = new URLSearchParams();
+	if (search) params.set("q", search);
+	if (sort !== "-changed") params.set("sort", sort);
+	const query = params.toString();
+	return query ? `/admin/courses?${query}` : "/admin/courses";
+}
+
 export function coursesPage(context: PageContext): Promise<PageResult<AdminHomeData>> {
 	return signedIn(context, async (api, session) => {
+		const asked = context.url.searchParams;
+		const search = (asked.get("q") ?? "").trim().slice(0, 200);
+		const sort = COURSE_SORTS.find((known) => known === asked.get("sort")) ?? "-changed";
 		const courses = await api.all<ApiCourse>("/courses");
-		const rows = courses.map((course) => ({
+		// A project has few courses, so they are searched and ordered here.
+		const wanted = search.toLowerCase();
+		const direction = sort.startsWith("-") ? -1 : 1;
+		const shown = courses
+			.filter(
+				(course) =>
+					!wanted ||
+					course.title.toLowerCase().includes(wanted) ||
+					course.slug.toLowerCase().includes(wanted),
+			)
+			.sort((a, b) =>
+				sort.endsWith("title")
+					? direction * a.title.localeCompare(b.title)
+					: direction * a.updatedAt.localeCompare(b.updatedAt),
+			);
+		const rows = shown.map((course) => ({
 			id: course.id,
 			title: course.title,
 			slug: course.slug,
@@ -120,9 +159,22 @@ export function coursesPage(context: PageContext): Promise<PageResult<AdminHomeD
 		}));
 		return {
 			courses: rows,
-			done: context.url.searchParams.get("done")?.slice(0, 200),
-			published: rows.filter((course) => course.published).length,
-			drafts: rows.filter((course) => !course.published).length,
+			total: courses.length,
+			search,
+			clearHref: coursesHref("", sort),
+			sort: {
+				title: {
+					href: coursesHref(search, sort === "title" ? "-title" : "title"),
+					sorted: sort === "title" ? "ascending" : sort === "-title" ? "descending" : undefined,
+				},
+				changed: {
+					href: coursesHref(search, sort === "-changed" ? "changed" : "-changed"),
+					sorted: sort === "changed" ? "ascending" : sort === "-changed" ? "descending" : undefined,
+				},
+			},
+			done: asked.get("done")?.slice(0, 200),
+			published: courses.filter((course) => course.status === "published").length,
+			drafts: courses.filter((course) => course.status !== "published").length,
 			minutesLeft: Math.max(1, Math.floor((session.expires - Date.now()) / 60000)),
 		};
 	});

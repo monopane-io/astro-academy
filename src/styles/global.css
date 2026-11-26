@@ -88,24 +88,30 @@
 }
 
 /*
- * The type scale. Every heading on the site is one of these six, so a page
+ * The type scale. Every heading on the site is one of these seven, so a page
  * title is the same size wherever it is and nothing invents a size of its own.
+ * The steps are shadcn/ui's typography sizes (30, 24, 20, 18, 14px), with one
+ * larger step for the hero.
  */
 @utility text-display {
-	/* The academy's name on the home page. */
-	@apply text-balance font-bold text-5xl tracking-tight sm:text-6xl;
+	/* The academy's name in the hero. */
+	@apply text-balance font-bold text-4xl tracking-tight sm:text-5xl;
 }
 @utility text-title {
 	/* The title of a user page. */
-	@apply text-balance font-bold text-4xl tracking-tight sm:text-5xl;
+	@apply text-balance font-semibold text-3xl tracking-tight xl:text-5xl xl:tracking-tighter;
 }
 @utility text-title-sm {
-	/* The title of an admin page, and of something set large inside a page. */
-	@apply text-balance font-bold text-3xl tracking-tight;
+	/* The title of an admin page, of a lesson, of something set large inside a page. */
+	@apply text-balance font-semibold text-3xl tracking-tight;
 }
 @utility text-heading {
 	/* A part of a user page; the title of a card that stands alone. */
 	@apply font-semibold text-2xl tracking-tight;
+}
+@utility text-heading-sm {
+	/* A heading inside a reading. */
+	@apply font-semibold text-xl tracking-tight;
 }
 @utility text-subheading {
 	/* A part of an admin page; one thing in a list of large rows. */
@@ -169,33 +175,70 @@
 	 * marker is hollow until it is started, ringed while in progress and filled
 	 * when done, so the line shows how far along the user is.
 	 */
+	.track,
+	.track-row {
+		--track-dot: 0.875rem;
+		@apply relative flex;
+	}
+
 	.track {
-		@apply relative flex flex-col;
+		@apply flex-col;
+	}
+
+	.track-row {
+		@apply flex-wrap items-center gap-y-3;
 	}
 
 	.track > li {
 		@apply relative flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 py-2.5 pl-8;
 	}
 
+	.track-row > li {
+		@apply flex items-center;
+	}
+
+	/* The marker: hollow, then ringed, then filled. */
+	.track > li::before,
+	.track-row > li > a {
+		@apply size-(--track-dot) rounded-full border-2 border-border bg-background;
+	}
+
 	.track > li::before {
 		content: "";
-		@apply absolute top-[0.95rem] left-0 z-10 size-3.5 rounded-full border-2 border-border bg-background;
+		@apply absolute top-[0.95rem] left-0 z-10;
+	}
+
+	.track-row > li > a {
+		@apply block transition-transform hover:scale-125;
+	}
+
+	/* The line to the next step. */
+	.track > li:not(:last-child)::after,
+	.track-row > li:not(:last-child)::after {
+		content: "";
+		@apply bg-border;
 	}
 
 	.track > li:not(:last-child)::after {
-		content: "";
-		@apply absolute top-[1.4rem] bottom-[-0.95rem] left-[0.375rem] w-0.5 bg-border;
+		@apply absolute top-[1.4rem] bottom-[-0.95rem] left-[0.375rem] w-0.5;
 	}
 
-	.track > li:is([data-lesson-state="started"], [data-track="started"])::before {
+	.track-row > li:not(:last-child)::after {
+		@apply h-0.5 w-8 sm:w-12;
+	}
+
+	.track > li:is([data-lesson-state="started"], [data-track="started"])::before,
+	.track-row > li[data-track="started"] > a {
 		@apply border-primary;
 	}
 
-	.track > li:is([data-lesson-state="done"], [data-track="done"])::before {
+	.track > li:is([data-lesson-state="done"], [data-track="done"])::before,
+	.track-row > li[data-track="done"] > a {
 		@apply border-primary bg-primary;
 	}
 
-	.track > li:is([data-lesson-state="done"], [data-track="done"]):not(:last-child)::after {
+	.track > li:is([data-lesson-state="done"], [data-track="done"]):not(:last-child)::after,
+	.track-row > li[data-track="done"]:not(:last-child)::after {
 		@apply bg-primary;
 	}
 
@@ -209,7 +252,7 @@
 	}
 
 	.reading :is(h2, h3, h4) {
-		@apply mt-8 font-semibold text-xl tracking-tight;
+		@apply mt-8 text-heading-sm;
 	}
 
 	.reading a {

@@ -56,20 +56,17 @@ if (response) return response;
 		}
 		{
 			data.users.length === 0 && (
-				<tr>
-					<td colspan="3" class="!p-0">
-						<Empty
-							icon="users"
-							bare
-							title={data.search ? `Nobody matches "${data.search}"` : "Nobody has signed in yet"}
-							description={
-								data.search
-									? "Try part of a name, an email address or a reference."
-									: "People appear here the first time they sign in to the academy."
-							}
-						/>
-					</td>
-				</tr>
+				<Empty
+					slot="empty"
+					icon="users"
+					bare
+					title={data.search ? `Nobody matches "${data.search}"` : "Nobody has signed in yet"}
+					description={
+						data.search
+							? "Try part of a name, an email address or a reference."
+							: "People appear here the first time they sign in to the academy."
+					}
+				/>
 			)
 		}
 		<Pager

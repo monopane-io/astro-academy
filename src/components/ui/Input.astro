@@ -50,7 +50,12 @@ const control = cx(
 	icon && "pl-9",
 	prefix && "rounded-l-none",
 );
-const frame = cx("relative flex", narrow && "max-w-40", extra);
+const frame = cx(
+	"relative flex has-disabled:opacity-50",
+	as === "select" && "w-fit max-w-full",
+	narrow && "max-w-40",
+	extra,
+);
 const shared = { "aria-invalid": invalid ? ("true" as const) : undefined, ...rest };
 ---
 
@@ -77,7 +82,7 @@ const shared = { "aria-invalid": invalid ? ("true" as const) : undefined, ...res
 				<select class={control} {...shared}>
 					<slot />
 				</select>
-				<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted-foreground">
+				<span class="pointer-events-none absolute inset-y-0 right-3.5 flex select-none items-center text-muted-foreground opacity-50">
 					<Icon name="chevron-down" />
 				</span>
 			</>

@@ -8,7 +8,8 @@ import Icon from "../ui/Icon.astro";
  * box, filters) and `footer` below it (a <Pager>).
  *
  * A column with `hide` is left out on a small screen, so keep what matters
- * most in the first column. A column with `sortHref` can be ordered by.
+ * most in the first column. Put an <Empty bare> in the `empty` slot for when
+ * there are no rows. A column with `sortHref` can be ordered by.
  */
 interface Props {
 	/** Read out as the table's name. */
@@ -96,6 +97,15 @@ const { label, title, description, columns, ...rest } = Astro.props;
 			</thead>
 			<tbody>
 				<slot />
+				{
+					Astro.slots.has("empty") && (
+						<tr class="hover:bg-transparent!">
+							<td class="p-0!" colspan={columns.length}>
+								<slot name="empty" />
+							</td>
+						</tr>
+					)
+				}
 			</tbody>
 		</table>
 	</div>
