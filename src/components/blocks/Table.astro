@@ -1,5 +1,6 @@
 ---
 import { cx } from "../../lib/ui";
+import Icon from "../ui/Icon.astro";
 
 /**
  * Rows of the same kind of thing, in columns. Put one <tr> per row in the
@@ -7,12 +8,20 @@ import { cx } from "../../lib/ui";
  * box, filters) and `footer` below it (a <Pager>).
  *
  * A column with `hide` is left out on a small screen, so keep what matters
- * most in the first column.
+ * most in the first column. A column with `sortHref` can be ordered by.
  */
 interface Props {
 	/** Read out as the table's name. */
 	label: string;
-	columns: { label: string; align?: "left" | "right"; hide?: boolean }[];
+	columns: {
+		label: string;
+		align?: "left" | "right";
+		hide?: boolean;
+		/** Makes the heading a link that orders the table by this column. */
+		sortHref?: string;
+		/** Set on the column the table is ordered by. */
+		sorted?: "ascending" | "descending";
+	}[];
 	[attribute: string]: unknown;
 }
 
@@ -43,8 +52,24 @@ const { label, columns, ...rest } = Astro.props;
 									column.hide && "hidden md:table-cell",
 								)}
 								scope="col"
+								aria-sort={column.sorted}
 							>
-								{column.label}
+								{column.sortHref ? (
+									<a
+										class={cx(
+											"inline-flex items-center gap-1 hover:text-foreground",
+											column.sorted && "text-foreground",
+										)}
+										href={column.sortHref}
+									>
+										{column.label}
+										{column.sorted && (
+											<Icon name={column.sorted === "ascending" ? "arrow-up" : "arrow-down"} size="sm" />
+										)}
+									</a>
+								) : (
+									column.label
+								)}
 							</th>
 						))
 					}

@@ -142,6 +142,14 @@ interface ApiUser {
 	email: string | null;
 	createdAt: string;
 }
+interface ApiProjectStats {
+	totalUsers: number;
+	activeUsers: number;
+	totalEnrollments: number;
+	activeEnrollments: number;
+	completedEnrollments: number;
+	completionRate: number;
+}
 interface Listed<T> {
 	data: T[];
 	hasMore: boolean;
@@ -168,17 +176,15 @@ const RECENT_USERS = 5;
 
 export function overviewPage(context: PageContext): Promise<PageResult<OverviewData>> {
 	return signedIn(context, async (api, session) => {
-		const [courses, users] = await Promise.all([
+		const [courses, users, totals] = await Promise.all([
 			api.all<ApiCourse>("/courses"),
 			api.get<Listed<ApiUser>>("/users", { limit: RECENT_USERS }),
+			api.get<ApiProjectStats>("/stats"),
 		]);
 		const numbers = await Promise.all(
 			courses.map((course) => api.get<ApiCourseStats>(`/courses/${course.id}/stats`)),
 		);
-		const sum = (pick: (stats: ApiCourseStats) => number) =>
-			numbers.reduce((total, stats) => total + pick(stats), 0);
-		const enrolled = sum((stats) => stats.totalEnrollments);
-		const completed = sum((stats) => stats.completedEnrollments);
+		const enrolled = totals.totalEnrollments;
 		const published = courses.filter((course) => course.status === "published").length;
 		const steps = [
 			{
@@ -196,7 +202,7 @@ export function overviewPage(context: PageContext): Promise<PageResult<OverviewD
 			{
 				label: "Have someone sign in",
 				hint: "Send people the address of the academy. They appear under Users.",
-				done: users.data.length > 0,
+				done: totals.totalUsers > 0,
 				href: "/",
 			},
 			{
@@ -208,19 +214,25 @@ export function overviewPage(context: PageContext): Promise<PageResult<OverviewD
 		return {
 			stats: [
 				{
-					label: "Published courses",
-					value: published,
-					hint: `${courses.length - published} in draft`,
+					label: "Users",
+					value: totals.totalUsers,
+					hint: `${totals.activeUsers} active this week`,
 				},
 				{
 					label: "Enrolments",
 					value: enrolled,
-					hint: `${sum((stats) => stats.activeEnrollments)} in progress`,
+					hint: `${totals.activeEnrollments} in progress`,
 				},
-				{ label: "Completions", value: completed },
 				{
-					label: "Completion rate",
-					value: enrolled > 0 ? `${Math.round((completed / enrolled) * 100)}%` : "–",
+					label: "Completions",
+					value: totals.completedEnrollments,
+					hint:
+						enrolled > 0 ? `${Math.round(totals.completionRate * 100)}% of enrolments` : undefined,
+				},
+				{
+					label: "Published courses",
+					value: published,
+					hint: `${courses.length - published} in draft`,
 				},
 			],
 			steps,

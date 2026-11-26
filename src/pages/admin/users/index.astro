@@ -4,6 +4,8 @@ import PageHeader from "../../../components/blocks/PageHeader.astro";
 import Pager from "../../../components/blocks/Pager.astro";
 import Table from "../../../components/blocks/Table.astro";
 import Avatar from "../../../components/ui/Avatar.astro";
+import Button from "../../../components/ui/Button.astro";
+import Input from "../../../components/ui/Input.astro";
 import Admin from "../../../layouts/Admin.astro";
 import { usersPage } from "../../../lib/admin/users";
 
@@ -14,42 +16,69 @@ if (response) return response;
 <Admin title="Users" minutesLeft={data.minutesLeft}>
 	<PageHeader
 		title="Users"
-		description="Everyone who has signed in to the academy, newest first. You can see how each is doing; nothing here changes a user."
+		description="Everyone who has signed in to the academy. You can see how each is doing; nothing here changes a user."
 	/>
 
-	{
-		data.users.length === 0 ? (
-			<Empty
-				icon="users"
-				title={data.later ? "No more users" : "Nobody has signed in yet"}
-				description={data.later ? undefined : "People appear here the first time they sign in to the academy."}
+	<Table
+		label="Users"
+		columns={[
+			{ label: "User", sortHref: data.sort.name.href, sorted: data.sort.name.sorted },
+			{ label: "Email", hide: true },
+			{ label: "Joined", align: "right", sortHref: data.sort.joined.href, sorted: data.sort.joined.sorted },
+		]}
+	>
+		<form slot="toolbar" class="flex w-full flex-wrap items-center gap-2" method="get" role="search">
+			<Input
+				class="max-w-xs flex-1"
+				type="search"
+				name="q"
+				icon="search"
+				value={data.search}
+				placeholder="Name, email or reference"
+				aria-label="Search users"
 			/>
-		) : (
-			<Table
-				label="Users"
-				columns={[{ label: "User" }, { label: "Email", hide: true }, { label: "Joined", align: "right" }]}
-			>
-				{data.users.map((user) => (
-					<tr data-admin-user={user.email ?? user.name}>
-						<td>
-							<a class="flex items-center gap-3 font-medium hover:text-primary" href={user.href}>
-								<Avatar name={user.name} size="sm" />
-								{user.name}
-							</a>
-						</td>
-						<td class="hidden text-muted-foreground md:table-cell">{user.email ?? "Not given"}</td>
-						<td class="whitespace-nowrap text-right text-muted-foreground text-sm">{user.joinedOn}</td>
-					</tr>
-				))}
-				<Pager
-					slot="footer"
-					summary={data.later ? "Older users" : `The newest ${data.users.length}`}
-					firstHref={data.later ? "/admin/users" : null}
-					firstLabel="Newest"
-					nextHref={data.moreHref}
-					nextLabel="Older"
-				/>
-			</Table>
-		)
-	}
+			<Button type="submit">Search</Button>
+			{data.search && <Button href={data.clearHref} variant="ghost">Clear</Button>}
+		</form>
+		{
+			data.users.map((user) => (
+				<tr data-admin-user={user.email ?? user.name}>
+					<td>
+						<a class="flex items-center gap-3 font-medium hover:text-primary" href={user.href}>
+							<Avatar name={user.name} size="sm" />
+							{user.name}
+						</a>
+					</td>
+					<td class="hidden text-muted-foreground md:table-cell">{user.email ?? "Not given"}</td>
+					<td class="whitespace-nowrap text-right text-muted-foreground text-sm">{user.joinedOn}</td>
+				</tr>
+			))
+		}
+		{
+			data.users.length === 0 && (
+				<tr>
+					<td colspan="3" class="!p-0">
+						<Empty
+							icon="users"
+							bare
+							title={data.search ? `Nobody matches "${data.search}"` : "Nobody has signed in yet"}
+							description={
+								data.search
+									? "Try part of a name, an email address or a reference."
+									: "People appear here the first time they sign in to the academy."
+							}
+						/>
+					</td>
+				</tr>
+			)
+		}
+		<Pager
+			slot="footer"
+			summary={data.summary}
+			firstHref={data.firstHref}
+			firstLabel="Back to the start"
+			nextHref={data.moreHref}
+			nextLabel="More"
+		/>
+	</Table>
 </Admin>

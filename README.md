@@ -182,7 +182,7 @@ Only published content appears: a course, lesson or activity must be published, 
 `/admin` is for the people who run the academy. It opens on an overview (published courses, enrolments, completions, the newest users, and what is left to set up) and has two parts:
 
 - **Courses.** Make a course, write its lessons and activities (readings, videos, links, and quizzes with four kinds of question), group lessons into modules, put things in order, and publish. Everything starts as a draft. A user sees a lesson only when the course, the lesson, its module and the activity are all published; "Publish everything" does all of them at once. What you change shows on the site straight away.
-- **Users.** Everyone who has signed in, the courses each is enrolled in and how far along they are. Reading only: nothing there changes a user.
+- **Users.** Everyone who has signed in, to search by name, email or reference and to order by name or by when they joined; then the courses each is enrolled in, how far along they are, and what they did lately. Reading only: nothing there changes a user.
 
 When you are signed in as an admin, a course and a lesson on the site itself carry an "Edit" button that takes you to it in the editor.
 

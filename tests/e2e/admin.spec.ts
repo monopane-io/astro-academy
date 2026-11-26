@@ -81,6 +81,7 @@ test("an admin signs in with Monopane and sees every course, drafts included", a
 	await expect(page).toHaveURL(/\/admin$/);
 	await expect(page.getByRole("heading", { level: 1 })).toHaveText("Overview");
 	await expect(page.locator("[data-stat='Published courses'] dd").first()).toHaveText(/^\d+$/);
+	await expect(page.locator("[data-stat='Users']")).toContainText("active this week");
 	await page.getByRole("link", { name: "Courses", exact: true }).first().click();
 	await expect(page).toHaveURL(/\/admin\/courses$/);
 	await expect(page.getByRole("heading", { level: 1 })).toHaveText("Courses");
@@ -326,6 +327,27 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 	// --- The admin sees the user and how they are doing -----------------------
 	await page.getByRole("link", { name: "Users", exact: true }).click();
 	await expect(heading).toHaveText("Users");
+	// Search finds the user by part of their name; a search for nobody says so.
+	await page.getByLabel("Search users").fill("no such person");
+	await page.getByRole("button", { name: "Search", exact: true }).click();
+	await expect(page.getByText('Nobody matches "no such person"')).toBeVisible();
+	await page.getByLabel("Search users").fill("hopper");
+	await page.getByRole("button", { name: "Search", exact: true }).click();
+	await expect(page).toHaveURL(/\/admin\/users\?q=hopper/);
+	await expect(page.locator("[data-admin-user]").first()).toContainText("Grace Hopper");
+	// A heading orders the list, and keeps the search.
+	await page.getByRole("link", { name: "User", exact: true }).click();
+	await expect(page).toHaveURL(/q=hopper&sort=displayName/);
+	await expect(page.getByRole("columnheader", { name: "User" })).toHaveAttribute(
+		"aria-sort",
+		"ascending",
+	);
+	// Back to newest first, where the user who just signed in is at the top.
+	await page.getByRole("link", { name: "Joined", exact: true }).click();
+	await expect(page.getByRole("columnheader", { name: "Joined" })).toHaveAttribute(
+		"aria-sort",
+		"descending",
+	);
 	await page.getByRole("link", { name: "Grace Hopper" }).first().click();
 	await expect(heading).toHaveText("Grace Hopper");
 	const enrollment = page.locator(`[data-admin-enrollment="${title}"]`);

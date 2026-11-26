@@ -57,17 +57,50 @@ export interface UsersData {
 	users: UserRow[];
 	/** The next page of the list, or null on the last. */
 	moreHref: string | null;
-	/** True on any page after the first. */
-	later: boolean;
+	/** The first page, in the same search and order; null when on it. */
+	firstHref: string | null;
+	/** What was searched for; empty when nothing was. */
+	search: string;
+	/** The list without the search. */
+	clearHref: string;
+	/** Which column the list is ordered by, which way, and the link that orders by each. */
+	sort: {
+		name: { href: string; sorted?: "ascending" | "descending" };
+		joined: { href: string; sorted?: "ascending" | "descending" };
+	};
+	/** A line under the table: "The newest 50", "12 found". */
+	summary: string;
 	minutesLeft: number;
 }
 
 const nameOf = (user: ApiUser) => user.displayName ?? user.email ?? user.externalId;
 
+const SORTS = ["-createdAt", "createdAt", "displayName", "-displayName"] as const;
+type Sort = (typeof SORTS)[number];
+
+/** The address of the users page for a search, an order and a place in the list. */
+function usersHref(search: string, sort: Sort, after?: string): string {
+	const params = new URLSearchParams();
+	if (search) params.set("q", search);
+	if (sort !== "-createdAt") params.set("sort", sort);
+	if (after) params.set("after", after);
+	const query = params.toString();
+	return query ? `/admin/users?${query}` : "/admin/users";
+}
+
 export function usersPage(context: PageContext): Promise<PageResult<UsersData>> {
 	return signedIn(context, async (api, session) => {
-		const cursor = context.url.searchParams.get("after") ?? undefined;
-		const page = await api.get<Page<ApiUser>>("/users", { limit: PAGE_SIZE, cursor });
+		const asked = context.url.searchParams;
+		const cursor = asked.get("after") ?? undefined;
+		const search = (asked.get("q") ?? "").trim().slice(0, 200);
+		const sort = SORTS.find((known) => known === asked.get("sort")) ?? "-createdAt";
+		const page = await api.get<Page<ApiUser>>("/users", {
+			limit: PAGE_SIZE,
+			cursor,
+			q: search || undefined,
+			sort: sort === "-createdAt" ? undefined : sort,
+		});
+		const shown = page.data.length;
 		return {
 			users: page.data.map((user) => ({
 				id: user.id,
@@ -76,11 +109,34 @@ export function usersPage(context: PageContext): Promise<PageResult<UsersData>> 
 				joinedOn: longDate(user.createdAt),
 				href: `/admin/users/${user.id}`,
 			})),
-			moreHref:
-				page.hasMore && page.nextCursor
-					? `/admin/users?after=${encodeURIComponent(page.nextCursor)}`
-					: null,
-			later: cursor !== undefined,
+			moreHref: page.hasMore && page.nextCursor ? usersHref(search, sort, page.nextCursor) : null,
+			firstHref: cursor ? usersHref(search, sort) : null,
+			search,
+			clearHref: usersHref("", sort),
+			sort: {
+				// Pressing a heading orders by it; pressing it again turns the order round.
+				name: {
+					href: usersHref(search, sort === "displayName" ? "-displayName" : "displayName"),
+					sorted:
+						sort === "displayName"
+							? "ascending"
+							: sort === "-displayName"
+								? "descending"
+								: undefined,
+				},
+				joined: {
+					href: usersHref(search, sort === "-createdAt" ? "createdAt" : "-createdAt"),
+					sorted:
+						sort === "createdAt" ? "ascending" : sort === "-createdAt" ? "descending" : undefined,
+				},
+			},
+			summary: cursor
+				? `${shown} more`
+				: search
+					? `${shown}${page.hasMore ? " or more" : ""} found`
+					: page.hasMore
+						? `The first ${shown}`
+						: `${shown} in all`,
 			minutesLeft: minutesLeft(session.expires),
 		};
 	});

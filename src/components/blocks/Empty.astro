@@ -6,12 +6,14 @@ interface Props {
 	title: string;
 	description?: string;
 	icon?: IconName;
+	/** Without its own border, inside something that has one. */
+	bare?: boolean;
 }
 
-const { title, description, icon = "inbox" } = Astro.props;
+const { title, description, icon = "inbox", bare = false } = Astro.props;
 ---
 
-<div class="rounded-xl border border-border border-dashed px-6 py-10 text-center">
+<div class:list={["px-6 py-10 text-center", !bare && "rounded-xl border border-border border-dashed"]}>
 	<span class="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
 		<Icon name={icon} size="lg" />
 	</span>
