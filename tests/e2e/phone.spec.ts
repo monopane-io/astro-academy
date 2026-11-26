@@ -11,7 +11,7 @@ const PASSWORD = process.env.MONOPANE_ADMIN_PASSWORD ?? "";
 
 test.use({ viewport: { width: 390, height: 780 } });
 
-const drawer = (page: Page) => page.getByRole("dialog", { name: "Menu" });
+const drawer = (page: Page) => page.locator("[data-drawer]:popover-open");
 const openMenu = async (page: Page) => {
 	await page.getByRole("button", { name: "Menu", exact: true }).click();
 	await expect(drawer(page)).toBeVisible();

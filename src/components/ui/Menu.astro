@@ -15,9 +15,11 @@ interface Props {
 	text?: string;
 	/** The icon when there is no text; three dots unless said. */
 	icon?: IconName;
+	/** Which edge of the button the menu lines up with. `start` for a button near the left of the page. */
+	align?: "start" | "end";
 }
 
-const { label, text, icon = "ellipsis" } = Astro.props;
+const { label, text, icon = "ellipsis", align = "end" } = Astro.props;
 const custom = Astro.slots.has("trigger");
 ---
 
@@ -48,7 +50,10 @@ const custom = Astro.slots.has("trigger");
 		}
 	</summary>
 	<div
-		class="absolute right-0 z-30 mt-1 flex w-max min-w-56 max-w-[calc(100vw-5rem)] flex-col rounded-md border border-border bg-card p-1 shadow-md"
+		class:list={[
+			"absolute z-30 mt-1 flex w-max min-w-56 max-w-[calc(100vw-5rem)] flex-col rounded-md border border-border bg-card p-1 shadow-md",
+			align === "start" ? "left-0" : "right-0",
+		]}
 		role="group"
 		aria-label={text ? label : undefined}
 	>

@@ -1,5 +1,6 @@
 ---
 import type { CourseCard } from "../../lib/pages";
+import { surface } from "../../lib/ui";
 import Badge from "../ui/Badge.astro";
 import Tag from "../ui/Tag.astro";
 
@@ -12,7 +13,7 @@ const { course } = Astro.props;
 ---
 
 <li
-	class="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition focus-within:ring-[3px] focus-within:ring-ring/50 hover:shadow-lg"
+	class:list={[surface, "group relative flex flex-col overflow-hidden transition focus-within:ring-[3px] focus-within:ring-ring/50 hover:shadow-lg"]}
 	data-course-tile
 >
 	{

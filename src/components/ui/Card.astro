@@ -3,9 +3,8 @@ import { cx, surface } from "../../lib/ui";
 
 /**
  * A surface that holds one thing: a form, a list, a set of facts. With a
- * `title` it has a header, with room for `actions` on its right; the `header`
- * slot takes a header of the caller's own instead; a `footer` slot sits under
- * a line at the bottom.
+ * `title` it has a header, with room for `actions` on its right; a `footer`
+ * slot sits under a line at the bottom.
  */
 interface Props {
 	title?: string;
@@ -41,13 +40,6 @@ const hasFooter = Astro.slots.has("footer");
 					<slot name="actions" />
 				</div>
 				{description && <p class="text-muted-foreground text-sm">{description}</p>}
-			</div>
-		)
-	}
-	{
-		Astro.slots.has("header") && (
-			<div class={cx("flex flex-col gap-2 px-6", flush && "border-border border-b py-4")}>
-				<slot name="header" />
 			</div>
 		)
 	}

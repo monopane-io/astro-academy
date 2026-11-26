@@ -1,5 +1,6 @@
 ---
 import type { LessonPage } from "../../lib/pages";
+import { surface } from "../../lib/ui";
 import LessonOutlineList from "./LessonOutlineList.astro";
 
 /**
@@ -18,7 +19,7 @@ const { course, outline } = Astro.props;
 <p class="mb-4 text-sm">
 	<a class="text-muted-foreground hover:text-primary" href={course.href}>{course.title}</a>
 </p>
-<details class="rounded-xl border border-border bg-card shadow-sm lg:hidden" data-outline="folded">
+<details class:list={[surface, "lg:hidden"]} data-outline="folded">
 	<summary class="cursor-pointer px-4 py-3 font-semibold text-sm">Course contents</summary>
 	<div class="px-4 pb-3">
 		<LessonOutlineList outline={outline} />

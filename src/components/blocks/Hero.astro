@@ -11,6 +11,8 @@ interface Props {
 }
 
 const { title, text, image } = Astro.props;
+// A slot that was passed but came out empty (a condition that was false) takes no room.
+const body = Astro.slots.has("default") ? (await Astro.slots.render("default")).trim() : "";
 ---
 
 <div class="border-border border-b">
@@ -24,13 +26,13 @@ const { title, text, image } = Astro.props;
 			<h1 class="max-w-prose text-display">{title}</h1>
 			{text && <p class="mt-4 max-w-prose text-pretty text-base text-muted-foreground sm:text-lg/relaxed">{text}</p>}
 			{
-				Astro.slots.has("default") && (
+				body && (
 					<div class="mt-4 flex flex-wrap gap-4 sm:mt-6">
-						<slot />
+						<Fragment set:html={body} />
 					</div>
 				)
 			}
 		</div>
-		{image && <img class="aspect-[4/3] w-full rounded-xl object-cover" src={image} alt="" />}
+		{image && <img class="mx-auto hidden aspect-[4/3] w-full max-w-md rounded-xl object-cover lg:block" src={image} alt="" />}
 	</div>
 </div>

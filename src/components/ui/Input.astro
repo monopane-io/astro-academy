@@ -42,7 +42,7 @@ const {
 
 const control = cx(
 	"w-full min-w-0 rounded-md border bg-card px-3 text-base text-foreground shadow-xs placeholder:text-muted-foreground md:text-sm",
-	"outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
+	"outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed",
 	"border-border aria-invalid:border-destructive aria-invalid:ring-destructive/20",
 	as === "textarea" ? "field-sizing-content min-h-16 py-2 leading-6" : "h-9",
 	as === "select" && "cursor-pointer appearance-none pr-9",

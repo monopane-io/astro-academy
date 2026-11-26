@@ -8,9 +8,19 @@ interface Props {
 	value?: string;
 	checked?: boolean;
 	required?: boolean;
+	disabled?: boolean;
+	id?: string;
 }
 
-const { label, name, value = "on", checked = false, required = false } = Astro.props;
+const {
+	label,
+	name,
+	value = "on",
+	checked = false,
+	required = false,
+	disabled = false,
+	id,
+} = Astro.props;
 ---
 
 <label class="flex cursor-pointer items-center gap-3 font-medium text-sm leading-snug has-disabled:cursor-not-allowed has-disabled:opacity-50">
@@ -21,6 +31,8 @@ const { label, name, value = "on", checked = false, required = false } = Astro.p
 		value={value}
 		checked={checked}
 		required={required}
+		disabled={disabled}
+		id={id}
 	/>
 	<span>{label}</span>
 </label>

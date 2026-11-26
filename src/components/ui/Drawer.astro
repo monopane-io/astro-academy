@@ -25,7 +25,7 @@ const { id, label } = Astro.props;
 >
 	<Icon name="menu" class="size-6" />
 </button>
-<div id={id} popover class="drawer" role="dialog" aria-label={label} data-drawer>
+<div id={id} popover class="drawer" data-drawer>
 	<div class="flex h-dvh w-full max-w-74 flex-col overflow-auto bg-card shadow-xl" data-drawer-panel>
 		<slot />
 	</div>

@@ -15,7 +15,7 @@ const { items, ...rest } = Astro.props;
 	{
 		items.map((item) => (
 			<li class="ms-7 mb-6 last:mb-0">
-				<span class="-start-4 absolute flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground ring-4 ring-background">
+				<span class="-start-4 absolute flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground ring-4 ring-card">
 					<Icon name={item.icon ?? "check"} />
 				</span>
 				<p class="pt-1 font-medium leading-tight">{item.text}</p>

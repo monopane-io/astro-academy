@@ -160,7 +160,7 @@ const row = "flex flex-wrap items-center gap-3";
 
 	<Section title="Menu and dialog" description="References: shadcn/ui dropdown-menu, dialog and alert-dialog; Untitled UI mobile header (Drawer).">
 		<div class={row}>
-			<Menu label="Actions" text="Actions">
+			<Menu label="Actions" text="Actions" align="start">
 				<MenuItem href="#">Edit</MenuItem>
 				<MenuItem href="#" destructive>Delete</MenuItem>
 			</Menu>
@@ -193,8 +193,8 @@ const row = "flex flex-wrap items-center gap-3";
 			trail={[
 				{ href: "#", label: "Courses" },
 				{ href: "#", label: "A tour of this academy" },
-				{ href: "#", label: "Quizzes" },
 			]}
+			current="Quizzes"
 		/>
 	</Section>
 

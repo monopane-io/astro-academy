@@ -78,7 +78,18 @@ const { config } = Astro.locals;
 				const opener =
 					event.target instanceof Element ? event.target.closest("[data-dialog-open]") : null;
 				const dialog = opener && document.getElementById(opener.getAttribute("data-dialog-open") ?? "");
-				if (dialog instanceof HTMLDialogElement) dialog.showModal();
+				if (!(dialog instanceof HTMLDialogElement)) return;
+				// A menu that opened the dialog closes, as it does after any other choice.
+				opener?.closest("details[data-menu]")?.removeAttribute("open");
+				dialog.showModal();
+			});
+
+			// A drawer left open when the window grows past the width it is for
+			// (a tablet turned) is no longer shown, so it closes.
+			window.addEventListener("resize", () => {
+				for (const drawer of document.querySelectorAll("[data-drawer]:popover-open")) {
+					if (drawer instanceof HTMLElement && drawer.parentElement?.getClientRects().length === 0) drawer.hidePopover();
+				}
 			});
 
 			// The button that sent a form shows it is busy until the next page is in.

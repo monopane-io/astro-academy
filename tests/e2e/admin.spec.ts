@@ -373,6 +373,8 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 	await expect(done).toHaveText("Course moved back to draft");
 	await expect(page.locator("[data-course-state]")).toHaveText("Draft");
 	await page.getByRole("link", { name: "Details", exact: true }).click();
+	// The page is swapped in place; the menu to press is the new page's.
+	await expect(page).toHaveURL(`${courseUrl}/details`);
 	// Deleting is the last line of the course's menu. It asks once more, and
 	// Cancel leaves everything as it was.
 	const confirm = page.getByRole("alertdialog", { name: `Delete ${title}?` });

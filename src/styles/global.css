@@ -99,7 +99,7 @@
 }
 @utility text-title {
 	/* The title of a user page. */
-	@apply text-balance font-semibold text-3xl tracking-tight xl:text-5xl xl:tracking-tighter;
+	@apply text-balance font-semibold text-3xl tracking-tight lg:leading-[1.1] xl:text-5xl xl:tracking-tighter;
 }
 @utility text-title-sm {
 	/* The title of an admin page, of a lesson, of something set large inside a page. */
