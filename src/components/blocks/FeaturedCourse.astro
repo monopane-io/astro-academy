@@ -30,7 +30,7 @@ const { course } = Astro.props;
 	}
 	<div class="flex flex-col items-start justify-center gap-3 p-6 sm:p-8">
 		<Badge variant="primary">Featured</Badge>
-		<h2 class="font-bold text-3xl tracking-tight">{course.title}</h2>
+		<h2 class="text-title-sm">{course.title}</h2>
 		{course.description && <p class="text-lg text-muted-foreground">{course.description}</p>}
 		<Button variant="primary" size="lg" href={course.href} class="mt-2">
 			See the course

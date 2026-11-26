@@ -87,6 +87,35 @@
 	}
 }
 
+/*
+ * The type scale. Every heading on the site is one of these six, so a page
+ * title is the same size wherever it is and nothing invents a size of its own.
+ */
+@utility text-display {
+	/* The academy's name on the home page. */
+	@apply text-balance font-bold text-5xl tracking-tight sm:text-6xl;
+}
+@utility text-title {
+	/* The title of a user page. */
+	@apply text-balance font-bold text-4xl tracking-tight sm:text-5xl;
+}
+@utility text-title-sm {
+	/* The title of an admin page, and of something set large inside a page. */
+	@apply text-balance font-bold text-3xl tracking-tight;
+}
+@utility text-heading {
+	/* A part of a user page; the title of a card that stands alone. */
+	@apply font-semibold text-2xl tracking-tight;
+}
+@utility text-subheading {
+	/* A part of an admin page; one thing in a list of large rows. */
+	@apply font-semibold text-lg tracking-tight;
+}
+@utility text-label {
+	/* The name of a group of things, said quietly. */
+	@apply font-semibold text-muted-foreground text-sm;
+}
+
 @layer base {
 	html {
 		color-scheme: light dark;
@@ -98,7 +127,7 @@
 	}
 
 	h1 {
-		@apply text-balance font-bold text-4xl tracking-tight sm:text-5xl;
+		@apply text-title;
 	}
 
 	:focus-visible {
@@ -133,7 +162,9 @@
 	}
 
 	/*
-	 * The lesson track: a course's lessons in order, joined by a line. A lesson's
+	 * The track is the academy's one recurring picture: steps joined by a line
+	 * that fills in as they are done. It draws a course's lessons, the path of
+	 * courses on the home page and the set-up steps in the admin area. A step's
 	 * marker is hollow until it is started, ringed while in progress and filled
 	 * when done, so the line shows how far along the user is.
 	 */
@@ -155,15 +186,15 @@
 		@apply absolute top-[1.4rem] bottom-[-0.95rem] left-[0.375rem] w-0.5 bg-border;
 	}
 
-	.track > li[data-lesson-state="started"]::before {
+	.track > li:is([data-lesson-state="started"], [data-track="started"])::before {
 		@apply border-primary;
 	}
 
-	.track > li[data-lesson-state="done"]::before {
+	.track > li:is([data-lesson-state="done"], [data-track="done"])::before {
 		@apply border-primary bg-primary;
 	}
 
-	.track > li[data-lesson-state="done"]:not(:last-child)::after {
+	.track > li:is([data-lesson-state="done"], [data-track="done"]):not(:last-child)::after {
 		@apply bg-primary;
 	}
 

@@ -169,6 +169,10 @@ export interface HomePage {
 	featured: CourseCard | null;
 	/** The courses the signed-in user is part-way through. */
 	continuing: { title: string; href: string }[];
+	/** Every course as a step on a path, with where the signed-in user stands on each. */
+	path: { title: string; href: string; state: "todo" | "started" | "done" }[];
+	/** "3 courses", or for a signed-in user "1 of 3 courses completed". */
+	pathCaption: string;
 }
 
 /** The topic that sets a course above the others on the home page. */
@@ -189,8 +193,17 @@ export async function homePage(context: PageContext): Promise<PageResult<HomePag
 			? (cards.find((card) => card.tags.some((t) => t.name.toLowerCase() === FEATURED_TOPIC)) ??
 				null)
 			: null;
+	const completed = cards.filter((card) => card.enrolled === "completed").length;
+	const count = `${cards.length} ${cards.length === 1 ? "course" : "courses"}`;
 	return page({
 		tag,
+		path: cards.map((card) => ({
+			title: card.title,
+			href: card.href,
+			state:
+				card.enrolled === "completed" ? "done" : card.enrolled === "active" ? "started" : "todo",
+		})),
+		pathCaption: user ? `${completed} of ${count} completed` : count,
 		featured,
 		continuing: cards
 			.filter((card) => card.enrolled === "active")

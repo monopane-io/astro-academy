@@ -11,7 +11,7 @@ import MenuItem from "../ui/MenuItem.astro";
 const { config, user, admin } = Astro.locals;
 const pages = sitePages(Astro.url.pathname, Boolean(user), Boolean(admin));
 const navLink =
-	"rounded-md px-3 py-1.5 font-medium text-muted-foreground hover:text-foreground aria-[current=page]:bg-border/60 aria-[current=page]:text-foreground";
+	"rounded-md px-3 py-1.5 font-medium text-muted-foreground hover:text-foreground aria-[current=page]:bg-muted aria-[current=page]:text-foreground";
 ---
 
 <header

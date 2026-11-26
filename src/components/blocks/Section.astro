@@ -17,7 +17,7 @@ const { title, description, id, class: extra } = Astro.props;
 <section class:list={["mt-10 first:mt-0", extra]} aria-labelledby={title ? id : undefined}>
 	<div class="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 empty:hidden">
 		<div class="min-w-0">
-			{title && <h2 class="font-semibold text-lg tracking-tight" id={id}>{title}</h2>}
+			{title && <h2 class="text-subheading" id={id}>{title}</h2>}
 			{description && (
 				<p class:list={["max-w-prose text-muted-foreground text-sm", title && "mt-1"]}>{description}</p>
 			)}

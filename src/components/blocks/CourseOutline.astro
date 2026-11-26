@@ -16,7 +16,7 @@ const { outline, enrolled } = Astro.props;
 {
 	outline.map((section) => (
 		<section class="mt-10">
-			{section.moduleTitle && <h2 class="font-semibold text-2xl tracking-tight">{section.moduleTitle}</h2>}
+			{section.moduleTitle && <h2 class="text-heading">{section.moduleTitle}</h2>}
 			{section.moduleDescription && <p class="mt-1 text-muted-foreground">{section.moduleDescription}</p>}
 			<ol class="track mt-3">
 				{section.lessons.map((lesson) => (

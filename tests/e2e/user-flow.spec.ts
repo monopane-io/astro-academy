@@ -50,7 +50,9 @@ test("a signed-out visitor can browse, and is asked to sign in for a lesson", as
 	await expect(page.getByRole("heading", { level: 2, name: "Courses" })).toBeVisible();
 	// "My learning" is for signed-in users.
 	await expect(page.getByRole("link", { name: "My learning" })).toHaveCount(0);
-	await expect(page.getByRole("link", { name: "A tour of this academy" })).toBeVisible();
+	await expect(
+		page.locator("[data-course-tile]").getByRole("link", { name: "A tour of this academy" }),
+	).toBeVisible();
 	// Drafts are not listed.
 	await expect(page.getByText("Unpublished")).toHaveCount(0);
 	// The tile shows the course's topic and how long it takes.
@@ -71,7 +73,10 @@ test("a signed-out visitor can browse, and is asked to sign in for a lesson", as
 	// Demo mode says so on every page.
 	await expect(page.locator("[data-demo-notice]")).toContainText("Not for production");
 
-	await page.getByRole("link", { name: "A tour of this academy" }).click();
+	await page
+		.locator("[data-course-tile]")
+		.getByRole("link", { name: "A tour of this academy" })
+		.click();
 	await expect(page).toHaveURL(COURSE);
 	await expect(page.getByRole("heading", { level: 1 })).toHaveText("A tour of this academy");
 	await expect(page.getByText("Welcome", { exact: true })).toBeVisible();

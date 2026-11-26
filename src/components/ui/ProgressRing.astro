@@ -22,16 +22,20 @@ const sizes = { md: "size-12 text-xs", lg: "size-20 text-lg" };
 >
 	<svg class="-rotate-90 absolute inset-0 size-full" viewBox="0 0 36 36" fill="none" aria-hidden="true">
 		<circle class="stroke-border" cx="18" cy="18" r="15.5" stroke-width="3"></circle>
-		<circle
-			class="stroke-primary"
-			cx="18"
-			cy="18"
-			r="15.5"
-			stroke-width="3"
-			stroke-linecap="round"
-			pathLength="100"
-			stroke-dasharray={`${percent} 100`}
-		></circle>
+		{
+			percent > 0 && (
+				<circle
+					class="stroke-primary"
+					cx="18"
+					cy="18"
+					r="15.5"
+					stroke-width="3"
+					stroke-linecap="round"
+					pathLength="100"
+					stroke-dasharray={`${percent} 100`}
+				></circle>
+			)
+		}
 	</svg>
 	<span aria-hidden="true">{percent}%</span>
 </span>

@@ -3,6 +3,7 @@ import Banner from "../components/blocks/Banner.astro";
 import Breadcrumbs from "../components/blocks/Breadcrumbs.astro";
 import Certificate from "../components/blocks/Certificate.astro";
 import Checklist from "../components/blocks/Checklist.astro";
+import CoursePath from "../components/blocks/CoursePath.astro";
 import Empty from "../components/blocks/Empty.astro";
 import Feed from "../components/blocks/Feed.astro";
 import Pager from "../components/blocks/Pager.astro";
@@ -234,6 +235,35 @@ const row = "flex flex-wrap items-center gap-3";
 					]}
 				/>
 			</Card>
+		</div>
+	</Section>
+
+	<Section title="The track" description="Steps joined by a line that fills in: lessons, the path of courses, set-up steps.">
+		<CoursePath
+			caption="2 of 5 courses completed"
+			steps={[
+				{ title: "First", href: "#", state: "done" },
+				{ title: "Second", href: "#", state: "done" },
+				{ title: "Third", href: "#", state: "started" },
+				{ title: "Fourth", href: "#", state: "todo" },
+				{ title: "Fifth", href: "#", state: "todo" },
+			]}
+		/>
+		<ol class="track mt-6 max-w-form">
+			<li data-track="done"><span class="font-medium text-lg">A lesson that is done</span></li>
+			<li data-track="started"><span class="font-medium text-lg">One in progress</span></li>
+			<li data-track="todo"><span class="font-medium text-lg">One not started</span></li>
+		</ol>
+	</Section>
+
+	<Section title="Type scale">
+		<div class="flex flex-col gap-3">
+			<p class="text-display">Display</p>
+			<p class="text-title">Title</p>
+			<p class="text-title-sm">Title, small</p>
+			<p class="text-heading">Heading</p>
+			<p class="text-subheading">Subheading</p>
+			<p class="text-label">Label</p>
 		</div>
 	</Section>
 

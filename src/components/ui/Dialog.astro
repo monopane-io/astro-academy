@@ -22,7 +22,7 @@ const { id, title } = Astro.props;
 	closedby="any"
 >
 	<div class="flex items-start justify-between gap-4 px-6 pt-6">
-		<h2 class="font-semibold text-lg" id={`${id}-title`}>{title}</h2>
+		<h2 class="text-subheading" id={`${id}-title`}>{title}</h2>
 		<form method="dialog">
 			<button
 				class="-mt-1 -mr-2 inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"

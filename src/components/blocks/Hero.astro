@@ -21,7 +21,7 @@ const { title, text, image } = Astro.props;
 		]}
 	>
 		<div>
-			<h1 class="max-w-3xl sm:text-6xl">{title}</h1>
+			<h1 class="max-w-3xl text-display">{title}</h1>
 			{text && <p class="mt-4 max-w-xl text-muted-foreground text-xl">{text}</p>}
 			{
 				Astro.slots.has("default") && (

@@ -15,7 +15,7 @@ const { title, href, meta } = Astro.props;
 <li class="flex flex-wrap items-center gap-x-5 gap-y-4 rounded-xl border border-border bg-card p-5">
 	<slot name="lead" />
 	<div class="min-w-48 flex-1">
-		<h3 class="font-semibold text-xl tracking-tight">
+		<h3 class="text-subheading">
 			<a class="hover:text-primary" href={href}>{title}</a>
 		</h3>
 		{meta && <p class="mt-1 text-muted-foreground text-sm">{meta}</p>}
