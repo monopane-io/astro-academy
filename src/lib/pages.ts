@@ -192,6 +192,8 @@ export async function homePage(context: PageContext): Promise<PageResult<HomePag
 // --- A course ---------------------------------------------------------------
 
 export interface CoursePage {
+	/** Where an admin edits this, when one is signed in. Null for everyone else. */
+	editHref: string | null;
 	course: CourseCard;
 	outline: Outline[];
 	hasLessons: boolean;
@@ -228,6 +230,7 @@ export async function coursePage(context: PageContext): Promise<PageResult<Cours
 
 	return page({
 		course: courseCard(course, enrollment?.status),
+		editHref: context.locals.admin ? `/admin/courses/${course.id}` : null,
 		outline: outline(course, sections, states),
 		hasLessons: lessons.length > 0,
 		signedIn: user !== null,
@@ -296,6 +299,8 @@ export interface QuizView extends ActivityBase {
 export type ActivityView = ReadingView | LinkView | VideoView | QuizView;
 
 export interface LessonPage {
+	/** Where an admin edits this, when one is signed in. Null for everyone else. */
+	editHref: string | null;
 	course: { title: string; href: string };
 	lesson: { title: string; description: string | null };
 	/** Where this page's forms post to. */
@@ -433,6 +438,7 @@ export async function lessonPage(context: PageContext): Promise<PageResult<Lesso
 	return page({
 		course: { title: course.title, href: coursePath },
 		lesson: { title: lesson.title, description: lesson.description ?? null },
+		editHref: context.locals.admin ? `/admin/courses/${course.id}/lessons/${lesson.id}` : null,
 		action: here,
 		outline: outline(course, sections, states, lesson.id),
 		activities: activities

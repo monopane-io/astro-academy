@@ -84,6 +84,11 @@ const navLink =
 									</button>
 								</form>
 							</>
+						) : admin ? (
+							// Signed in to run the academy, not to learn in it.
+							<a class="font-medium hover:text-primary" href="/sign-in">
+								Sign in to learn
+							</a>
 						) : (
 							<a class="btn px-4 py-1.5" href="/sign-in">
 								Sign in

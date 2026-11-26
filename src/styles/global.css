@@ -108,6 +108,28 @@
 		@apply border border-border bg-card text-foreground hover:border-primary hover:brightness-100;
 	}
 
+	/* A button for the small, frequent things in the admin area: move up, publish. */
+	.btn-small {
+		@apply inline-flex cursor-pointer items-center justify-center rounded-md border border-border bg-card px-2.5 py-1 font-medium text-foreground text-sm hover:border-primary disabled:cursor-default disabled:opacity-40 disabled:hover:border-border;
+	}
+
+	.btn-danger {
+		@apply bg-destructive text-white;
+	}
+
+	/* A group of fields with a name, in the admin area's forms. */
+	.panel {
+		@apply rounded-xl border border-border bg-card p-5;
+	}
+
+	.label {
+		@apply font-medium text-sm;
+	}
+
+	.hint {
+		@apply text-muted-foreground text-sm;
+	}
+
 	/* A small label that says where something stands. */
 	.pill {
 		@apply inline-flex shrink-0 items-center rounded-full bg-border/60 px-2.5 py-0.5 font-medium text-muted-foreground text-sm;

@@ -1,0 +1,24 @@
+---
+/** What the last form did, or why it could not be done, at the top of an admin page. */
+interface Props {
+	done?: string;
+	error?: string;
+}
+
+const { done, error } = Astro.props;
+---
+
+{
+	error && (
+		<p class="note note-error mb-6" role="alert" data-admin-error>
+			{error}
+		</p>
+	)
+}
+{
+	done && !error && (
+		<p class="note note-success mb-6" role="status" data-admin-done>
+			{done}
+		</p>
+	)
+}

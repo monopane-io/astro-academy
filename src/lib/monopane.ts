@@ -78,6 +78,15 @@ export function configure(config: Config): void {
 	});
 }
 
+/**
+ * Forget what is remembered about courses. Called when an admin changes
+ * something, so they see it on the learner pages at once. Other copies of
+ * the site running elsewhere catch up within CONTENT_CACHE_SECONDS.
+ */
+export function forgetContent(): void {
+	cache.clear();
+}
+
 function project(): string {
 	if (!configured) throw new Error("configure() has not been called");
 	return configured.projectId;

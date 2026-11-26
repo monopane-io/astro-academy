@@ -1,0 +1,59 @@
+---
+import Admin from "../../../layouts/Admin.astro";
+import { usersPage } from "../../../lib/admin/users";
+
+const { response, data } = await usersPage(Astro);
+if (response) return response;
+---
+
+<Admin title="Users" minutesLeft={data.minutesLeft}>
+	<h1>Users</h1>
+	<p class="mt-3 max-w-prose text-muted-foreground">
+		Everyone who has signed in to the academy, newest first. You can see how each is doing; nothing
+		here changes a user.
+	</p>
+
+	{
+		data.users.length === 0 ? (
+			<p class="note mt-8">
+				{data.later ? "No more users." : "Nobody has signed in to the academy yet."}
+			</p>
+		) : (
+			<ul class="mt-8 divide-y divide-border rounded-xl border border-border bg-card">
+				{data.users.map((user) => (
+					<li
+						class="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-4"
+						data-admin-user={user.email ?? user.name}
+					>
+						<div class="min-w-0">
+							<p class="font-semibold text-lg tracking-tight">
+								<a class="hover:text-primary" href={user.href}>
+									{user.name}
+								</a>
+							</p>
+							{user.email && <p class="text-muted-foreground text-sm">{user.email}</p>}
+						</div>
+						<p class="text-muted-foreground text-sm">Joined on {user.joinedOn}</p>
+					</li>
+				))}
+			</ul>
+		)
+	}
+
+	<p class="mt-6 flex gap-4">
+		{
+			data.later && (
+				<a class="btn btn-quiet" href="/admin/users">
+					Back to the newest
+				</a>
+			)
+		}
+		{
+			data.moreHref && (
+				<a class="btn btn-quiet" href={data.moreHref}>
+					Older users
+				</a>
+			)
+		}
+	</p>
+</Admin>

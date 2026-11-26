@@ -19,7 +19,20 @@ const tab =
 		data-admin-bar
 	>
 		<nav class="flex items-center gap-1" aria-label="Admin">
-			<a class={tab} href="/admin" aria-current={path === "/admin" ? "page" : undefined}>Courses</a>
+			<a
+				class={tab}
+				href="/admin"
+				aria-current={path === "/admin" || path.startsWith("/admin/courses") ? "page" : undefined}
+			>
+				Courses
+			</a>
+			<a
+				class={tab}
+				href="/admin/users"
+				aria-current={path.startsWith("/admin/users") ? "page" : undefined}
+			>
+				Users
+			</a>
 		</nav>
 		<div class="flex items-center gap-4 text-sm">
 			<span class="text-muted-foreground" data-admin-time-left>

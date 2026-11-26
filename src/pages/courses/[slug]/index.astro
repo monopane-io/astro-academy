@@ -12,6 +12,15 @@ const { course, progress } = data;
 		<a class="text-muted-foreground hover:text-primary" href="/">All courses</a>
 	</p>
 	<h1>{course.title}</h1>
+	{
+		data.editHref && (
+			<p class="mt-3">
+				<a class="btn-small" href={data.editHref} data-admin-edit>
+					Edit this course
+				</a>
+			</p>
+		)
+	}
 	{course.description && <p class="mt-4 text-muted-foreground text-xl">{course.description}</p>}
 	{
 		(course.duration || course.tags.length > 0) && (

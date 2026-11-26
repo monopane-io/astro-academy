@@ -7,8 +7,10 @@
  * address under /admin: it refuses a form sent from another site, and marks
  * the reply as private and not to be shown inside another page.
  */
+import { forgetContent } from "../monopane";
 import type { PageContext, PageResult } from "../pages";
-import { type AdminApi, AdminSignedOut, adminApi } from "./api";
+import { type AdminApi, AdminRequestFailed, AdminSignedOut, adminApi } from "./api";
+import { createCourse } from "./content";
 import type { AdminSession } from "./session";
 import { ADMIN_HOME } from "./sign-in";
 
@@ -21,16 +23,23 @@ export const signInPath = (path: string) => `/admin/sign-in?next=${encodeURIComp
 /**
  * Run `load` for the signed-in admin. Without a session, or when Monopane
  * says the session has ended, the admin is sent to sign in and brought back.
+ * `load` returns what the page draws, or a reply of its own (a redirect after
+ * a form was dealt with).
  */
-async function signedIn<T>(
+export async function signedIn<T>(
 	context: PageContext,
-	load: (api: AdminApi, session: AdminSession) => Promise<T>,
+	load: (api: AdminApi, session: AdminSession) => Promise<T | Response>,
 ): Promise<PageResult<T>> {
-	const here = `${context.url.pathname}${context.url.search}`;
+	// After signing in again the admin comes back to the page, never to a form post.
+	const here = context.url.pathname;
 	const session = context.locals.admin;
 	if (!session) return respond(context.redirect(signInPath(here)));
 	try {
-		return page(await load(adminApi(context.locals.config, session), session));
+		const result = await load(adminApi(context.locals.config, session), session);
+		if (!(result instanceof Response)) return page(result);
+		// A form was dealt with, so what users see may have changed.
+		if (context.request.method !== "GET") forgetContent();
+		return respond(result);
 	} catch (error) {
 		if (error instanceof AdminSignedOut) return respond(context.redirect(signInPath(here)));
 		throw error;
@@ -82,10 +91,13 @@ export interface AdminCourseRow {
 	updatedOn: string;
 	/** The course as users see it; null for a draft, which they cannot. */
 	viewHref: string | null;
+	editHref: string;
 }
 
 export interface AdminHomeData {
 	courses: AdminCourseRow[];
+	done?: string;
+	error?: string;
 	published: number;
 	drafts: number;
 	/** How much longer this sign-in lasts, in whole minutes. */
@@ -97,6 +109,15 @@ const longDate = (iso: string) =>
 
 export function adminHomePage(context: PageContext): Promise<PageResult<AdminHomeData>> {
 	return signedIn(context, async (api, session) => {
+		let error: string | undefined;
+		if (context.request.method === "POST") {
+			try {
+				return await createCourse(context, api, await context.request.formData());
+			} catch (failure) {
+				if (!(failure instanceof AdminRequestFailed)) throw failure;
+				error = failure.message;
+			}
+		}
 		const courses = await api.all<ApiCourse>("/courses");
 		const rows = courses.map((course) => ({
 			id: course.id,
@@ -106,9 +127,12 @@ export function adminHomePage(context: PageContext): Promise<PageResult<AdminHom
 			published: course.status === "published",
 			updatedOn: longDate(course.updatedAt),
 			viewHref: course.status === "published" ? `/courses/${course.slug}` : null,
+			editHref: `/admin/courses/${course.id}`,
 		}));
 		return {
 			courses: rows,
+			done: context.url.searchParams.get("done")?.slice(0, 200),
+			error,
 			published: rows.filter((course) => course.published).length,
 			drafts: rows.filter((course) => !course.published).length,
 			minutesLeft: Math.max(1, Math.floor((session.expires - Date.now()) / 60000)),

@@ -166,11 +166,12 @@ If the key lacks one, the site names it: "MONOPANE_API_KEY is missing the scope 
 
 ## Adding your own courses
 
-Anything you publish in Monopane shows up on the site within a minute. Three ways to add content:
+Anything you publish in Monopane shows up on the site within a minute. Four ways to add content:
 
+- **The site's own [admin area](#the-admin-area)**, at `/admin`: an editor for courses, lessons, activities and quizzes.
 - **Ask Claude.** Monopane has a connector at `https://mcp.monopane.io`. Add it as a custom connector in Claude, sign in, and describe the course you want. [`seed/connector-prompt.md`](seed/connector-prompt.md) is a prompt that creates the demo course this way; use it as a pattern.
 - **The API or an SDK.** [`seed/seed.mjs`](seed/seed.mjs) is a complete example using `@monopane/sdk`. API reference: https://api.monopane.io/docs
-- **The Monopane console**, for looking at what is there. (The site's own [admin area](#the-admin-area) lists every course; editing there is on the way.)
+- **The Monopane console**, for looking at what is there.
 
 A course can have a cover image (`imageUrl`), topics (`tags`, which become the filter on the home page) and a length (`estimatedMinutes`). A `video` activity takes an `https` address: YouTube, Vimeo, Loom and Wistia links are embedded, a link to a video file plays in the browser's own player, and anything else is shown as a link.
 
@@ -178,7 +179,12 @@ Only published content appears: a course, lesson or activity must be published, 
 
 ## The admin area
 
-`/admin` is for the people who run the academy. Today it shows every course, drafts included; editing courses and seeing users there are on the way.
+`/admin` is for the people who run the academy. It has two parts:
+
+- **Courses.** Make a course, write its lessons and activities (readings, videos, links, and quizzes with four kinds of question), group lessons into modules, put things in order, and publish. Everything starts as a draft. A user sees a lesson only when the course, the lesson, its module and the activity are all published; "Publish everything" does all of them at once. What you change shows on the site straight away.
+- **Users.** Everyone who has signed in, the courses each is enrolled in and how far along they are. Reading only: nothing there changes a user.
+
+When you are signed in as an admin, a course and a lesson on the site itself carry an "Edit" button that takes you to it in the editor.
 
 - **Signing in.** Go to `/admin` and you are sent to Monopane to sign in with your Monopane account, then back. Anyone who can open the project in Monopane can sign in; nobody else can. There are no admin accounts or passwords on the site.
 - **What the site holds.** Monopane hands the site a token that acts for you: it can edit this project's courses and see its users, in one environment, for an hour, and nothing else. The site keeps it in an encrypted cookie that scripts cannot read, and uses it only on the server. The site's own API key still cannot change a course.
@@ -193,7 +199,7 @@ Only published content appears: a course, lesson or activity must be published, 
   This replaces the list, so send every address you want kept. Preview deployments cannot be used for admin sign-in.
 - **Leaving.** "Leave admin" ends the token at Monopane and removes the cookie. Otherwise it ends by itself after an hour and you are asked to sign in again.
 
-The code is in `src/lib/admin/` (`sign-in.ts`, `session.ts`, `api.ts`, `pages.ts`) and `src/pages/admin/`. `src/middleware.ts` refuses any form sent to `/admin` from another site and marks every reply from it as private.
+The code is in `src/lib/admin/` (`sign-in.ts`, `session.ts`, `api.ts`, `pages.ts`, `content.ts` for the editor, `users.ts`) and `src/pages/admin/`. Every change in the editor is an ordinary form post, so it works without JavaScript. `src/middleware.ts` refuses any form sent to `/admin` from another site and marks every reply from it as private.
 
 ## How it works
 
