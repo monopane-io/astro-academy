@@ -179,7 +179,7 @@ Only published content appears: a course, lesson or activity must be published, 
 
 ## The admin area
 
-`/admin` is for the people who run the academy. It has two parts:
+`/admin` is for the people who run the academy. It opens on an overview (published courses, enrolments, completions, the newest users, and what is left to set up) and has two parts:
 
 - **Courses.** Make a course, write its lessons and activities (readings, videos, links, and quizzes with four kinds of question), group lessons into modules, put things in order, and publish. Everything starts as a draft. A user sees a lesson only when the course, the lesson, its module and the activity are all published; "Publish everything" does all of them at once. What you change shows on the site straight away.
 - **Users.** Everyone who has signed in, the courses each is enrolled in and how far along they are. Reading only: nothing there changes a user.
@@ -274,11 +274,35 @@ The end-to-end test needs the site running (`npm run dev`) in demo mode against 
 
 ## Making it yours
 
-- **Look:** pages are written with Tailwind CSS classes. `src/styles/global.css` holds what they share: the colours and the typeface at the top (in `@theme`, with dark-mode values below), then the components used on more than one page (buttons, pills, notes, the lesson track). Change the colours first. They are named the way shadcn-style kits name theirs (`background`, `foreground`, `primary`, `border`, ...), so components from such a kit fit in without restyling.
+- **Look:** change the four brand values at the top of `src/styles/global.css` (colour, typeface, corner radius, tint); every other colour, light and dark, follows from them. The colours are named the way shadcn-style kits name theirs (`background`, `foreground`, `primary`, `border`, ...). The elements themselves are components; see "How the pages are built" below.
 - **Name and tagline:** `SITE_NAME` and `SITE_TAGLINE`.
 - **Pages:** each is one `.astro` file under `src/pages`, and is almost all HTML. What a page does (who may see it, what a form does, what it shows) is a function in `src/lib/pages.ts`; the page calls it and draws the result. So you can rewrite every page's HTML, or rebuild the site on a UI library, without touching how it behaves.
 - **Words:** all the text users see is in those page files and in `layouts/Base.astro`.
 - **Course tiles:** a course with an `imageUrl` shows that image; one without gets its first letter on a tinted cover (`src/components/CourseTile.astro`).
+
+### How the pages are built
+
+There are four layers, and a page only uses the one above it:
+
+- **Tokens** in `src/styles/global.css`: the four brand values and the
+  colours worked out from them.
+- **Components** in `src/components/ui`: `Button`, `Badge`, `Tag`, `Avatar`,
+  `Icon`, `Field`, `Input`, `Checkbox`, `RadioGroup`, `Toggle`, `Card`,
+  `Alert`, `Toast`, `Dialog`, `Menu`, `Tooltip`, `Progress`, `Skeleton`,
+  `TextLink`. Each has a base look, variants and sizes, described once
+  (`src/lib/ui.ts`). Icons are [Lucide](https://lucide.dev)'s.
+- **Blocks** in `src/components/blocks`: pieces of a screen, such as
+  `PageHeader`, `Tabs`, `Section`, `ItemList`, `Table`, `Stats`, `FormCard`,
+  `SettingsForm`, `Feed`, `Checklist` and `DangerZone`.
+- **Layouts** in `src/layouts`: `Base` for the user pages, `Lesson` for a
+  lesson, `Auth` for signing in and `Admin` for the admin area.
+
+`npm run dev` and open `/design` to see every component in every variant on
+one page. A built site does not have that page.
+
+To change how every button looks, change `Button.astro`; to add a screen,
+put blocks in a layout. A page should not need a list of classes of its own
+for anything a component already draws.
 
 ## Licence
 

@@ -1,4 +1,6 @@
 ---
+import Button from "../components/ui/Button.astro";
+import ProgressRing from "../components/ui/ProgressRing.astro";
 import Base from "../layouts/Base.astro";
 import { myLearningPage } from "../lib/pages";
 
@@ -18,9 +20,9 @@ const row =
 			<>
 				<p class="mt-4 text-lg text-muted-foreground">You are not enrolled in anything yet.</p>
 				<p class="mt-8">
-					<a class="btn" href="/">
+					<Button variant="primary" size="lg" href="/">
 						Browse courses
-					</a>
+					</Button>
 				</p>
 			</>
 		)
@@ -33,7 +35,8 @@ const row =
 				<ul class="mt-3 flex flex-col gap-3">
 					{inProgress.map(({ course, progress, nextHref, started }) => (
 						<li class={row}>
-							<div class="min-w-56 flex-1">
+							<ProgressRing value={progress.done} max={progress.total} />
+							<div class="min-w-48 flex-1">
 								<h3 class="font-semibold text-xl tracking-tight">
 									<a class="hover:text-primary" href={course.href}>
 										{course.title}
@@ -42,16 +45,11 @@ const row =
 								<p class="mt-1 text-muted-foreground text-sm">
 									{progress.done} of {progress.total} activities done
 								</p>
-								<progress
-									class="meter mt-3"
-									value={progress.done}
-									max={Math.max(progress.total, 1)}
-								/>
 							</div>
 							{nextHref && (
-								<a class="btn" href={nextHref}>
+								<Button variant="primary" size="lg" href={nextHref}>
 									{started ? "Continue" : "Start"}
-								</a>
+								</Button>
 							)}
 						</li>
 					))}
@@ -77,9 +75,9 @@ const row =
 									<p class="mt-1 text-muted-foreground text-sm">Completed on {completedOn}</p>
 								)}
 							</div>
-							<a class="btn btn-quiet" href={certificateHref}>
+							<Button variant="secondary" size="lg" href={certificateHref}>
 								See your certificate
-							</a>
+							</Button>
 						</li>
 					))}
 				</ul>

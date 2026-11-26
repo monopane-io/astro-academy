@@ -1,0 +1,27 @@
+---
+import Icon, { type IconName } from "../ui/Icon.astro";
+
+/** What a list says when it has nothing in it yet, and what to do about it. */
+interface Props {
+	title: string;
+	description?: string;
+	icon?: IconName;
+}
+
+const { title, description, icon = "inbox" } = Astro.props;
+---
+
+<div class="rounded-xl border border-border border-dashed px-6 py-10 text-center">
+	<span class="mx-auto mb-3 flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+		<Icon name={icon} size="lg" />
+	</span>
+	<p class="font-medium">{title}</p>
+	{description && <p class="mx-auto mt-1 max-w-md text-muted-foreground text-sm">{description}</p>}
+	{
+		Astro.slots.has("default") && (
+			<div class="mt-4 flex justify-center gap-2">
+				<slot />
+			</div>
+		)
+	}
+</div>

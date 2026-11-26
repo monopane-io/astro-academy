@@ -1,0 +1,42 @@
+---
+import Icon from "./Icon.astro";
+
+/**
+ * A question put in front of the page, which waits for an answer. Open it
+ * with any button that has `data-dialog-open` set to this dialog's id. Put
+ * what it asks in the default slot and its buttons in the `actions` slot; a
+ * <form method="dialog"> button closes it, as does Escape.
+ */
+interface Props {
+	id: string;
+	title: string;
+}
+
+const { id, title } = Astro.props;
+---
+
+<dialog
+	id={id}
+	class="m-auto w-[calc(100%-2rem)] max-w-md rounded-xl border border-border bg-card p-0 text-foreground shadow-xl backdrop:bg-black/40"
+	aria-labelledby={`${id}-title`}
+	closedby="any"
+>
+	<div class="flex items-start justify-between gap-4 px-6 pt-6">
+		<h2 class="font-semibold text-lg" id={`${id}-title`}>{title}</h2>
+		<form method="dialog">
+			<button
+				class="-mt-1 -mr-2 inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+				type="submit"
+				aria-label="Close"
+			>
+				<Icon name="x" />
+			</button>
+		</form>
+	</div>
+	<div class="px-6 pt-2 pb-6 text-muted-foreground">
+		<slot />
+	</div>
+	<div class="flex flex-wrap justify-end gap-2 rounded-b-xl border-border border-t bg-background px-6 py-4">
+		<slot name="actions" />
+	</div>
+</dialog>

@@ -1,0 +1,15 @@
+---
+import Banner from "./Banner.astro";
+
+/** Shown on every page while anyone can sign in as anyone. */
+const demo = Astro.locals.config.authMode === "demo";
+---
+
+{
+	demo && (
+		<Banner data-demo-notice>
+			Demo sign-in is on: anyone can sign in as anyone. Not for production. Switch to email sign-in
+			before you invite users (see the README).
+		</Banner>
+	)
+}

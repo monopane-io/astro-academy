@@ -1,0 +1,37 @@
+---
+import FormCard from "../../../components/blocks/FormCard.astro";
+import Notice from "../../../components/blocks/Notice.astro";
+import PageHeader from "../../../components/blocks/PageHeader.astro";
+import Button from "../../../components/ui/Button.astro";
+import Field from "../../../components/ui/Field.astro";
+import Admin from "../../../layouts/Admin.astro";
+import { newCoursePage } from "../../../lib/admin/content";
+
+const { response, data } = await newCoursePage(Astro);
+if (response) return response;
+const { values } = data;
+---
+
+<Admin title="New course" minutesLeft={data.minutesLeft}>
+	<Notice error={data.error} />
+	<PageHeader
+		title="New course"
+		trail={[{ href: "/admin/courses", label: "Courses" }]}
+		description="It starts as a draft: users do not see it until you publish it."
+	/>
+	<FormCard do="create-course">
+		<Field label="Course title" name="title" value={values.title} required maxlength="500" autofocus />
+		<Field
+			label="What it covers"
+			name="description"
+			as="textarea"
+			value={values.description}
+			optional
+			maxlength="5000"
+		/>
+		<Fragment slot="actions">
+			<Button href="/admin/courses" variant="ghost">Cancel</Button>
+			<Button variant="primary" type="submit">Create course</Button>
+		</Fragment>
+	</FormCard>
+</Admin>

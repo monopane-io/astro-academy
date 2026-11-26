@@ -1,0 +1,25 @@
+---
+import Base from "./Base.astro";
+
+/**
+ * A lesson: the course's contents down the left (the `contents` slot), the
+ * lesson itself in a reading column beside it.
+ */
+interface Props {
+	title: string;
+	description?: string | null;
+}
+
+const { title, description } = Astro.props;
+---
+
+<Base title={title} description={description} wide>
+	<div class="grid gap-x-12 gap-y-8 lg:grid-cols-[17rem_minmax(0,1fr)]">
+		<aside class="lg:sticky lg:top-24 lg:self-start" aria-label="Course contents">
+			<slot name="contents" />
+		</aside>
+		<div class="min-w-0 max-w-prose">
+			<slot />
+		</div>
+	</div>
+</Base>

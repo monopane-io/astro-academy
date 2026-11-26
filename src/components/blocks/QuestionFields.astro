@@ -1,0 +1,64 @@
+---
+import { QUESTION_KINDS, type QuestionKind } from "../../lib/admin/content";
+import Field from "../ui/Field.astro";
+
+/**
+ * The fields of one quiz question. A new question chooses its kind; an
+ * existing one keeps it, and only shows the fields that kind uses.
+ */
+interface Props {
+	values: Record<string, string>;
+	/** The kind, once it is fixed. Null while the question is being made. */
+	kind: QuestionKind | null;
+	/** Names the fields for a quiz's first question. */
+	first?: boolean;
+}
+
+const { values, kind, first = false } = Astro.props;
+const withChoices = kind === null || kind === "multiple_choice" || kind === "multi_select";
+const answersLabel = {
+	multiple_choice: "The right answer",
+	multi_select: "The right answers, one per line",
+	fill_in_blank: "Answers that count as right, one per line",
+	short_answer: "Words the answer must contain, one per line",
+};
+---
+
+{
+	kind === null && (
+		<Field label={first ? "Kind of first question" : "Kind of question"} name="kind" as="select">
+			{QUESTION_KINDS.map((option) => (
+				<option value={option.value} selected={option.value === values.kind}>
+					{option.label}
+				</option>
+			))}
+		</Field>
+	)
+}
+<Field label={first ? "First question" : "Question"} name="text" value={values.text} required maxlength="2000" />
+{
+	withChoices && (
+		<Field
+			label="Choices, one per line"
+			name="options"
+			as="textarea"
+			rows={4}
+			value={values.options}
+			required={kind !== null}
+			hint={kind === null ? "Leave empty for fill in the blank and short answer." : undefined}
+		/>
+	)
+}
+<Field
+	label={kind ? answersLabel[kind] : "Right answers, one per line"}
+	name="answers"
+	as="textarea"
+	rows={kind === "multiple_choice" ? 1 : 3}
+	value={values.answers}
+	required
+	hint={
+		kind === null
+			? "For a question with choices, write the right one exactly as it appears above. For a short answer, write words the answer must contain."
+			: undefined
+	}
+/>

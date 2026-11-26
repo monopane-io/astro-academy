@@ -1,0 +1,25 @@
+---
+import Icon from "../ui/Icon.astro";
+
+/** The pages above this one, outermost first, each a link. */
+interface Props {
+	trail: { href: string; label: string }[];
+}
+
+const { trail } = Astro.props;
+---
+
+<nav class="mb-3 text-sm" aria-label="Breadcrumb">
+	<ol class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-muted-foreground">
+		{
+			trail.map((step, index) => (
+				<li class="flex min-w-0 items-center gap-1.5">
+					{index > 0 && <Icon name="chevron-right" size="sm" class="opacity-60" />}
+					<a class="max-w-56 truncate hover:text-foreground" href={step.href}>
+						{step.label}
+					</a>
+				</li>
+			))
+		}
+	</ol>
+</nav>

@@ -1,0 +1,63 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { focusRing, variants } from "../../lib/ui";
+
+/**
+ * Something to press. With `href` it is a link that looks like a button.
+ *
+ * variant: `primary` for the one main action on a page; `secondary` for
+ * the others; `ghost` for actions in a row or a menu; `destructive` for
+ * deleting. size: `md` in forms and page headers, `sm` in rows, `lg` for the one
+ * thing a user page asks for.
+ */
+type Props = {
+	variant?: "primary" | "secondary" | "ghost" | "destructive";
+	size?: "sm" | "md" | "lg";
+	href?: string;
+	/** A square button holding only an icon. Give it an `aria-label`. */
+	icon?: boolean;
+	class?: string;
+} & Omit<HTMLAttributes<"button">, "class"> &
+	Pick<HTMLAttributes<"a">, "target" | "rel">;
+
+// While its form is being sent (the page script sets aria-busy), a button
+// shows a turning ring and cannot be pressed again.
+const busy =
+	"aria-busy:pointer-events-none aria-busy:opacity-70 aria-busy:before:size-4 aria-busy:before:animate-spin aria-busy:before:rounded-full aria-busy:before:border-2 aria-busy:before:border-current aria-busy:before:border-r-transparent aria-busy:before:content-['']";
+
+const button = variants(
+	`inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors disabled:cursor-default disabled:opacity-45 ${focusRing} ${busy}`,
+	{
+		variant: {
+			primary: "bg-brand text-brand-foreground hover:brightness-110 disabled:hover:brightness-100",
+			secondary:
+				"border border-border bg-card text-foreground hover:bg-muted disabled:hover:bg-card",
+			ghost: "text-foreground hover:bg-muted disabled:hover:bg-transparent",
+			destructive:
+				"bg-destructive text-destructive-foreground hover:brightness-110 disabled:hover:brightness-100",
+		},
+		size: {
+			sm: "h-8 px-3 text-sm",
+			md: "h-10 px-4",
+			lg: "h-11 rounded-lg px-5 font-semibold",
+		},
+	},
+	{ variant: "secondary", size: "md" },
+);
+
+const { variant, size, href, icon = false, class: extra, type = "button", ...rest } = Astro.props;
+const square = { sm: "w-8 px-0", md: "w-10 px-0", lg: "w-11 px-0" }[size ?? "md"];
+const classes = button({ variant, size }, [icon && square, extra].filter(Boolean).join(" "));
+---
+
+{
+	href ? (
+		<a class={classes} href={href} {...(rest as HTMLAttributes<"a">)}>
+			<slot />
+		</a>
+	) : (
+		<button class={classes} type={type} {...rest}>
+			<slot />
+		</button>
+	)
+}

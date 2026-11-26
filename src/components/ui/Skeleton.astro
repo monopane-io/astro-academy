@@ -1,0 +1,12 @@
+---
+import { cx } from "../../lib/ui";
+
+/** A grey shape standing in for something that has not arrived yet. Size it with classes. */
+interface Props {
+	class?: string;
+}
+
+const { class: extra } = Astro.props;
+---
+
+<span class={cx("block animate-pulse rounded-md bg-muted", extra)} aria-hidden="true"></span>

@@ -1,357 +1,160 @@
 ---
-import AdminNotice from "../../../../components/AdminNotice.astro";
+import CourseHeader from "../../../../components/blocks/CourseHeader.astro";
+import ItemList from "../../../../components/blocks/ItemList.astro";
+import ItemRow from "../../../../components/blocks/ItemRow.astro";
+import Notice from "../../../../components/blocks/Notice.astro";
+import Section from "../../../../components/blocks/Section.astro";
+import Badge from "../../../../components/ui/Badge.astro";
+import Button from "../../../../components/ui/Button.astro";
+import Menu from "../../../../components/ui/Menu.astro";
+import MenuItem from "../../../../components/ui/MenuItem.astro";
 import Admin from "../../../../layouts/Admin.astro";
-import { courseEditorPage } from "../../../../lib/admin/content";
+import { courseOutlinePage } from "../../../../lib/admin/content";
 
-const { response, data } = await courseEditorPage(Astro);
+const { response, data } = await courseOutlinePage(Astro);
 if (response) return response;
 const { course } = data;
+const status = (published: boolean) => (published ? "published" : "draft");
+const addInput =
+	"h-10 min-w-0 flex-1 rounded-md border border-border bg-card px-3 placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring";
 ---
 
 <Admin title={course.title} minutesLeft={data.minutesLeft}>
-	<p class="mb-6 text-sm">
-		<a class="text-muted-foreground hover:text-primary" href="/admin">All courses</a>
-	</p>
-	<AdminNotice done={data.done} error={data.error} />
-
-	<div class="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
-		<div class="min-w-0">
-			<h1>{course.title}</h1>
-			<p class="mt-3 flex flex-wrap items-center gap-3 text-muted-foreground">
-				<span class:list={["pill", { "pill-done": course.published }]} data-course-state>
-					{course.published ? "Published" : "Draft"}
-				</span>
-				<span data-course-numbers>
-					{data.enrolled} enrolled, {data.completed} completed
-				</span>
-				{
-					data.viewHref && (
-						<a class="link text-sm" href={data.viewHref}>
-							View as a user
-						</a>
-					)
-				}
-			</p>
-		</div>
-		<div class="flex flex-wrap gap-2">
-			<form method="post" data-stay>
-				<input type="hidden" name="do" value="toggle-course" />
-				<input type="hidden" name="status" value={course.published ? "published" : "draft"} />
-				<button class="btn btn-quiet" type="submit">
-					{course.published ? "Move back to draft" : "Publish the course"}
-				</button>
-			</form>
-			<form method="post" data-stay>
-				<input type="hidden" name="do" value="publish-all" />
-				<button class="btn" type="submit">Publish everything</button>
-			</form>
-		</div>
-	</div>
-	<p class="hint mt-3 max-w-prose">
-		A user sees a lesson only when the course, the lesson, its module and the activity are all
-		published. "Publish everything" does all of them at once.
-	</p>
-
-	<div class="mt-10 grid gap-x-12 gap-y-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-		<section aria-labelledby="outline">
-			<h2 class="font-semibold text-2xl tracking-tight" id="outline">Lessons</h2>
-
+	<Notice done={data.done} error={data.error} />
+	<CourseHeader
+		course={course}
+		tab="lessons"
+		facts={`${data.enrolled} enrolled, ${data.completed} completed`}
+	>
+		<Fragment slot="actions">
 			{
-				data.sections.map((section) => (
-					<div class="mt-6" id={section.module?.id} data-admin-section={section.module?.title ?? ""}>
-						{section.module && (
-							<div class="panel mb-3">
-								<form class="flex flex-col gap-3" method="post" data-stay>
-									<input type="hidden" name="do" value="save-module" />
-									<input type="hidden" name="id" value={section.module.id} />
-									<div class="flex flex-wrap items-center justify-between gap-2">
-										<label class="label" for={`m-title-${section.module.id}`}>
-											Module
-										</label>
-										<span class:list={["pill", { "pill-done": section.module.published }]}>
-											{section.module.published ? "Published" : "Draft"}
-										</span>
-									</div>
-									<input
-										class="field"
-										id={`m-title-${section.module.id}`}
-										name="title"
-										type="text"
-										required
-										maxlength="500"
-										value={section.module.title}
-									/>
-									<input
-										class="field"
-										name="description"
-										type="text"
-										maxlength="5000"
-										aria-label={`What the module ${section.module.title} covers`}
-										placeholder="What it covers (optional)"
-										value={section.module.description}
-									/>
-									<p>
-										<button class="btn-small" type="submit">
-											Save module
-										</button>
-									</p>
-								</form>
-								<div class="mt-3 flex flex-wrap gap-2 border-border border-t pt-3">
-									{[
-										{ direction: "up", label: "Move up", disabled: section.module.first },
-										{ direction: "down", label: "Move down", disabled: section.module.last },
-									].map(({ direction, label, disabled }) => (
-										<form method="post" data-stay>
-											<input type="hidden" name="do" value="move-module" />
-											<input type="hidden" name="id" value={section.module?.id} />
-											<input type="hidden" name="direction" value={direction} />
-											<button
-												class="btn-small"
-												type="submit"
-												disabled={disabled}
-												aria-label={`${label}: ${section.module?.title}`}
-											>
-												{label}
-											</button>
-										</form>
-									))}
-									<form method="post" data-stay>
-										<input type="hidden" name="do" value="toggle-module" />
-										<input type="hidden" name="id" value={section.module.id} />
-										<input
-											type="hidden"
-											name="status"
-											value={section.module.published ? "published" : "draft"}
-										/>
-										<button
-											class="btn-small"
-											type="submit"
-											aria-label={`${section.module.published ? "Unpublish" : "Publish"}: ${section.module.title}`}
-										>
-											{section.module.published ? "Unpublish" : "Publish"}
-										</button>
-									</form>
-									<form method="post" data-stay>
-										<input type="hidden" name="do" value="delete-module" />
-										<input type="hidden" name="id" value={section.module.id} />
-										<button
-											class="btn-small"
-											type="submit"
-											disabled={section.lessons.length > 0}
-											title={
-												section.lessons.length > 0
-													? "Move or delete its lessons first"
-													: undefined
-											}
-											aria-label={`Delete module: ${section.module.title}`}
-										>
-											Delete
-										</button>
-									</form>
-								</div>
-							</div>
-						)}
+				data.hasDrafts ? (
+					<form method="post">
+						<input type="hidden" name="do" value="publish-all" />
+						<Button variant="primary" type="submit">
+							Publish everything
+						</Button>
+					</form>
+				) : (
+					<form method="post">
+						<input type="hidden" name="do" value="toggle-course" />
+						<input type="hidden" name="status" value="published" />
+						<Button type="submit">Move back to draft</Button>
+					</form>
+				)
+			}
+			{
+				data.hasDrafts && (
+					<Menu label={`More for ${course.title}`}>
+						<MenuItem fields={{ do: "toggle-course", status: status(course.published) }}>
+							{course.published ? "Move the course back to draft" : "Publish the course only"}
+						</MenuItem>
+					</Menu>
+				)
+			}
+		</Fragment>
+	</CourseHeader>
 
-						{section.lessons.length === 0 && (
-							<p class="hint">
-								{section.module ? "No lessons in this module yet." : "No lessons yet."}
-							</p>
-						)}
-						<ol class="flex flex-col gap-2">
-							{section.lessons.map((lesson) => (
-								<li
-									class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border border-border bg-card px-4 py-3"
-									id={lesson.id}
-									data-admin-lesson={lesson.title}
-								>
-									<a class="font-medium hover:text-primary" href={lesson.href}>
-										{lesson.title}
-									</a>
-									<div class="flex flex-wrap items-center gap-2">
-										<span class:list={["pill", { "pill-done": lesson.published }]} data-state>
-											{lesson.published ? "Published" : "Draft"}
-										</span>
-										{[
-											{ direction: "up", label: "Up", disabled: lesson.first },
-											{ direction: "down", label: "Down", disabled: lesson.last },
-										].map(({ direction, label, disabled }) => (
-											<form method="post" data-stay>
-												<input type="hidden" name="do" value="move-lesson" />
-												<input type="hidden" name="id" value={lesson.id} />
-												<input type="hidden" name="direction" value={direction} />
-												<button
-													class="btn-small"
-													type="submit"
-													disabled={disabled}
-													aria-label={`Move ${direction}: ${lesson.title}`}
-												>
-													{label}
-												</button>
-											</form>
-										))}
-										<form method="post" data-stay>
-											<input type="hidden" name="do" value="toggle-lesson" />
-											<input type="hidden" name="id" value={lesson.id} />
-											<input
-												type="hidden"
-												name="status"
-												value={lesson.published ? "published" : "draft"}
-											/>
-											<button
-												class="btn-small"
-												type="submit"
-												aria-label={`${lesson.published ? "Unpublish" : "Publish"}: ${lesson.title}`}
-											>
-												{lesson.published ? "Unpublish" : "Publish"}
-											</button>
-										</form>
-									</div>
-								</li>
-							))}
-						</ol>
+	{
+		data.sections.map((section) => (
+			<Section
+				title={section.module?.title ?? (data.sections.length > 1 ? "Not in a module" : undefined)}
+				description={section.module?.description || undefined}
+				id={section.module?.id ?? "lessons"}
+			>
+				{section.module && (
+					<div class="flex items-center gap-2" slot="actions" data-admin-module={section.module.title}>
+						<Badge variant={section.module.published ? "success" : "neutral"}>
+							{section.module.published ? "Published" : "Draft"}
+						</Badge>
+						<Menu label={`Actions for the module ${section.module.title}`}>
+							<MenuItem href={section.module.editHref}>Rename</MenuItem>
+							<MenuItem
+								fields={{ do: "toggle-module", id: section.module.id, status: status(section.module.published) }}
+							>
+								{section.module.published ? "Unpublish" : "Publish"}
+							</MenuItem>
+							<MenuItem
+								fields={{ do: "move-module", id: section.module.id, direction: "up" }}
+								disabled={section.module.first}
+							>
+								Move up
+							</MenuItem>
+							<MenuItem
+								fields={{ do: "move-module", id: section.module.id, direction: "down" }}
+								disabled={section.module.last}
+							>
+								Move down
+							</MenuItem>
+							<MenuItem
+								fields={{ do: "delete-module", id: section.module.id }}
+								disabled={section.lessons.length > 0}
+								destructive
+							>
+								{section.lessons.length > 0 ? "Delete (move its lessons first)" : "Delete"}
+							</MenuItem>
+						</Menu>
+					</div>
+				)}
 
-						<form class="mt-3 flex flex-wrap items-end gap-2" method="post">
+				<ItemList ordered>
+					{section.lessons.map((lesson) => (
+						<ItemRow title={lesson.title} href={lesson.href} id={lesson.id} data-admin-lesson={lesson.title}>
+							<Badge slot="status" variant={lesson.published ? "success" : "neutral"} data-state>
+								{lesson.published ? "Published" : "Draft"}
+							</Badge>
+							<Menu slot="actions" label={`Actions for ${lesson.title}`}>
+								<MenuItem href={lesson.href}>Edit</MenuItem>
+								<MenuItem fields={{ do: "toggle-lesson", id: lesson.id, status: status(lesson.published) }}>
+									{lesson.published ? "Unpublish" : "Publish"}
+								</MenuItem>
+								<MenuItem fields={{ do: "move-lesson", id: lesson.id, direction: "up" }} disabled={lesson.first}>
+									Move up
+								</MenuItem>
+								<MenuItem fields={{ do: "move-lesson", id: lesson.id, direction: "down" }} disabled={lesson.last}>
+									Move down
+								</MenuItem>
+							</Menu>
+						</ItemRow>
+					))}
+					<li class="px-4 py-3 sm:px-5">
+						<form class="flex flex-wrap gap-2" method="post">
 							<input type="hidden" name="do" value="add-lesson" />
 							<input type="hidden" name="moduleId" value={section.module?.id ?? ""} />
-							<div class="flex min-w-48 flex-1 flex-col gap-1.5">
-								<label class="label" for={`new-lesson-${section.module?.id ?? "course"}`}>
-									{section.module ? `New lesson in ${section.module.title}` : "New lesson"}
-								</label>
-								<input
-									class="field"
-									id={`new-lesson-${section.module?.id ?? "course"}`}
-									name="title"
-									type="text"
-									required
-									maxlength="500"
-								/>
-							</div>
-							<button class="btn btn-quiet" type="submit">
-								Add lesson
-							</button>
+							<input
+								class={addInput}
+								name="title"
+								type="text"
+								required
+								maxlength="500"
+								placeholder="Title of a new lesson"
+								aria-label={section.module ? `New lesson in ${section.module.title}` : "New lesson"}
+							/>
+							<Button type="submit">Add lesson</Button>
 						</form>
-					</div>
-				))
-			}
+					</li>
+				</ItemList>
+			</Section>
+		))
+	}
 
-			<form class="panel mt-8 flex flex-col gap-3" method="post">
-				<input type="hidden" name="do" value="add-module" />
-				<h3 class="font-semibold">New module</h3>
-				<p class="hint">
-					Modules group lessons, like chapters. A course does not need any.
-				</p>
-				<div class="flex flex-col gap-1.5">
-					<label class="label" for="new-module">Module title</label>
-					<input class="field" id="new-module" name="title" type="text" required maxlength="500" />
-				</div>
-				<p>
-					<button class="btn btn-quiet" type="submit">Add module</button>
-				</p>
-			</form>
-		</section>
-
-		<section aria-labelledby="details">
-			<h2 class="font-semibold text-2xl tracking-tight" id="details">About the course</h2>
-			<form class="mt-6 flex flex-col gap-4" method="post">
-				<input type="hidden" name="do" value="save-course" />
-				<div class="flex flex-col gap-1.5">
-					<label class="label" for="title">Title</label>
-					<input
-						class="field"
-						id="title"
-						name="title"
-						type="text"
-						required
-						maxlength="500"
-						value={course.title}
-					/>
-				</div>
-				<div class="flex flex-col gap-1.5">
-					<label class="label" for="slug">Address</label>
-					<input
-						class="field"
-						id="slug"
-						name="slug"
-						type="text"
-						required
-						maxlength="255"
-						pattern="[a-z0-9]([a-z0-9-]*[a-z0-9])?"
-						value={course.slug}
-						aria-describedby="slug-hint"
-					/>
-					<p class="hint" id="slug-hint">
-						The course is at /courses/{course.slug}. Small letters, numbers and hyphens. Changing it
-						breaks links people already have.
-					</p>
-				</div>
-				<div class="flex flex-col gap-1.5">
-					<label class="label" for="description">What it covers</label>
-					<textarea class="field" id="description" name="description" rows="3" maxlength="5000"
-						set:text={course.description}
-					/>
-				</div>
-				<div class="flex flex-col gap-1.5">
-					<label class="label" for="tags">Topics</label>
-					<input
-						class="field"
-						id="tags"
-						name="tags"
-						type="text"
-						value={course.tags}
-						aria-describedby="tags-hint"
-					/>
-					<p class="hint" id="tags-hint">
-						Separated by commas. They become the filters on the home page.
-					</p>
-				</div>
-				<div class="flex flex-col gap-1.5">
-					<label class="label" for="estimatedMinutes">How long it takes, in minutes</label>
-					<input
-						class="field"
-						id="estimatedMinutes"
-						name="estimatedMinutes"
-						type="number"
-						min="1"
-						max="100000"
-						value={course.estimatedMinutes}
-					/>
-				</div>
-				<div class="flex flex-col gap-1.5">
-					<label class="label" for="imageUrl">Cover picture</label>
-					<input
-						class="field"
-						id="imageUrl"
-						name="imageUrl"
-						type="url"
-						pattern="https://.*"
-						maxlength="2000"
-						placeholder="https://"
-						value={course.imageUrl}
-						aria-describedby="image-hint"
-					/>
-					<p class="hint" id="image-hint">
-						The https address of a picture kept somewhere else. Leave empty for none.
-					</p>
-				</div>
-				<p>
-					<button class="btn" type="submit">Save course</button>
-				</p>
-			</form>
-
-			<form class="panel mt-10 flex flex-col gap-3" method="post">
-				<input type="hidden" name="do" value="delete-course" />
-				<h3 class="font-semibold">Delete this course</h3>
-				<p class="hint">
-					This cannot be undone. Its lessons and activities go with it.
-				</p>
-				<label class="flex items-center gap-2">
-					<input class="size-4 accent-primary" type="checkbox" name="confirm" value="yes" required />
-					<span>Yes, delete {course.title}</span>
-				</label>
-				<p>
-					<button class="btn btn-danger" type="submit">Delete course</button>
-				</p>
-			</form>
-		</section>
-	</div>
+	<Section
+		title="Modules"
+		description="Modules group lessons, like chapters. A course does not need any."
+		id="modules"
+	>
+		<form class="flex max-w-form flex-wrap gap-2" method="post">
+			<input type="hidden" name="do" value="add-module" />
+			<input
+				class={addInput}
+				name="title"
+				type="text"
+				required
+				maxlength="500"
+				placeholder="Title of a new module"
+				aria-label="New module"
+			/>
+			<Button type="submit">Add module</Button>
+		</form>
+	</Section>
 </Admin>

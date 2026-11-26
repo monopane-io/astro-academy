@@ -1,0 +1,26 @@
+---
+import Icon, { type IconName } from "../ui/Icon.astro";
+
+/** A row of numbers that sum up how things stand, each with its name. */
+interface Props {
+	items: { label: string; value: string | number; hint?: string; icon?: IconName }[];
+	[attribute: string]: unknown;
+}
+
+const { items, ...rest } = Astro.props;
+---
+
+<dl class="grid grid-cols-2 gap-3 lg:grid-cols-4" {...rest}>
+	{
+		items.map((item) => (
+			<div class="rounded-xl border border-border bg-card p-4 sm:p-5" data-stat={item.label}>
+				<dt class="flex items-center justify-between gap-2 text-muted-foreground text-sm">
+					{item.label}
+					{item.icon && <Icon name={item.icon} />}
+				</dt>
+				<dd class="mt-2 font-semibold text-3xl tracking-tight tabular-nums">{item.value}</dd>
+				{item.hint && <dd class="mt-1 text-muted-foreground text-sm">{item.hint}</dd>}
+			</div>
+		))
+	}
+</dl>

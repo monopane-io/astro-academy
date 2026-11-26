@@ -1,0 +1,21 @@
+---
+import Badge from "../ui/Badge.astro";
+
+/** The top of one activity in a lesson: its title, where the user stands, and a line about it. */
+interface Props {
+	title: string;
+	state: string;
+	tone?: "neutral" | "success" | "destructive";
+	meta?: string | null;
+}
+
+const { title, state, tone = "neutral", meta } = Astro.props;
+---
+
+<div>
+	<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+		<h2 class="font-semibold text-2xl tracking-tight">{title}</h2>
+		<Badge variant={tone} data-state>{state}</Badge>
+	</div>
+	{meta && <p class="mt-2 text-muted-foreground text-sm">{meta}</p>}
+</div>

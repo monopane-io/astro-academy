@@ -1,0 +1,15 @@
+---
+/** A list of things of one kind, each an <ItemRow>, in one bordered surface. */
+interface Props {
+	/** `ol` when the order is the point: lessons, activities, questions. */
+	ordered?: boolean;
+	[attribute: string]: unknown;
+}
+
+const { ordered = false, ...rest } = Astro.props;
+const List = ordered ? "ol" : "ul";
+---
+
+<List class="divide-y divide-border rounded-xl border border-border bg-card" {...rest}>
+	<slot />
+</List>

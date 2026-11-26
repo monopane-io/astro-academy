@@ -1,0 +1,23 @@
+---
+import Alert from "../ui/Alert.astro";
+
+/** What a quiz attempt came to, shown above the quiz straight after it is sent. */
+interface Props {
+	result: { passed: boolean; score: string; needed: string };
+}
+
+const { result } = Astro.props;
+---
+
+<Alert
+	variant={result.passed ? "success" : "error"}
+	role="status"
+	data-quiz-result={result.passed ? "passed" : "failed"}
+>
+	You scored {result.score}
+	{
+		result.passed
+			? ". You passed."
+			: `. You need ${result.needed} to pass. Change your answers and try again.`
+	}
+</Alert>

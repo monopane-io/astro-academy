@@ -1,0 +1,38 @@
+---
+import Button from "../ui/Button.astro";
+import Icon from "../ui/Icon.astro";
+
+/** The bottom of a lesson: back to the one before, on to the next, or back to the course. */
+interface Props {
+	previous?: { href: string; title: string } | null;
+	following?: { href: string; title: string } | null;
+	courseHref: string;
+}
+
+const { previous, following, courseHref } = Astro.props;
+---
+
+<nav class="mt-12 flex flex-wrap justify-between gap-4 border-border border-t pt-6" aria-label="Lessons">
+	{
+		previous ? (
+			<Button variant="secondary" size="lg" href={previous.href}>
+				<Icon name="arrow-left" />
+				Previous: {previous.title}
+			</Button>
+		) : (
+			<span />
+		)
+	}
+	{
+		following ? (
+			<Button variant="primary" size="lg" href={following.href}>
+				Next: {following.title}
+				<Icon name="arrow-right" />
+			</Button>
+		) : (
+			<Button variant="primary" size="lg" href={courseHref}>
+				Back to the course
+			</Button>
+		)
+	}
+</nav>

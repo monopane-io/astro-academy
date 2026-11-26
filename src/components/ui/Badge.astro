@@ -1,0 +1,31 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { variants } from "../../lib/ui";
+
+/** A small label that says where something stands: Draft, Published, Passed. */
+type Props = {
+	variant?: "neutral" | "success" | "destructive" | "primary";
+	/** A dot in front of the words, for a status that is live: "Active". */
+	dot?: boolean;
+	class?: string;
+} & Omit<HTMLAttributes<"span">, "class">;
+
+const badge = variants(
+	"inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-2.5 py-0.5 font-medium text-sm",
+	{
+		variant: {
+			neutral: "bg-muted text-muted-foreground",
+			success: "bg-success-soft text-success",
+			destructive: "bg-destructive-soft text-destructive",
+			primary: "bg-primary-soft text-primary",
+		},
+	},
+	{ variant: "neutral" },
+);
+
+const { variant, dot = false, class: extra, ...rest } = Astro.props;
+---
+
+<span class={badge({ variant }, extra)} {...rest}>
+	{dot && <span class="mr-1.5 size-1.5 rounded-full bg-current" aria-hidden="true" />}<slot />
+</span>

@@ -1,74 +1,97 @@
 ---
-import AdminNotice from "../../components/AdminNotice.astro";
+import Checklist from "../../components/blocks/Checklist.astro";
+import Empty from "../../components/blocks/Empty.astro";
+import ItemList from "../../components/blocks/ItemList.astro";
+import ItemRow from "../../components/blocks/ItemRow.astro";
+import PageHeader from "../../components/blocks/PageHeader.astro";
+import Section from "../../components/blocks/Section.astro";
+import Stats from "../../components/blocks/Stats.astro";
+import Table from "../../components/blocks/Table.astro";
+import Avatar from "../../components/ui/Avatar.astro";
+import Badge from "../../components/ui/Badge.astro";
+import Button from "../../components/ui/Button.astro";
+import Card from "../../components/ui/Card.astro";
 import Admin from "../../layouts/Admin.astro";
-import { adminHomePage } from "../../lib/admin/pages";
+import { overviewPage } from "../../lib/admin/pages";
 
-const { response, data } = await adminHomePage(Astro);
+const { response, data } = await overviewPage(Astro);
 if (response) return response;
 ---
 
-<Admin title="Courses" minutesLeft={data.minutesLeft}>
-	<AdminNotice done={data.done} error={data.error} />
-	<h1>Courses</h1>
-	<p class="mt-3 text-muted-foreground" data-admin-summary>
-		{data.published} published, {data.drafts} in draft.
-	</p>
+<Admin title="Overview" minutesLeft={data.minutesLeft}>
+	<PageHeader title="Overview" description="How the academy is doing.">
+		<Button slot="actions" variant="primary" href="/admin/courses/new">New course</Button>
+	</PageHeader>
+
+	<Stats items={data.stats} data-admin-stats />
 
 	{
-		data.courses.length === 0 ? (
-			<p class="note mt-8">There are no courses yet. Make the first one below.</p>
-		) : (
-			<ul class="mt-8 divide-y divide-border rounded-xl border border-border bg-card">
-				{data.courses.map((course) => (
-					<li
-						class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-4"
-						data-admin-course={course.slug}
-					>
-						<div class="min-w-0">
-							<p class="font-semibold text-lg tracking-tight">
-								<a class="hover:text-primary" href={course.editHref}>
-									{course.title}
-								</a>
-							</p>
-							<p class="text-muted-foreground text-sm">Changed on {course.updatedOn}</p>
-						</div>
-						<div class="flex items-center gap-4">
-							<span class:list={["pill", { "pill-done": course.published }]} data-state>
-								{course.published ? "Published" : "Draft"}
-							</span>
-							{course.viewHref && (
-								<a class="link text-sm" href={course.viewHref}>
-									View
-								</a>
-							)}
-							<a class="link text-sm" href={course.editHref} aria-label={`Edit ${course.title}`}>
-								Edit
-							</a>
-						</div>
-					</li>
-				))}
-			</ul>
+		!data.setUp && (
+			<Section title="Set up your academy" id="set-up">
+				<Card class="max-w-form">
+					<Checklist steps={data.steps} data-admin-checklist />
+				</Card>
+			</Section>
 		)
 	}
 
-	<section class="mt-12 max-w-prose" aria-labelledby="new-course">
-		<h2 class="font-semibold text-2xl tracking-tight" id="new-course">New course</h2>
-		<p class="mt-1 text-muted-foreground">
-			It starts as a draft: users do not see it until you publish it.
-		</p>
-		<form class="mt-5 flex flex-col gap-4" method="post">
-			<div class="flex flex-col gap-1.5">
-				<label class="font-medium text-sm" for="new-title">Course title</label>
-				<input class="field" id="new-title" name="title" type="text" required maxlength="500" />
-			</div>
-			<div class="flex flex-col gap-1.5">
-				<label class="font-medium text-sm" for="new-description">What it covers (optional)</label>
-				<textarea class="field" id="new-description" name="description" rows="2" maxlength="5000"
-				></textarea>
-			</div>
-			<p>
-				<button class="btn" type="submit">Create course</button>
-			</p>
-		</form>
-	</section>
+	<Section title="Courses" id="courses">
+		<Button slot="actions" href="/admin/courses" size="sm">All courses</Button>
+		{
+			data.courses.length === 0 ? (
+				<Empty icon="book" title="No courses yet" description="A course is a set of lessons." />
+			) : (
+				<Table
+					label="Courses"
+					columns={[
+						{ label: "Course" },
+						{ label: "Status" },
+						{ label: "Enrolled", align: "right" },
+						{ label: "Completed", align: "right", hide: true },
+					]}
+				>
+					{data.courses.map((course) => (
+						<tr>
+							<td class="font-medium">
+								<a class="hover:text-primary" href={course.href}>
+									{course.title}
+								</a>
+							</td>
+							<td>
+								<Badge variant={course.published ? "success" : "neutral"}>
+									{course.published ? "Published" : "Draft"}
+								</Badge>
+							</td>
+							<td class="text-right tabular-nums">{course.enrolled}</td>
+							<td class="hidden text-right tabular-nums md:table-cell">{course.completed}</td>
+						</tr>
+					))}
+				</Table>
+			)
+		}
+	</Section>
+
+	<Section title="Newest users" id="users">
+		<Button slot="actions" href="/admin/users" size="sm">All users</Button>
+		{
+			data.recentUsers.length === 0 ? (
+				<Empty
+					icon="users"
+					title="Nobody has signed in yet"
+					description="People appear here the first time they sign in to the academy."
+				/>
+			) : (
+				<ItemList>
+					{data.recentUsers.map((user) => (
+						<ItemRow title={user.name} href={user.href} meta={user.email}>
+							<Avatar slot="media" name={user.name} />
+							<span slot="status" class="hidden text-muted-foreground text-sm sm:inline">
+								Joined on {user.joinedOn}
+							</span>
+						</ItemRow>
+					))}
+				</ItemList>
+			)
+		}
+	</Section>
 </Admin>

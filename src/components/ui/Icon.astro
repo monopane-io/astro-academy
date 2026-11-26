@@ -1,0 +1,82 @@
+---
+import ArrowDown from "@lucide/astro/icons/arrow-down";
+import ArrowLeft from "@lucide/astro/icons/arrow-left";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import ArrowUp from "@lucide/astro/icons/arrow-up";
+import Award from "@lucide/astro/icons/award";
+import BookOpen from "@lucide/astro/icons/book-open";
+import Check from "@lucide/astro/icons/check";
+import ChevronDown from "@lucide/astro/icons/chevron-down";
+import ChevronLeft from "@lucide/astro/icons/chevron-left";
+import ChevronRight from "@lucide/astro/icons/chevron-right";
+import Circle from "@lucide/astro/icons/circle";
+import CircleCheck from "@lucide/astro/icons/circle-check";
+import Ellipsis from "@lucide/astro/icons/ellipsis";
+import ExternalLink from "@lucide/astro/icons/external-link";
+import Eye from "@lucide/astro/icons/eye";
+import GraduationCap from "@lucide/astro/icons/graduation-cap";
+import Inbox from "@lucide/astro/icons/inbox";
+import Info from "@lucide/astro/icons/info";
+import LayoutDashboard from "@lucide/astro/icons/layout-dashboard";
+import LogOut from "@lucide/astro/icons/log-out";
+import Menu from "@lucide/astro/icons/menu";
+import Pencil from "@lucide/astro/icons/pencil";
+import Plus from "@lucide/astro/icons/plus";
+import Search from "@lucide/astro/icons/search";
+import Trash from "@lucide/astro/icons/trash";
+import UserPlus from "@lucide/astro/icons/user-plus";
+import Users from "@lucide/astro/icons/users";
+import X from "@lucide/astro/icons/x";
+import { cx } from "../../lib/ui";
+
+/**
+ * Every icon on the site, by name, from one set (Lucide), so they share a
+ * weight and a grid. To use another, import it above and add it to the list.
+ * An icon is decoration: the words beside it, or the control's label, say
+ * what it means.
+ */
+const icons = {
+	"arrow-down": ArrowDown,
+	"arrow-left": ArrowLeft,
+	"arrow-right": ArrowRight,
+	"arrow-up": ArrowUp,
+	award: Award,
+	book: BookOpen,
+	check: Check,
+	"chevron-down": ChevronDown,
+	"chevron-left": ChevronLeft,
+	"chevron-right": ChevronRight,
+	circle: Circle,
+	"circle-check": CircleCheck,
+	dashboard: LayoutDashboard,
+	ellipsis: Ellipsis,
+	external: ExternalLink,
+	eye: Eye,
+	graduation: GraduationCap,
+	inbox: Inbox,
+	info: Info,
+	"log-out": LogOut,
+	menu: Menu,
+	pencil: Pencil,
+	plus: Plus,
+	search: Search,
+	trash: Trash,
+	"user-plus": UserPlus,
+	users: Users,
+	x: X,
+};
+
+export type IconName = keyof typeof icons;
+
+interface Props {
+	name: IconName;
+	size?: "sm" | "md" | "lg";
+	class?: string;
+}
+
+const { name, size = "md", class: extra } = Astro.props;
+const Glyph = icons[name];
+const sizes = { sm: "size-3.5", md: "size-4", lg: "size-5" };
+---
+
+<Glyph class={cx("shrink-0", sizes[size], extra)} stroke-width={1.75} aria-hidden="true" />

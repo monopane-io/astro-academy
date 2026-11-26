@@ -31,4 +31,16 @@ describe("renderText", () => {
 			'"onmouseover',
 		);
 	});
+
+	it("draws lines starting with > as a callout", () => {
+		expect(renderText("> Mind **this**.\n> And this.")).toBe(
+			"<blockquote><p>Mind <strong>this</strong>.<br>And this.</p></blockquote>",
+		);
+	});
+
+	it("keeps a block of code as written, blank lines and markup included", () => {
+		expect(renderText("Before\n\n```js\nconst a = 1;\n\n<b>*x*</b>\n```\n\nAfter")).toBe(
+			"<p>Before</p>\n<pre><code>const a = 1;\n\n&lt;b&gt;*x*&lt;/b&gt;</code></pre>\n<p>After</p>",
+		);
+	});
 });

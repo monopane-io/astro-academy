@@ -1,0 +1,22 @@
+---
+import { cx } from "../../lib/ui";
+
+/** A line across the top of every page, for something everyone should know. */
+interface Props {
+	variant?: "mark" | "info";
+	[attribute: string]: unknown;
+}
+
+const { variant = "mark", ...rest } = Astro.props;
+---
+
+<div
+	class={cx(
+		"no-print px-4 py-2 text-center text-sm",
+		variant === "mark" ? "bg-mark text-mark-foreground" : "bg-primary-soft text-primary",
+	)}
+	role="note"
+	{...rest}
+>
+	<p><slot /></p>
+</div>

@@ -1,0 +1,31 @@
+---
+import Card from "../ui/Card.astro";
+
+/**
+ * One form on a page: its fields in a column, and its buttons in a bar along
+ * the bottom. `do` names what the form asks for; `fields` are other hidden
+ * values. Put <Field>s in the slot and buttons in `actions`.
+ */
+interface Props {
+	do: string;
+	fields?: Record<string, string>;
+	/** Keep the page where it is after sending (a form among other things). */
+	stay?: boolean;
+	[attribute: string]: unknown;
+}
+
+const { do: action, fields = {}, stay = false, ...rest } = Astro.props;
+---
+
+<Card flush class="max-w-form" {...rest}>
+	<form method="post" data-stay={stay ? "" : undefined}>
+		<input type="hidden" name="do" value={action} />
+		{Object.entries(fields).map(([name, value]) => <input type="hidden" name={name} value={value} />)}
+		<div class="flex flex-col gap-5 p-5 sm:p-6">
+			<slot />
+		</div>
+		<div class="flex flex-wrap items-center justify-end gap-2 rounded-b-xl border-border border-t bg-muted/50 px-5 py-3 sm:px-6">
+			<slot name="actions" />
+		</div>
+	</form>
+</Card>

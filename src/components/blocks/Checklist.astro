@@ -1,0 +1,43 @@
+---
+import Icon from "../ui/Icon.astro";
+import Progress from "../ui/Progress.astro";
+
+/** Steps towards something, ticked off as they are done, with a link to each. */
+interface Props {
+	steps: { label: string; hint?: string; done: boolean; href?: string }[];
+	[attribute: string]: unknown;
+}
+
+const { steps, ...rest } = Astro.props;
+const done = steps.filter((step) => step.done).length;
+---
+
+<div {...rest}>
+	<p class="mb-2 text-muted-foreground text-sm">{done} of {steps.length} done</p>
+	<Progress value={done} max={steps.length} />
+	<ol class="mt-4 flex flex-col gap-3">
+		{
+			steps.map((step) => (
+				<li class="flex items-start gap-3" data-step={step.done ? "done" : "to-do"}>
+					<Icon
+						name={step.done ? "circle-check" : "circle"}
+						size="lg"
+						class={step.done ? "mt-0.5 text-success" : "mt-0.5 text-border"}
+					/>
+					<div class="min-w-0">
+						<p class:list={["font-medium", step.done && "text-muted-foreground line-through"]}>
+							{step.href && !step.done ? (
+								<a class="hover:text-primary" href={step.href}>
+									{step.label}
+								</a>
+							) : (
+								step.label
+							)}
+						</p>
+						{step.hint && !step.done && <p class="text-muted-foreground text-sm">{step.hint}</p>}
+					</div>
+				</li>
+			))
+		}
+	</ol>
+</div>

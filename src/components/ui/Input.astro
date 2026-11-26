@@ -1,0 +1,86 @@
+---
+import { cx } from "../../lib/ui";
+import Icon, { type IconName } from "./Icon.astro";
+
+/**
+ * The control itself: a line of text, a longer text, or a choice from a list.
+ * On its own it needs a name a screen reader can say (`aria-label`); in a
+ * form, use <Field>, which gives it a label, help and an error.
+ */
+interface Props {
+	as?: "input" | "textarea" | "select";
+	type?: string;
+	value?: string | number | null;
+	/** Shown with a red edge. */
+	invalid?: boolean;
+	rows?: number;
+	/** Text set in a fixed-width face: a reading's source. */
+	code?: boolean;
+	/** A short control: a number, a percentage. */
+	narrow?: boolean;
+	/** Fixed words in front of what is typed: "/courses/". */
+	prefix?: string;
+	/** An icon inside the control, at its start: "search". */
+	icon?: IconName;
+	class?: string;
+	[attribute: string]: unknown;
+}
+
+const {
+	as = "input",
+	type = "text",
+	value,
+	invalid = false,
+	rows = 3,
+	code = false,
+	narrow = false,
+	prefix,
+	icon,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const control = cx(
+	"w-full min-w-0 rounded-md border bg-card px-3 text-foreground placeholder:text-muted-foreground",
+	"focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-ring",
+	invalid ? "border-destructive" : "border-border",
+	as === "textarea" ? "py-2.5 leading-6" : "h-10",
+	as === "select" && "cursor-pointer appearance-none pr-9",
+	code && "font-mono text-sm",
+	icon && "pl-9",
+	prefix && "rounded-l-none",
+);
+const frame = cx("relative flex", narrow && "max-w-40", extra);
+const shared = { "aria-invalid": invalid ? ("true" as const) : undefined, ...rest };
+---
+
+<div class={frame}>
+	{
+		prefix && (
+			<span class="inline-flex h-10 shrink-0 items-center rounded-l-md border border-border border-r-0 bg-muted px-3 text-muted-foreground">
+				{prefix}
+			</span>
+		)
+	}
+	{
+		icon && (
+			<span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground">
+				<Icon name={icon} />
+			</span>
+		)
+	}
+	{as === "input" && <input class={control} type={type as "text"} value={value ?? ""} {...shared} />}
+	{as === "textarea" && <textarea class={control} rows={rows} {...shared} set:text={String(value ?? "")} />}
+	{
+		as === "select" && (
+			<>
+				<select class={control} {...shared}>
+					<slot />
+				</select>
+				<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted-foreground">
+					<Icon name="chevron-down" />
+				</span>
+			</>
+		)
+	}
+</div>

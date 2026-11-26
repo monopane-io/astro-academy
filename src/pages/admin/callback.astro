@@ -1,5 +1,7 @@
 ---
-import Base from "../../layouts/Base.astro";
+import Alert from "../../components/ui/Alert.astro";
+import Button from "../../components/ui/Button.astro";
+import Auth from "../../layouts/Auth.astro";
 import { finishSignIn } from "../../lib/admin/sign-in";
 
 /** Where Monopane sends an admin back to. On success they never see this page. */
@@ -8,9 +10,8 @@ if (outcome.ok) return Astro.redirect(outcome.next);
 Astro.response.status = 400;
 ---
 
-<Base title="Admin sign-in">
-	<h1 class="text-3xl sm:text-4xl">You are not signed in</h1>
-	<p class="note note-error mt-6" role="alert" data-admin-sign-in-failed={outcome.reason}>
+<Auth title="Admin sign-in" heading="You are not signed in">
+	<Alert variant="error" class="mt-6" role="alert" data-admin-sign-in-failed={outcome.reason}>
 		{
 			outcome.reason === "declined"
 				? "The sign-in was cancelled at Monopane."
@@ -18,8 +19,8 @@ Astro.response.status = 400;
 					? "This sign-in was not started in this browser, or took longer than ten minutes."
 					: "Monopane did not accept the sign-in."
 		}
-	</p>
+	</Alert>
 	<p class="mt-6">
-		<a class="btn" href="/admin/sign-in">Try again</a>
+		<Button variant="primary" size="lg" class="w-full" href="/admin/sign-in">Try again</Button>
 	</p>
-</Base>
+</Auth>

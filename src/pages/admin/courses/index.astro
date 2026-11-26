@@ -1,0 +1,50 @@
+---
+import Empty from "../../../components/blocks/Empty.astro";
+import ItemList from "../../../components/blocks/ItemList.astro";
+import ItemRow from "../../../components/blocks/ItemRow.astro";
+import Notice from "../../../components/blocks/Notice.astro";
+import PageHeader from "../../../components/blocks/PageHeader.astro";
+import Badge from "../../../components/ui/Badge.astro";
+import Button from "../../../components/ui/Button.astro";
+import Admin from "../../../layouts/Admin.astro";
+import { coursesPage } from "../../../lib/admin/pages";
+
+const { response, data } = await coursesPage(Astro);
+if (response) return response;
+---
+
+<Admin title="Courses" minutesLeft={data.minutesLeft}>
+	<Notice done={data.done} />
+	<PageHeader title="Courses">
+		<span slot="status" data-admin-summary>{data.published} published, {data.drafts} in draft</span>
+		<Button slot="actions" variant="primary" href="/admin/courses/new">New course</Button>
+	</PageHeader>
+
+	{
+		data.courses.length === 0 ? (
+			<Empty
+				title="No courses yet"
+				description="A course is a set of lessons. It starts as a draft, and users see it once you publish it."
+			>
+				<Button variant="primary" href="/admin/courses/new">
+					New course
+				</Button>
+			</Empty>
+		) : (
+			<ItemList>
+				{data.courses.map((course) => (
+					<ItemRow
+						title={course.title}
+						href={course.editHref}
+						meta={`Changed on ${course.updatedOn}`}
+						data-admin-course={course.slug}
+					>
+						<Badge slot="status" variant={course.published ? "success" : "neutral"} data-state>
+							{course.published ? "Published" : "Draft"}
+						</Badge>
+					</ItemRow>
+				))}
+			</ItemList>
+		)
+	}
+</Admin>

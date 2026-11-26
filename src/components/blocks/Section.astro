@@ -1,0 +1,28 @@
+---
+/**
+ * A named part of a page: a heading, a line about it, then what it holds.
+ * `actions` sits beside the heading (an "Add" button for the list below).
+ */
+interface Props {
+	/** Left out when the page or tab already says what this is. */
+	title?: string;
+	description?: string;
+	id?: string;
+	class?: string;
+}
+
+const { title, description, id, class: extra } = Astro.props;
+---
+
+<section class:list={["mt-10 first:mt-0", extra]} aria-labelledby={title ? id : undefined}>
+	<div class="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 empty:hidden">
+		<div class="min-w-0">
+			{title && <h2 class="font-semibold text-lg tracking-tight" id={id}>{title}</h2>}
+			{description && (
+				<p class:list={["max-w-prose text-muted-foreground text-sm", title && "mt-1"]}>{description}</p>
+			)}
+		</div>
+		<slot name="actions" />
+	</div>
+	<slot />
+</section>

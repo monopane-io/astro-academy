@@ -1,0 +1,56 @@
+---
+import DangerZone from "../../../../../../components/blocks/DangerZone.astro";
+import FormCard from "../../../../../../components/blocks/FormCard.astro";
+import LessonHeader from "../../../../../../components/blocks/LessonHeader.astro";
+import Notice from "../../../../../../components/blocks/Notice.astro";
+import Section from "../../../../../../components/blocks/Section.astro";
+import Button from "../../../../../../components/ui/Button.astro";
+import Field from "../../../../../../components/ui/Field.astro";
+import Admin from "../../../../../../layouts/Admin.astro";
+import { lessonDetailsPage } from "../../../../../../lib/admin/content";
+
+const { response, data } = await lessonDetailsPage(Astro);
+if (response) return response;
+const { course, lesson, values } = data;
+---
+
+<Admin title={lesson.title} minutesLeft={data.minutesLeft}>
+	<Notice done={data.done} error={data.error} />
+	<LessonHeader course={course} lesson={lesson} tab="details" />
+
+	<FormCard do="save-lesson">
+		<Field label="Lesson title" name="title" value={values.title} required maxlength="500" />
+		<Field
+			label="What it covers"
+			name="description"
+			as="textarea"
+			value={values.description}
+			optional
+			maxlength="5000"
+		/>
+		{
+			data.modules.length > 0 && (
+				<Field label="Module" name="moduleId" as="select">
+					<option value="" selected={values.moduleId === ""}>
+						None: directly under the course
+					</option>
+					{data.modules.map((module) => (
+						<option value={module.id} selected={module.id === values.moduleId}>
+							{module.title}
+						</option>
+					))}
+				</Field>
+			)
+		}
+		<Button slot="actions" variant="primary" type="submit">Save lesson</Button>
+	</FormCard>
+
+	<Section title="Danger zone" id="danger">
+		<DangerZone
+			do="delete-lesson"
+			what="this lesson"
+			name={lesson.title}
+			consequence="Its activities go with it."
+		/>
+	</Section>
+</Admin>

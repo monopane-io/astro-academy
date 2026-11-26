@@ -165,7 +165,14 @@ export interface HomePage {
 	/** Every topic, for the filter. Empty when no course has one. */
 	filters: { name: string; href: string; current: boolean }[];
 	courses: CourseCard[];
+	/** A course set above the others: the first with the topic "Featured". Null when narrowed to a topic. */
+	featured: CourseCard | null;
+	/** The courses the signed-in user is part-way through. */
+	continuing: { title: string; href: string }[];
 }
+
+/** The topic that sets a course above the others on the home page. */
+const FEATURED_TOPIC = "featured";
 
 export async function homePage(context: PageContext): Promise<PageResult<HomePage>> {
 	const { user } = context.locals;
@@ -176,8 +183,18 @@ export async function homePage(context: PageContext): Promise<PageResult<HomePag
 	const enrolled = new Map(
 		user ? (await listEnrollments(user.userId)).map((e) => [e.courseId, e.status]) : [],
 	);
+	const cards = courses.map((course) => courseCard(course, enrolled.get(course.id)));
+	const featured =
+		tag === null
+			? (cards.find((card) => card.tags.some((t) => t.name.toLowerCase() === FEATURED_TOPIC)) ??
+				null)
+			: null;
 	return page({
 		tag,
+		featured,
+		continuing: cards
+			.filter((card) => card.enrolled === "active")
+			.map((card) => ({ title: card.title, href: card.href })),
 		filters:
 			tags.length === 0
 				? []
@@ -185,7 +202,7 @@ export async function homePage(context: PageContext): Promise<PageResult<HomePag
 						{ name: "All", href: "/", current: tag === null },
 						...tags.map((name) => ({ name, href: tagHref(name), current: name === tag })),
 					],
-		courses: courses.map((course) => courseCard(course, enrolled.get(course.id))),
+		courses: cards.filter((card) => card !== featured),
 	});
 }
 

@@ -9,8 +9,7 @@
  */
 import { forgetContent } from "../monopane";
 import type { PageContext, PageResult } from "../pages";
-import { type AdminApi, AdminRequestFailed, AdminSignedOut, adminApi } from "./api";
-import { createCourse } from "./content";
+import { type AdminApi, AdminSignedOut, adminApi } from "./api";
 import type { AdminSession } from "./session";
 import { ADMIN_HOME } from "./sign-in";
 
@@ -70,7 +69,7 @@ export function protectAdminReply(headers: Headers): void {
 	headers.set("Referrer-Policy", "same-origin");
 }
 
-// --- The front page: every course, drafts included --------------------------
+// --- The courses page: every course, drafts included --------------------------
 
 interface ApiCourse {
 	id: string;
@@ -97,7 +96,6 @@ export interface AdminCourseRow {
 export interface AdminHomeData {
 	courses: AdminCourseRow[];
 	done?: string;
-	error?: string;
 	published: number;
 	drafts: number;
 	/** How much longer this sign-in lasts, in whole minutes. */
@@ -107,17 +105,8 @@ export interface AdminHomeData {
 const longDate = (iso: string) =>
 	new Date(iso).toLocaleDateString("en-GB", { dateStyle: "long", timeZone: "UTC" });
 
-export function adminHomePage(context: PageContext): Promise<PageResult<AdminHomeData>> {
+export function coursesPage(context: PageContext): Promise<PageResult<AdminHomeData>> {
 	return signedIn(context, async (api, session) => {
-		let error: string | undefined;
-		if (context.request.method === "POST") {
-			try {
-				return await createCourse(context, api, await context.request.formData());
-			} catch (failure) {
-				if (!(failure instanceof AdminRequestFailed)) throw failure;
-				error = failure.message;
-			}
-		}
 		const courses = await api.all<ApiCourse>("/courses");
 		const rows = courses.map((course) => ({
 			id: course.id,
@@ -132,9 +121,123 @@ export function adminHomePage(context: PageContext): Promise<PageResult<AdminHom
 		return {
 			courses: rows,
 			done: context.url.searchParams.get("done")?.slice(0, 200),
-			error,
 			published: rows.filter((course) => course.published).length,
 			drafts: rows.filter((course) => !course.published).length,
+			minutesLeft: Math.max(1, Math.floor((session.expires - Date.now()) / 60000)),
+		};
+	});
+}
+
+// --- The front page: how the academy is doing --------------------------------
+
+interface ApiCourseStats {
+	totalEnrollments: number;
+	activeEnrollments: number;
+	completedEnrollments: number;
+}
+interface ApiUser {
+	id: string;
+	externalId: string;
+	displayName: string | null;
+	email: string | null;
+	createdAt: string;
+}
+interface Listed<T> {
+	data: T[];
+	hasMore: boolean;
+}
+
+export interface OverviewData {
+	stats: { label: string; value: string | number; hint?: string }[];
+	/** What is left to do before the academy is in use; empty once all is done. */
+	steps: { label: string; hint?: string; done: boolean; href?: string }[];
+	setUp: boolean;
+	recentUsers: { name: string; email: string | null; joinedOn: string; href: string }[];
+	courses: {
+		title: string;
+		href: string;
+		published: boolean;
+		enrolled: number;
+		completed: number;
+	}[];
+	minutesLeft: number;
+}
+
+/** How many of the newest users the front page shows. */
+const RECENT_USERS = 5;
+
+export function overviewPage(context: PageContext): Promise<PageResult<OverviewData>> {
+	return signedIn(context, async (api, session) => {
+		const [courses, users] = await Promise.all([
+			api.all<ApiCourse>("/courses"),
+			api.get<Listed<ApiUser>>("/users", { limit: RECENT_USERS }),
+		]);
+		const numbers = await Promise.all(
+			courses.map((course) => api.get<ApiCourseStats>(`/courses/${course.id}/stats`)),
+		);
+		const sum = (pick: (stats: ApiCourseStats) => number) =>
+			numbers.reduce((total, stats) => total + pick(stats), 0);
+		const enrolled = sum((stats) => stats.totalEnrollments);
+		const completed = sum((stats) => stats.completedEnrollments);
+		const published = courses.filter((course) => course.status === "published").length;
+		const steps = [
+			{
+				label: "Make a course",
+				hint: "A course is a set of lessons. It starts as a draft.",
+				done: courses.length > 0,
+				href: "/admin/courses/new",
+			},
+			{
+				label: "Publish a course",
+				hint: "Users see a course once it, its lessons and their activities are published.",
+				done: published > 0,
+				href: "/admin/courses",
+			},
+			{
+				label: "Have someone sign in",
+				hint: "Send people the address of the academy. They appear under Users.",
+				done: users.data.length > 0,
+				href: "/",
+			},
+			{
+				label: "See a first enrolment",
+				hint: "A user enrols from a course's page.",
+				done: enrolled > 0,
+			},
+		];
+		return {
+			stats: [
+				{
+					label: "Published courses",
+					value: published,
+					hint: `${courses.length - published} in draft`,
+				},
+				{
+					label: "Enrolments",
+					value: enrolled,
+					hint: `${sum((stats) => stats.activeEnrollments)} in progress`,
+				},
+				{ label: "Completions", value: completed },
+				{
+					label: "Completion rate",
+					value: enrolled > 0 ? `${Math.round((completed / enrolled) * 100)}%` : "–",
+				},
+			],
+			steps,
+			setUp: steps.every((step) => step.done),
+			recentUsers: users.data.map((user) => ({
+				name: user.displayName ?? user.email ?? user.externalId,
+				email: user.email,
+				joinedOn: longDate(user.createdAt),
+				href: `/admin/users/${user.id}`,
+			})),
+			courses: courses.map((course, index) => ({
+				title: course.title,
+				href: `/admin/courses/${course.id}`,
+				published: course.status === "published",
+				enrolled: numbers[index]?.totalEnrollments ?? 0,
+				completed: numbers[index]?.completedEnrollments ?? 0,
+			})),
 			minutesLeft: Math.max(1, Math.floor((session.expires - Date.now()) / 60000)),
 		};
 	});

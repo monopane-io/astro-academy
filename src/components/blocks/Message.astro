@@ -1,0 +1,24 @@
+---
+/**
+ * A page that says one thing and offers a way on: not found, something went
+ * wrong, not finished yet. Buttons go in the slot.
+ */
+interface Props {
+	title: string;
+	text?: string;
+}
+
+const { title, text } = Astro.props;
+---
+
+<div>
+	<h1>{title}</h1>
+	{text && <p class="mt-4 text-lg text-muted-foreground">{text}</p>}
+	{
+		Astro.slots.has("default") && (
+			<div class="mt-8 flex flex-wrap gap-3">
+				<slot />
+			</div>
+		)
+	}
+</div>

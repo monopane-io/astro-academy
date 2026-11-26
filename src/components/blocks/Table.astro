@@ -1,0 +1,65 @@
+---
+import { cx } from "../../lib/ui";
+
+/**
+ * Rows of the same kind of thing, in columns. Put one <tr> per row in the
+ * slot, with a <td> for each column; `toolbar` sits above the table (a search
+ * box, filters) and `footer` below it (a <Pager>).
+ *
+ * A column with `hide` is left out on a small screen, so keep what matters
+ * most in the first column.
+ */
+interface Props {
+	/** Read out as the table's name. */
+	label: string;
+	columns: { label: string; align?: "left" | "right"; hide?: boolean }[];
+	[attribute: string]: unknown;
+}
+
+const { label, columns, ...rest } = Astro.props;
+---
+
+<div class="overflow-hidden rounded-xl border border-border bg-card" {...rest}>
+	{
+		Astro.slots.has("toolbar") && (
+			<div class="flex flex-wrap items-center gap-2 border-border border-b px-4 py-3 sm:px-5">
+				<slot name="toolbar" />
+			</div>
+		)
+	}
+	<div class="overflow-x-auto">
+		<table
+			class="w-full text-left [&_tbody_tr:hover]:bg-muted/50 [&_tbody_tr]:border-border [&_tbody_tr]:border-t [&_td]:px-4 [&_td]:py-3 sm:[&_td]:px-5"
+			aria-label={label}
+		>
+			<thead class="bg-muted/50 text-muted-foreground text-sm">
+				<tr>
+					{
+						columns.map((column) => (
+							<th
+								class={cx(
+									"whitespace-nowrap px-4 py-2.5 font-medium sm:px-5",
+									column.align === "right" && "text-right",
+									column.hide && "hidden md:table-cell",
+								)}
+								scope="col"
+							>
+								{column.label}
+							</th>
+						))
+					}
+				</tr>
+			</thead>
+			<tbody>
+				<slot />
+			</tbody>
+		</table>
+	</div>
+	{
+		Astro.slots.has("footer") && (
+			<div class="border-border border-t px-4 py-3 sm:px-5">
+				<slot name="footer" />
+			</div>
+		)
+	}
+</div>

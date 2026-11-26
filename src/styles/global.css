@@ -1,8 +1,9 @@
 /*
  * The academy's look. Pages are written with Tailwind CSS utilities; this file
  * holds what they are written against: the colours, the typeface, and a few
- * components that are used on more than one page (buttons, pills, notes, the
- * lesson track, the text of a reading).
+ * things components cannot hold themselves (the progress bar, the lesson
+ * track, the text of a reading). Buttons, badges, fields and the rest are
+ * components in src/components/ui.
  *
  * To restyle the academy, change the four --brand values just below. The
  * colours in @theme are worked out from them; edit those only to fine-tune.
@@ -24,6 +25,9 @@
 
 @theme {
 	--font-sans: var(--brand-font), ui-sans-serif, system-ui, sans-serif;
+	/* Corners, small to large, all from the one brand value. */
+	--radius-sm: calc(var(--brand-radius) * 0.5);
+	--radius-md: calc(var(--brand-radius) * 0.75);
 	--radius-lg: var(--brand-radius);
 	--radius-xl: calc(var(--brand-radius) * 1.5);
 
@@ -33,6 +37,10 @@
 	--color-foreground: oklch(from var(--brand) 0.22 calc(var(--brand-tint) * 3) h); /* text */
 	--color-muted-foreground: oklch(from var(--brand) 0.51 calc(var(--brand-tint) * 4) h);
 	--color-border: oklch(from var(--brand) 0.915 calc(var(--brand-tint) * 1.5) h);
+	/* A quiet surface: a row under the pointer, the bar behind tabs. */
+	--color-muted: oklch(from var(--brand) 0.962 calc(var(--brand-tint) * 1.2) h);
+	/* The outline of whatever the keyboard is on. */
+	--color-ring: var(--color-primary);
 
 	/* The brand colour exactly as given, for filled things, and the text on it:
 	   white on a dark brand, black on a light one. */
@@ -49,7 +57,13 @@
 	--color-mark: #ffcc33; /* the demo notice, the certificate's code */
 	--color-mark-foreground: #3d2f00;
 
+	--color-destructive-foreground: #ffffff; /* text on a filled destructive button */
+
+	/* A toast: in from below, there for a few seconds, then gone. */
+	--animate-toast: toast 5s ease-out forwards;
+
 	--container-prose: 42rem; /* a column of text */
+	--container-form: 36rem; /* a form's fields */
 	--container-page: 72rem; /* the catalogue and the lesson player */
 }
 
@@ -61,6 +75,7 @@
 		--color-foreground: oklch(from var(--brand) 0.95 var(--brand-tint) h);
 		--color-muted-foreground: oklch(from var(--brand) 0.72 calc(var(--brand-tint) * 3) h);
 		--color-border: oklch(from var(--brand) 0.32 calc(var(--brand-tint) * 2.5) h);
+		--color-muted: oklch(from var(--brand) 0.27 calc(var(--brand-tint) * 2.5) h);
 		--color-brand: oklch(from var(--brand) max(l, 0.5) c h);
 		--color-primary: oklch(from var(--brand) max(l, 0.78) min(c, 0.13) h);
 		--color-primary-soft: oklch(from var(--brand) 0.3 min(c, 0.06) h);
@@ -68,6 +83,7 @@
 		--color-success-soft: #173527;
 		--color-destructive: #ff8f85;
 		--color-destructive-soft: #40201d;
+		--color-destructive-foreground: #2b0f0c;
 	}
 }
 
@@ -100,74 +116,6 @@
 }
 
 @layer components {
-	.btn {
-		@apply inline-flex cursor-pointer items-center justify-center rounded-lg bg-brand px-5 py-2.5 font-semibold text-brand-foreground transition-transform hover:brightness-110 active:scale-[0.98];
-	}
-
-	.btn-quiet {
-		@apply border border-border bg-card text-foreground hover:border-primary hover:brightness-100;
-	}
-
-	/* A button for the small, frequent things in the admin area: move up, publish. */
-	.btn-small {
-		@apply inline-flex cursor-pointer items-center justify-center rounded-md border border-border bg-card px-2.5 py-1 font-medium text-foreground text-sm hover:border-primary disabled:cursor-default disabled:opacity-40 disabled:hover:border-border;
-	}
-
-	.btn-danger {
-		@apply bg-destructive text-white;
-	}
-
-	/* A group of fields with a name, in the admin area's forms. */
-	.panel {
-		@apply rounded-xl border border-border bg-card p-5;
-	}
-
-	.label {
-		@apply font-medium text-sm;
-	}
-
-	.hint {
-		@apply text-muted-foreground text-sm;
-	}
-
-	/* A small label that says where something stands. */
-	.pill {
-		@apply inline-flex shrink-0 items-center rounded-full bg-border/60 px-2.5 py-0.5 font-medium text-muted-foreground text-sm;
-	}
-
-	.pill-done {
-		@apply bg-success-soft text-success;
-	}
-
-	.pill-failed {
-		@apply bg-destructive-soft text-destructive;
-	}
-
-	.tag {
-		@apply inline-flex items-center rounded-full border border-border bg-card px-3 py-1 font-medium text-muted-foreground text-sm hover:border-primary hover:text-primary;
-	}
-
-	.tag[aria-current="true"] {
-		@apply border-brand bg-brand text-brand-foreground;
-	}
-
-	/* A message set apart from the page: something worked, failed, or is empty. */
-	.note {
-		@apply rounded-lg border border-border bg-card px-4 py-3 text-muted-foreground;
-	}
-
-	.note-success {
-		@apply border-transparent bg-success-soft text-success;
-	}
-
-	.note-error {
-		@apply border-transparent bg-destructive-soft text-destructive;
-	}
-
-	.field {
-		@apply w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary;
-	}
-
 	.meter {
 		@apply block h-2 w-full appearance-none overflow-hidden rounded-full bg-border;
 	}
@@ -232,7 +180,6 @@
 		@apply mt-8 font-semibold text-xl tracking-tight;
 	}
 
-	.link,
 	.reading a {
 		@apply font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary;
 	}
@@ -247,6 +194,19 @@
 
 	.reading li + li {
 		@apply mt-1.5;
+	}
+
+	/* A callout: something to notice, set apart from the text around it. */
+	.reading blockquote {
+		@apply rounded-lg border-primary border-l-4 bg-primary-soft px-5 py-4 text-base text-foreground leading-7;
+	}
+
+	.reading pre {
+		@apply overflow-x-auto rounded-lg border border-border bg-muted px-5 py-4 font-mono text-sm leading-6;
+	}
+
+	.reading pre code {
+		@apply bg-transparent p-0 text-[1em];
 	}
 
 	.reading code {
@@ -271,6 +231,22 @@
 .loading-bar[data-loading] {
 	@apply opacity-100;
 	animation: loading 8s cubic-bezier(0.1, 0.6, 0.2, 1) forwards;
+}
+
+@keyframes toast {
+	0% {
+		opacity: 0;
+		translate: 0 0.5rem;
+	}
+	6%,
+	88% {
+		opacity: 1;
+		translate: 0 0;
+	}
+	100% {
+		opacity: 0;
+		visibility: hidden;
+	}
 }
 
 @keyframes loading {

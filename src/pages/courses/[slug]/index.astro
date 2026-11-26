@@ -1,4 +1,7 @@
 ---
+import Button from "../../../components/ui/Button.astro";
+import Progress from "../../../components/ui/Progress.astro";
+import Tag from "../../../components/ui/Tag.astro";
 import Base from "../../../layouts/Base.astro";
 import { coursePage } from "../../../lib/pages";
 
@@ -15,9 +18,9 @@ const { course, progress } = data;
 	{
 		data.editHref && (
 			<p class="mt-3">
-				<a class="btn-small" href={data.editHref} data-admin-edit>
+				<Button variant="secondary" size="sm" href={data.editHref} data-admin-edit>
 					Edit this course
-				</a>
+				</Button>
 			</p>
 		)
 	}
@@ -31,9 +34,9 @@ const { course, progress } = data;
 					</span>
 				)}
 				{course.tags.map((tag) => (
-					<a class="tag px-2.5 py-0.5" href={tag.href}>
+					<Tag size="sm" href={tag.href}>
 						{tag.name}
-					</a>
+					</Tag>
 				))}
 			</p>
 		)
@@ -53,28 +56,28 @@ const { course, progress } = data;
 							? "You have completed this course."
 							: `${progress.done} of ${progress.total} activities done`}
 					</p>
-					<progress class="meter mt-3" value={progress.done} max={Math.max(progress.total, 1)} />
+					<Progress class="mt-3" value={progress.done} max={progress.total} />
 				</div>
 			)
 		}
 		{
 			data.completed ? (
 				<p>
-					<a class="btn" href={data.certificateHref}>
+					<Button variant="primary" size="lg" href={data.certificateHref}>
 						See your certificate
-					</a>
+					</Button>
 				</p>
 			) : data.enrolled && data.nextHref ? (
 				<p>
-					<a class="btn" href={data.nextHref}>
+					<Button variant="primary" size="lg" href={data.nextHref}>
 						{progress && progress.done > 0 ? "Continue" : "Start the course"}
-					</a>
+					</Button>
 				</p>
 			) : !data.enrolled && data.hasLessons ? (
 				<form class="flex flex-wrap items-center gap-x-4 gap-y-2" method="post">
-					<button class="btn" type="submit">
+					<Button variant="primary" size="lg" type="submit">
 						Enrol in this course
-					</button>
+					</Button>
 					{!data.signedIn && (
 						<p class="text-muted-foreground text-sm">You will be asked to sign in first.</p>
 					)}

@@ -1,0 +1,153 @@
+---
+import FormCard from "../../../../../../../../components/blocks/FormCard.astro";
+import ItemList from "../../../../../../../../components/blocks/ItemList.astro";
+import ItemRow from "../../../../../../../../components/blocks/ItemRow.astro";
+import Notice from "../../../../../../../../components/blocks/Notice.astro";
+import PageHeader from "../../../../../../../../components/blocks/PageHeader.astro";
+import QuestionFields from "../../../../../../../../components/blocks/QuestionFields.astro";
+import Section from "../../../../../../../../components/blocks/Section.astro";
+import Badge from "../../../../../../../../components/ui/Badge.astro";
+import Button from "../../../../../../../../components/ui/Button.astro";
+import Checkbox from "../../../../../../../../components/ui/Checkbox.astro";
+import Field from "../../../../../../../../components/ui/Field.astro";
+import Menu from "../../../../../../../../components/ui/Menu.astro";
+import MenuItem from "../../../../../../../../components/ui/MenuItem.astro";
+import Admin from "../../../../../../../../layouts/Admin.astro";
+import { activityPage } from "../../../../../../../../lib/admin/content";
+
+const { response, data } = await activityPage(Astro);
+if (response) return response;
+const { course, lesson, values, type } = data;
+const making = data.activityId === null;
+const kind = data.typeLabel.toLowerCase();
+const title = making ? `New ${kind}` : values.title || data.typeLabel;
+---
+
+<Admin title={title} minutesLeft={data.minutesLeft}>
+	<Notice done={data.done} error={data.error} />
+	<PageHeader title={title} trail={[
+			{ href: "/admin/courses", label: "Courses" },
+			{ href: course.href, label: course.title },
+			{ href: lesson.href, label: lesson.title },
+		]}>
+		<Fragment slot="status">
+			<span>{data.typeLabel}</span>
+			{
+				!making && (
+					<Badge variant={data.published ? "success" : "neutral"}>
+						{data.published ? "Published" : "Draft"}
+					</Badge>
+				)
+			}
+		</Fragment>
+	</PageHeader>
+
+	<FormCard do={making ? "add-activity" : "save-activity"} fields={making ? { type } : {}}>
+		<Field label="Title" name="title" value={values.title} required maxlength="500" autofocus={making} />
+
+		{
+			type === "reading" && (
+				<>
+					<Field
+						label="Text"
+						name="content"
+						as="textarea"
+						rows={14}
+						code
+						value={values.content}
+						maxlength="100000"
+						hint="Leave a blank line between paragraphs. # for a heading, - for a list, **bold**, *italic*, [a link](https://example.com)."
+					/>
+					<Field label="Minutes to read" name="minutes" type="number" value={values.minutes} optional min="1" max="480" narrow />
+				</>
+			)
+		}
+		{
+			type === "video" && (
+				<>
+					<Field
+						label="Address of the video"
+						name="url"
+						type="url"
+						value={values.url}
+						required
+						pattern="https://.*"
+						placeholder="https://"
+						maxlength="2000"
+						hint="A YouTube, Vimeo, Loom or Wistia page, or an https link to a video file."
+					/>
+					<Field label="A line about it" name="description" value={values.description} optional maxlength="500" />
+					<Field label="Length in minutes" name="durationMinutes" type="number" value={values.durationMinutes} optional min="1" max="1440" narrow />
+				</>
+			)
+		}
+		{
+			type === "external_link" && (
+				<>
+					<Field label="Address of the link" name="url" type="url" value={values.url} required placeholder="https://" maxlength="2000" />
+					<Field label="A line about it" name="description" value={values.description} optional maxlength="500" />
+					<Checkbox label="Open in a new tab" name="newTab" checked={values.newTab === "on"} />
+				</>
+			)
+		}
+		{
+			type === "quiz" && (
+				<>
+					<Field
+						label="Score needed to pass, in percent"
+						name="passPercent"
+						type="number"
+						value={values.passPercent}
+						required
+						min="0"
+						max="100"
+						narrow
+					/>
+					{making && (
+						<>
+							<p class="border-border border-t pt-5 text-muted-foreground text-sm">
+								A quiz starts with one question. You add the rest once it is made.
+							</p>
+							<QuestionFields values={values} kind={null} first />
+						</>
+					)}
+				</>
+			)
+		}
+		<Fragment slot="actions">
+			<Button href={lesson.href} variant="ghost">Cancel</Button>
+			<Button variant="primary" type="submit">{making ? `Add ${kind}` : `Save ${kind}`}</Button>
+		</Fragment>
+	</FormCard>
+
+	{
+		data.addQuestionHref && (
+			<Section title="Questions" id="questions" class="max-w-form">
+				<Button slot="actions" href={data.addQuestionHref}>
+					Add a question
+				</Button>
+				<ItemList ordered>
+					{data.questions.map((question, index) => (
+						<ItemRow
+							title={`${index + 1}. ${question.text}`}
+							href={question.href}
+							meta={question.kindLabel}
+							data-admin-question
+						>
+							<Menu slot="actions" label={`Actions for question ${index + 1}`}>
+								<MenuItem href={question.href}>Edit</MenuItem>
+								<MenuItem
+									fields={{ do: "delete-question", questionId: question.id }}
+									disabled={data.questions.length <= 1}
+									destructive
+								>
+									Delete
+								</MenuItem>
+							</Menu>
+						</ItemRow>
+					))}
+				</ItemList>
+			</Section>
+		)
+	}
+</Admin>

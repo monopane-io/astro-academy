@@ -1,0 +1,15 @@
+---
+import { cx } from "../../lib/ui";
+
+/** How far along something is, as a bar. */
+interface Props {
+	value: number;
+	max: number;
+	class?: string;
+	[attribute: string]: unknown;
+}
+
+const { value, max, class: extra, ...rest } = Astro.props;
+---
+
+<progress class={cx("meter", extra)} value={value} max={Math.max(max, 1)} {...rest}></progress>

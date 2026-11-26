@@ -1,0 +1,49 @@
+---
+import Icon, { type IconName } from "./Icon.astro";
+
+/**
+ * A small menu behind a button, for the less frequent actions on a row or a
+ * page: move, unpublish, delete. It is a <details>, so it opens without any
+ * script; the admin layout adds closing it on Escape or a click elsewhere.
+ * Put <MenuItem>s, or forms holding one, in the slot.
+ */
+interface Props {
+	/** What the menu is for, read out with the button: "Actions for Welcome". */
+	label: string;
+	/** Text on the button. Left out, the button shows an icon. */
+	text?: string;
+	/** The icon when there is no text; three dots unless said. */
+	icon?: IconName;
+}
+
+const { label, text, icon = "ellipsis" } = Astro.props;
+---
+
+<details class="group/menu relative" data-menu>
+	<summary
+		class:list={[
+			"inline-flex cursor-pointer list-none items-center justify-center gap-1.5 rounded-md font-medium hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 group-open/menu:bg-muted [&::-webkit-details-marker]:hidden",
+			// With words on it, it is a button like any other; without, a quiet icon in a row.
+			text ? "h-10 border border-border bg-card px-4" : "size-8 text-sm",
+		]}
+		aria-label={text ? undefined : label}
+	>
+		{
+			text ? (
+				<>
+					{text}
+					<Icon name="chevron-down" />
+				</>
+			) : (
+				<Icon name={icon} />
+			)
+		}
+	</summary>
+	<div
+		class="absolute right-0 z-30 mt-1 flex min-w-44 flex-col rounded-lg border border-border bg-card p-1 shadow-lg shadow-black/5"
+		role="group"
+		aria-label={text ? label : undefined}
+	>
+		<slot />
+	</div>
+</details>

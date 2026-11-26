@@ -1,0 +1,48 @@
+---
+import Button from "../ui/Button.astro";
+import Icon from "../ui/Icon.astro";
+
+/**
+ * Moving through a long list a page at a time. A list read from Monopane
+ * only knows the way forward, so this offers the start and the next page.
+ */
+interface Props {
+	/** Words for where you are: "Newest 50", "Older users". */
+	summary: string;
+	/** The first page; left out when you are on it. */
+	firstHref?: string | null;
+	firstLabel?: string;
+	nextHref?: string | null;
+	nextLabel?: string;
+}
+
+const {
+	summary,
+	firstHref,
+	firstLabel = "Back to the start",
+	nextHref,
+	nextLabel = "Next",
+} = Astro.props;
+---
+
+<nav class="flex flex-wrap items-center justify-between gap-3" aria-label="Pages">
+	<p class="text-muted-foreground text-sm">{summary}</p>
+	<div class="flex gap-2">
+		{
+			firstHref && (
+				<Button href={firstHref} size="sm">
+					<Icon name="arrow-left" size="sm" />
+					{firstLabel}
+				</Button>
+			)
+		}
+		{
+			nextHref && (
+				<Button href={nextHref} size="sm">
+					{nextLabel}
+					<Icon name="arrow-right" size="sm" />
+				</Button>
+			)
+		}
+	</div>
+</nav>

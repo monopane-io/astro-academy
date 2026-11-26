@@ -1,0 +1,111 @@
+---
+import type { QuizView } from "../../lib/pages";
+import Button from "../ui/Button.astro";
+import Input from "../ui/Input.astro";
+import ActivityHeader from "./ActivityHeader.astro";
+import QuizResult from "./QuizResult.astro";
+
+/** A quiz in a lesson: its questions as a form, and how the last attempt went. */
+interface Props {
+	quiz: QuizView;
+	/** Where the answers are sent. */
+	action: string;
+}
+
+const { quiz, action } = Astro.props;
+const choice =
+	"flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 has-checked:border-primary has-checked:bg-primary-soft";
+---
+
+<ActivityHeader
+	title={quiz.title}
+	state={quiz.status === "passed" ? "Passed" : quiz.status === "failed" ? "Not passed yet" : "Not attempted"}
+	tone={quiz.status === "failed" ? "destructive" : quiz.done ? "success" : "neutral"}
+/>
+
+{quiz.result && <QuizResult result={quiz.result} />}
+{
+	!quiz.result && quiz.done && quiz.bestScore && (
+		<p class="text-muted-foreground">Your best score: {quiz.bestScore}.</p>
+	)
+}
+
+{
+	quiz.showForm && (
+		<form class="flex flex-col gap-8" method="post" action={`${action}#${quiz.id}`}>
+			<input type="hidden" name="activityId" value={quiz.id} />
+			{quiz.questions.map((question) => (
+				<fieldset class="flex min-w-0 flex-col gap-2" data-question={question.type}>
+					<legend class="mb-3 font-medium text-lg">
+						{question.text}
+						{question.correct !== null && (
+							<span
+								class:list={[
+									"font-normal text-base",
+									question.correct ? "text-success" : "text-destructive",
+								]}
+							>
+								{question.correct ? " (correct)" : " (not correct)"}
+							</span>
+						)}
+					</legend>
+					{question.type === "multiple_choice" &&
+						question.options.map((option) => (
+							<label class={choice}>
+								<input
+									class="size-4 accent-primary"
+									type="radio"
+									name={question.field}
+									value={option}
+									checked={question.given.includes(option)}
+								/>
+								<span>{option}</span>
+							</label>
+						))}
+					{question.type === "multi_select" && (
+						<>
+							<p class="-mt-2 mb-1 text-muted-foreground text-sm">Choose every answer that applies.</p>
+							{question.options.map((option) => (
+								<label class={choice}>
+									<input
+										class="size-4 accent-primary"
+										type="checkbox"
+										name={question.field}
+										value={option}
+										checked={question.given.includes(option)}
+									/>
+									<span>{option}</span>
+								</label>
+							))}
+						</>
+					)}
+					{question.type === "fill_in_blank" && (
+						<Input
+							type="text"
+							name={question.field}
+							aria-label={question.text}
+							autocomplete="off"
+							value={question.given[0] ?? ""}
+						/>
+					)}
+					{question.type === "short_answer" && (
+						<Input
+							as="textarea"
+							name={question.field}
+							rows={3}
+							aria-label={question.text}
+							value={question.given[0] ?? ""}
+						/>
+					)}
+				</fieldset>
+			))}
+			{quiz.canSubmit && (
+				<p>
+					<Button variant="primary" size="lg" type="submit">
+						{quiz.submitLabel}
+					</Button>
+				</p>
+			)}
+		</form>
+	)
+}

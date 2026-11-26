@@ -1,0 +1,74 @@
+---
+import CourseHeader from "../../../../components/blocks/CourseHeader.astro";
+import DangerZone from "../../../../components/blocks/DangerZone.astro";
+import Notice from "../../../../components/blocks/Notice.astro";
+import Section from "../../../../components/blocks/Section.astro";
+import SettingsForm from "../../../../components/blocks/SettingsForm.astro";
+import SettingsGroup from "../../../../components/blocks/SettingsGroup.astro";
+import Button from "../../../../components/ui/Button.astro";
+import Field from "../../../../components/ui/Field.astro";
+import Admin from "../../../../layouts/Admin.astro";
+import { courseDetailsPage } from "../../../../lib/admin/content";
+
+const { response, data } = await courseDetailsPage(Astro);
+if (response) return response;
+const { course, values } = data;
+---
+
+<Admin title={course.title} minutesLeft={data.minutesLeft}>
+	<Notice done={data.done} error={data.error} />
+	<CourseHeader course={course} tab="details" />
+
+	<SettingsForm do="save-course">
+		<SettingsGroup title="Basics" description="What the course is called and where it lives.">
+		<Field label="Title" name="title" value={values.title} required maxlength="500" />
+		<Field
+			label="Address"
+			name="slug"
+			value={values.slug}
+			required
+			maxlength="255"
+			pattern="[a-z0-9]([a-z0-9-]*[a-z0-9])?"
+			hint={`The course is at /courses/${values.slug}. Small letters, numbers and hyphens. Changing it breaks links people already have.`}
+		/>
+		<Field label="What it covers" name="description" as="textarea" value={values.description} maxlength="5000" />
+		</SettingsGroup>
+		<SettingsGroup title="In the catalogue" description="How the course is shown among the others.">
+		<Field
+			label="Topics"
+			name="tags"
+			value={values.tags}
+			hint="Separated by commas. They become the filters on the home page."
+		/>
+		<Field
+			label="How long it takes, in minutes"
+			name="estimatedMinutes"
+			type="number"
+			value={values.estimatedMinutes}
+			min="1"
+			max="100000"
+			narrow
+		/>
+		<Field
+			label="Cover picture"
+			name="imageUrl"
+			type="url"
+			value={values.imageUrl}
+			pattern="https://.*"
+			maxlength="2000"
+			placeholder="https://"
+			hint="The https address of a picture kept somewhere else. Leave empty for none."
+		/>
+		</SettingsGroup>
+		<Button slot="actions" variant="primary" type="submit">Save course</Button>
+	</SettingsForm>
+
+	<Section title="Danger zone" id="danger">
+		<DangerZone
+			do="delete-course"
+			what="this course"
+			name={course.title}
+			consequence="Its lessons and activities go with it."
+		/>
+	</Section>
+</Admin>

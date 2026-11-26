@@ -1,0 +1,101 @@
+---
+import { ClientRouter } from "astro:transitions";
+import "../styles/global.css";
+
+/**
+ * The page itself: <html>, <head> and <body>, the stylesheet, and the client
+ * router that swaps pages in place. Base.astro (the site) and Admin.astro (the
+ * admin area) each put their own frame inside it.
+ */
+interface Props {
+	title: string;
+	description?: string | null;
+	/** Classes for <body>. */
+	class?: string;
+}
+
+const { title, description, class: bodyClass = "flex min-h-dvh flex-col" } = Astro.props;
+const { config } = Astro.locals;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title === config.siteName ? title : `${title} | ${config.siteName}`}</title>
+		{description && <meta name="description" content={description} />}
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<ClientRouter />
+	</head>
+	<body class={bodyClass}>
+		<div class="loading-bar" data-loading-bar transition:persist="loading-bar" aria-hidden="true">
+		</div>
+		<slot />
+		<script>
+			// The client router fetches the next page and swaps it in. Two things
+			// make that feel right: a line across the top while a page is on its
+			// way, and staying put when a form marked data-stay was sent (marking an
+			// activity as done should not move the page).
+			const bar = () => document.querySelector<HTMLElement>("[data-loading-bar]");
+			let timer: ReturnType<typeof setTimeout> | undefined;
+			let stay: { path: string; top: number } | null = null;
+
+			document.addEventListener("astro:before-preparation", (event) => {
+				const form = event.formData && event.sourceElement?.closest("form[data-stay]");
+				stay = form ? { path: location.pathname, top: scrollY } : null;
+				clearTimeout(timer);
+				// Most pages arrive before anyone would notice; only show it for the rest.
+				timer = setTimeout(() => bar()?.setAttribute("data-loading", ""), 120);
+			});
+
+			// The server answers such a form by pointing at the activity (#id), which
+			// is right for a full page load. Here the page stays where it is instead.
+			document.addEventListener("astro:before-swap", (event) => {
+				if (stay && event.to.pathname === stay.path) event.to.hash = "";
+			});
+
+			document.addEventListener("astro:after-swap", () => {
+				if (stay && stay.path === location.pathname) {
+					scrollTo({ top: stay.top, behavior: "instant" });
+				}
+				stay = null;
+			});
+
+			document.addEventListener("astro:page-load", () => {
+				clearTimeout(timer);
+				bar()?.removeAttribute("data-loading");
+			});
+
+			// A button with data-dialog-open opens the <dialog> it names.
+			document.addEventListener("click", (event) => {
+				const opener =
+					event.target instanceof Element ? event.target.closest("[data-dialog-open]") : null;
+				const dialog = opener && document.getElementById(opener.getAttribute("data-dialog-open") ?? "");
+				if (dialog instanceof HTMLDialogElement) dialog.showModal();
+			});
+
+			// The button that sent a form shows it is busy until the next page is in.
+			document.addEventListener("submit", (event) => {
+				const form = event.target instanceof HTMLFormElement ? event.target : null;
+				if (form?.method === "dialog" || event.defaultPrevented) return;
+				event.submitter?.setAttribute("aria-busy", "true");
+			});
+
+			// A menu (a <details data-menu>) closes when something outside it is
+			// pressed, or on Escape, as menus do.
+			document.addEventListener("click", (event) => {
+				for (const menu of document.querySelectorAll<HTMLDetailsElement>("details[data-menu][open]")) {
+					if (!(event.target instanceof Node) || !menu.contains(event.target)) menu.open = false;
+				}
+			});
+			document.addEventListener("keydown", (event) => {
+				if (event.key !== "Escape") return;
+				for (const menu of document.querySelectorAll<HTMLDetailsElement>("details[data-menu][open]")) {
+					menu.open = false;
+					menu.querySelector("summary")?.focus();
+				}
+			});
+		</script>
+	</body>
+</html>

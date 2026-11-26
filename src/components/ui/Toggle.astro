@@ -1,0 +1,25 @@
+---
+/** A switch: something that is on or off. Sent with a form like a checkbox. */
+interface Props {
+	label: string;
+	name: string;
+	value?: string;
+	checked?: boolean;
+	hint?: string;
+}
+
+const { label, name, value = "on", checked = false, hint } = Astro.props;
+---
+
+<label class="flex cursor-pointer items-start gap-3">
+	<input class="peer sr-only" type="checkbox" role="switch" name={name} value={value} checked={checked} />
+	<span
+		class="mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full bg-border p-0.5 transition-colors after:size-4 after:rounded-full after:bg-card after:shadow-sm after:transition-transform after:content-[''] peer-checked:bg-brand peer-checked:after:translate-x-4 peer-focus-visible:outline-2 peer-focus-visible:outline-ring peer-focus-visible:outline-offset-2"
+		aria-hidden="true"
+	>
+	</span>
+	<span class="flex flex-col">
+		<span class="font-medium">{label}</span>
+		{hint && <span class="text-muted-foreground text-sm">{hint}</span>}
+	</span>
+</label>

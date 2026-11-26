@@ -1,0 +1,17 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { cx } from "../../lib/ui";
+
+/** A link in a line of text. */
+type Props = { class?: string } & Omit<HTMLAttributes<"a">, "class">;
+
+const { class: extra, ...rest } = Astro.props;
+---
+
+<a
+	class={cx(
+		"font-medium text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary",
+		extra,
+	)}
+	{...rest}><slot /></a
+>

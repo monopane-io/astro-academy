@@ -1,0 +1,37 @@
+---
+import { cx } from "../../lib/ui";
+
+/** How far along something is, as a ring with the percentage in the middle. */
+interface Props {
+	value: number;
+	max: number;
+	size?: "md" | "lg";
+	class?: string;
+}
+
+const { value, max, size = "md", class: extra } = Astro.props;
+const share = max > 0 ? Math.min(Math.max(value / max, 0), 1) : 0;
+const percent = Math.round(share * 100);
+const sizes = { md: "size-12 text-xs", lg: "size-20 text-lg" };
+---
+
+<span
+	class={cx("relative inline-flex shrink-0 items-center justify-center font-semibold tabular-nums", sizes[size], extra)}
+	role="img"
+	aria-label={`${percent}% done`}
+>
+	<svg class="-rotate-90 absolute inset-0 size-full" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+		<circle class="stroke-border" cx="18" cy="18" r="15.5" stroke-width="3"></circle>
+		<circle
+			class="stroke-primary"
+			cx="18"
+			cy="18"
+			r="15.5"
+			stroke-width="3"
+			stroke-linecap="round"
+			pathLength="100"
+			stroke-dasharray={`${percent} 100`}
+		></circle>
+	</svg>
+	<span aria-hidden="true">{percent}%</span>
+</span>

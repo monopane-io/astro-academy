@@ -1,0 +1,33 @@
+---
+import FormCard from "../../../../../../../../../components/blocks/FormCard.astro";
+import Notice from "../../../../../../../../../components/blocks/Notice.astro";
+import PageHeader from "../../../../../../../../../components/blocks/PageHeader.astro";
+import QuestionFields from "../../../../../../../../../components/blocks/QuestionFields.astro";
+import Button from "../../../../../../../../../components/ui/Button.astro";
+import Admin from "../../../../../../../../../layouts/Admin.astro";
+import { questionPage } from "../../../../../../../../../lib/admin/content";
+
+const { response, data } = await questionPage(Astro);
+if (response) return response;
+const making = data.questionId === null;
+const title = making ? "New question" : "Question";
+---
+
+<Admin title={title} minutesLeft={data.minutesLeft}>
+	<Notice error={data.error} />
+	<PageHeader title={title} trail={[
+			{ href: "/admin/courses", label: "Courses" },
+			{ href: data.course.href, label: data.course.title },
+			{ href: data.lesson.href, label: data.lesson.title },
+			{ href: data.quiz.href, label: data.quiz.title },
+		]}>
+		{data.kindLabel && <span slot="status">{data.kindLabel}</span>}
+	</PageHeader>
+	<FormCard do={making ? "add-question" : "save-question"}>
+		<QuestionFields values={data.values} kind={data.kind} />
+		<Fragment slot="actions">
+			<Button href={data.quiz.href} variant="ghost">Cancel</Button>
+			<Button variant="primary" type="submit">{making ? "Add question" : "Save question"}</Button>
+		</Fragment>
+	</FormCard>
+</Admin>

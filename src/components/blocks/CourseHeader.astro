@@ -1,0 +1,43 @@
+---
+import type { CourseHead } from "../../lib/admin/content";
+import Badge from "../ui/Badge.astro";
+import Button from "../ui/Button.astro";
+import PageHeader from "./PageHeader.astro";
+import Tabs from "./Tabs.astro";
+
+/** The top of the two pages about a course: its lessons and its details. */
+interface Props {
+	course: CourseHead;
+	tab: "lessons" | "details";
+	/** A line of facts after the badge: "3 enrolled, 1 completed". */
+	facts?: string;
+}
+
+const { course, tab, facts } = Astro.props;
+---
+
+<PageHeader title={course.title} trail={[{ href: "/admin/courses", label: "Courses" }]}>
+	<Fragment slot="status">
+		<Badge variant={course.published ? "success" : "neutral"} data-course-state>
+			{course.published ? "Published" : "Draft"}
+		</Badge>
+		{facts && <span data-course-numbers>{facts}</span>}
+	</Fragment>
+	<Fragment slot="actions">
+		{
+			course.viewHref && (
+				<Button href={course.viewHref} variant="ghost">
+					View as a user
+				</Button>
+			)
+		}
+		<slot name="actions" />
+	</Fragment>
+</PageHeader>
+<Tabs
+	label="Parts of this course"
+	items={[
+		{ href: course.href, label: "Lessons", current: tab === "lessons" },
+		{ href: course.detailsHref, label: "Details", current: tab === "details" },
+	]}
+/>

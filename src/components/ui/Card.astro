@@ -1,0 +1,34 @@
+---
+import { cx } from "../../lib/ui";
+
+/**
+ * A bordered surface that holds one thing: a form, a list, a set of facts.
+ * With a `title` it has a header, with room for `actions` on its right.
+ */
+interface Props {
+	title?: string;
+	description?: string;
+	/** Without padding, for a list or a table whose rows reach the edges. */
+	flush?: boolean;
+	class?: string;
+	[attribute: string]: unknown;
+}
+
+const { title, description, flush = false, class: extra, ...rest } = Astro.props;
+const pad = "p-5 sm:p-6";
+---
+
+<div class={cx("rounded-xl border border-border bg-card", !title && !flush && pad, extra)} {...rest}>
+	{
+		title && (
+			<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-border border-b px-5 py-4 sm:px-6">
+				<div class="min-w-0">
+					<h3 class="font-semibold">{title}</h3>
+					{description && <p class="mt-0.5 text-muted-foreground text-sm">{description}</p>}
+				</div>
+				<slot name="actions" />
+			</div>
+		)
+	}
+	{title ? <div class={cx(!flush && pad)}><slot /></div> : <slot />}
+</div>

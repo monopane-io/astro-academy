@@ -1,0 +1,23 @@
+---
+/** The parts of one thing, each on a page of its own: a course's lessons and its details. */
+interface Props {
+	label: string;
+	items: { href: string; label: string; current: boolean }[];
+}
+
+const { label, items } = Astro.props;
+---
+
+<nav class="mb-8 flex gap-6 border-border border-b" aria-label={label}>
+	{
+		items.map((item) => (
+			<a
+				class="-mb-px border-transparent border-b-2 pb-3 font-medium text-muted-foreground hover:text-foreground aria-[current=page]:border-primary aria-[current=page]:text-foreground"
+				href={item.href}
+				aria-current={item.current ? "page" : undefined}
+			>
+				{item.label}
+			</a>
+		))
+	}
+</nav>

@@ -1,0 +1,30 @@
+---
+/** The certificate itself. Printing the page prints this and nothing around it. */
+interface Props {
+	issuer: string;
+	name: string;
+	course: string;
+	issuedOn: string;
+	code: string;
+}
+
+const { issuer, name, course, issuedOn, code } = Astro.props;
+---
+
+<div
+	class="rounded-xl border-2 border-foreground bg-card px-6 py-12 text-center sm:px-12 print:rounded-none print:border-4 print:py-24"
+	data-credential
+>
+	<p class="font-bold text-lg tracking-tight">{issuer}</p>
+	<p class="mt-10 text-muted-foreground">This certifies that</p>
+	<p class="mt-2 text-balance font-bold text-4xl tracking-tight">{name}</p>
+	<p class="mt-6 text-muted-foreground">has completed</p>
+	<p class="mt-2 text-balance font-semibold text-2xl tracking-tight">{course}</p>
+	<p class="mt-6 text-muted-foreground">on {issuedOn}</p>
+	<p
+		class="mt-10 inline-block rounded-full bg-mark px-4 py-1.5 font-semibold text-mark-foreground tabular-nums tracking-wider [print-color-adjust:exact]"
+		data-credential-code
+	>
+		{code}
+	</p>
+</div>

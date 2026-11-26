@@ -1,0 +1,17 @@
+---
+import Message from "../components/blocks/Message.astro";
+import Button from "../components/ui/Button.astro";
+import Base from "../layouts/Base.astro";
+
+/** Shown when a page could not be made. Nothing about what went wrong is put on the page. */
+---
+
+<Base title="Something went wrong">
+	<Message
+		title="Something went wrong"
+		text="The page could not be shown. It is probably a passing problem: try again in a moment."
+	>
+		<Button variant="primary" size="lg" href={Astro.url.pathname}>Try again</Button>
+		<Button size="lg" href="/">See all courses</Button>
+	</Message>
+</Base>

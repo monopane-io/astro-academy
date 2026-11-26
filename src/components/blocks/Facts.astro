@@ -1,0 +1,30 @@
+---
+import Card from "../ui/Card.astro";
+
+/** A few facts about one thing, each with its name. */
+interface Props {
+	items: { name: string; value: string; code?: boolean }[];
+	title?: string;
+	/** Name above value, for a narrow column. */
+	stacked?: boolean;
+	class?: string;
+	[attribute: string]: unknown;
+}
+
+const { items, title, stacked = false, class: extra, ...rest } = Astro.props;
+---
+
+<Card flush title={title} class={extra} {...rest}>
+	<dl class="divide-y divide-border">
+		{
+			items.map((item) => (
+				<div class:list={["px-5 py-3", !stacked && "flex flex-wrap justify-between gap-x-6 gap-y-1"]}>
+					<dt class:list={["text-muted-foreground", stacked && "text-sm"]}>{item.name}</dt>
+					<dd class:list={["break-words font-medium", item.code && "tabular-nums tracking-wider"]}>
+						{item.value}
+					</dd>
+				</div>
+			))
+		}
+	</dl>
+</Card>

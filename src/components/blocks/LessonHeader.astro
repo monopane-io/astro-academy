@@ -1,0 +1,48 @@
+---
+import type { CourseHead, LessonHead } from "../../lib/admin/content";
+import Badge from "../ui/Badge.astro";
+import Button from "../ui/Button.astro";
+import PageHeader from "./PageHeader.astro";
+import Tabs from "./Tabs.astro";
+
+/** The top of the two pages about a lesson: its activities and its details. */
+interface Props {
+	course: CourseHead;
+	lesson: LessonHead;
+	tab: "activities" | "details";
+}
+
+const { course, lesson, tab } = Astro.props;
+---
+
+<PageHeader title={lesson.title} trail={[{ href: "/admin/courses", label: "Courses" }, { href: course.href, label: course.title }]}>
+	<Fragment slot="status">
+		<Badge variant={lesson.published ? "success" : "neutral"} data-lesson-published>
+			{lesson.published ? "Published" : "Draft"}
+		</Badge>
+		{!course.published && <span>The course is a draft, so users do not see this yet.</span>}
+	</Fragment>
+	<Fragment slot="actions">
+		{
+			lesson.viewHref && (
+				<Button href={lesson.viewHref} variant="ghost">
+					View as a user
+				</Button>
+			)
+		}
+		<form method="post" action={lesson.href}>
+			<input type="hidden" name="do" value="toggle-lesson" />
+			<input type="hidden" name="status" value={lesson.published ? "published" : "draft"} />
+			<Button type="submit" variant={lesson.published ? "secondary" : "primary"}>
+				{lesson.published ? "Move back to draft" : "Publish the lesson"}
+			</Button>
+		</form>
+	</Fragment>
+</PageHeader>
+<Tabs
+	label="Parts of this lesson"
+	items={[
+		{ href: lesson.href, label: "Activities", current: tab === "activities" },
+		{ href: lesson.detailsHref, label: "Details", current: tab === "details" },
+	]}
+/>

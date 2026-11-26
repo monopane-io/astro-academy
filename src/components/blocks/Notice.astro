@@ -1,0 +1,28 @@
+---
+import Alert from "../ui/Alert.astro";
+import Toast from "../ui/Toast.astro";
+
+/**
+ * What the last form did (a toast in the corner), or why it could not be done
+ * (an alert at the top of the page, which stays).
+ */
+interface Props {
+	done?: string;
+	error?: string;
+}
+
+const { done, error } = Astro.props;
+---
+
+{
+	error && (
+		<Alert variant="error" class="mb-6" role="alert" data-admin-error>
+			{error}
+		</Alert>
+	)
+}
+{
+	done && !error && (
+<Toast data-admin-done>{done}</Toast>
+	)
+}

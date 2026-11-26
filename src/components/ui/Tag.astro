@@ -1,0 +1,27 @@
+---
+import { cx, focusRing } from "../../lib/ui";
+
+/** A topic to follow: a small rounded link. `current` marks the one in use. */
+interface Props {
+	href: string;
+	current?: boolean;
+	size?: "sm" | "md";
+}
+
+const { href, current = false, size = "md" } = Astro.props;
+---
+
+<a
+	class={cx(
+		"inline-flex items-center rounded-full border font-medium text-sm",
+		size === "sm" ? "px-2.5 py-0.5" : "px-3 py-1",
+		current
+			? "border-brand bg-brand text-brand-foreground"
+			: "border-border bg-card text-muted-foreground hover:border-primary hover:text-primary",
+		focusRing,
+	)}
+	href={href}
+	aria-current={current ? "true" : undefined}
+>
+	<slot />
+</a>

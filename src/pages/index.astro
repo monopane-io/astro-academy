@@ -1,5 +1,10 @@
 ---
 import CourseTile from "../components/CourseTile.astro";
+import Continue from "../components/blocks/Continue.astro";
+import FeaturedCourse from "../components/blocks/FeaturedCourse.astro";
+import Hero from "../components/blocks/Hero.astro";
+import Alert from "../components/ui/Alert.astro";
+import Tag from "../components/ui/Tag.astro";
 import Base from "../layouts/Base.astro";
 import { homePage } from "../lib/pages";
 
@@ -9,12 +14,10 @@ if (response) return response;
 ---
 
 <Base title={config.siteName} description={config.tagline} wide>
-	<div class="border-border border-b" slot="band">
-		<div class="mx-auto max-w-page px-4 py-14 sm:px-6 sm:py-20">
-			<h1 class="max-w-3xl sm:text-6xl">{config.siteName}</h1>
-			<p class="mt-4 max-w-xl text-muted-foreground text-xl">{config.tagline}</p>
-		</div>
-	</div>
+	<Hero slot="band" title={config.siteName} text={config.tagline} />
+
+	{data.continuing.length > 0 && <Continue courses={data.continuing} />}
+	{data.featured && <FeaturedCourse course={data.featured} />}
 
 	<div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
 		<h2 class="font-semibold text-2xl tracking-tight">
@@ -24,20 +27,20 @@ if (response) return response;
 			data.filters.length > 0 && (
 				<nav class="flex flex-wrap gap-1.5" aria-label="Filter courses by topic">
 					{data.filters.map((filter) => (
-						<a class="tag" href={filter.href} aria-current={filter.current ? "true" : undefined}>
+						<Tag href={filter.href} current={filter.current}>
 							{filter.name}
-						</a>
+						</Tag>
 					))}
 				</nav>
 			)
 		}
 	</div>
 	{
-		data.courses.length === 0 ? (
-			<p class="note mt-6">
+		data.courses.length === 0 && !data.featured ? (
+			<Alert variant="info" class="mt-6">
 				No courses are published yet. Publish a course in Monopane and it appears here within a
 				minute.
-			</p>
+			</Alert>
 		) : (
 			<ul class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 				{data.courses.map((course) => (

@@ -1,0 +1,39 @@
+---
+import type { CourseCard } from "../../lib/pages";
+import Badge from "../ui/Badge.astro";
+import Button from "../ui/Button.astro";
+
+/** One course set above the others, large. A course is featured by giving it the topic "Featured". */
+interface Props {
+	course: CourseCard;
+}
+
+const { course } = Astro.props;
+---
+
+<section
+	class="mb-12 grid overflow-hidden rounded-xl border border-border bg-card md:grid-cols-2"
+	aria-label="Featured course"
+	data-featured
+>
+	{
+		course.imageUrl ? (
+			<img class="aspect-[16/9] size-full object-cover" src={course.imageUrl} alt="" />
+		) : (
+			<div
+				class="flex aspect-[16/9] size-full items-end bg-primary-soft px-6 pb-3 font-bold text-9xl text-primary leading-none tracking-tighter"
+				aria-hidden="true"
+			>
+				{course.title.trim().charAt(0)}
+			</div>
+		)
+	}
+	<div class="flex flex-col items-start justify-center gap-3 p-6 sm:p-8">
+		<Badge variant="primary">Featured</Badge>
+		<h2 class="font-bold text-3xl tracking-tight">{course.title}</h2>
+		{course.description && <p class="text-lg text-muted-foreground">{course.description}</p>}
+		<Button variant="primary" size="lg" href={course.href} class="mt-2">
+			See the course
+		</Button>
+	</div>
+</section>

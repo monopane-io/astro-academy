@@ -1,4 +1,9 @@
 ---
+import Empty from "../../../components/blocks/Empty.astro";
+import PageHeader from "../../../components/blocks/PageHeader.astro";
+import Pager from "../../../components/blocks/Pager.astro";
+import Table from "../../../components/blocks/Table.astro";
+import Avatar from "../../../components/ui/Avatar.astro";
 import Admin from "../../../layouts/Admin.astro";
 import { usersPage } from "../../../lib/admin/users";
 
@@ -7,53 +12,44 @@ if (response) return response;
 ---
 
 <Admin title="Users" minutesLeft={data.minutesLeft}>
-	<h1>Users</h1>
-	<p class="mt-3 max-w-prose text-muted-foreground">
-		Everyone who has signed in to the academy, newest first. You can see how each is doing; nothing
-		here changes a user.
-	</p>
+	<PageHeader
+		title="Users"
+		description="Everyone who has signed in to the academy, newest first. You can see how each is doing; nothing here changes a user."
+	/>
 
 	{
 		data.users.length === 0 ? (
-			<p class="note mt-8">
-				{data.later ? "No more users." : "Nobody has signed in to the academy yet."}
-			</p>
+			<Empty
+				icon="users"
+				title={data.later ? "No more users" : "Nobody has signed in yet"}
+				description={data.later ? undefined : "People appear here the first time they sign in to the academy."}
+			/>
 		) : (
-			<ul class="mt-8 divide-y divide-border rounded-xl border border-border bg-card">
+			<Table
+				label="Users"
+				columns={[{ label: "User" }, { label: "Email", hide: true }, { label: "Joined", align: "right" }]}
+			>
 				{data.users.map((user) => (
-					<li
-						class="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-4"
-						data-admin-user={user.email ?? user.name}
-					>
-						<div class="min-w-0">
-							<p class="font-semibold text-lg tracking-tight">
-								<a class="hover:text-primary" href={user.href}>
-									{user.name}
-								</a>
-							</p>
-							{user.email && <p class="text-muted-foreground text-sm">{user.email}</p>}
-						</div>
-						<p class="text-muted-foreground text-sm">Joined on {user.joinedOn}</p>
-					</li>
+					<tr data-admin-user={user.email ?? user.name}>
+						<td>
+							<a class="flex items-center gap-3 font-medium hover:text-primary" href={user.href}>
+								<Avatar name={user.name} size="sm" />
+								{user.name}
+							</a>
+						</td>
+						<td class="hidden text-muted-foreground md:table-cell">{user.email ?? "Not given"}</td>
+						<td class="whitespace-nowrap text-right text-muted-foreground text-sm">{user.joinedOn}</td>
+					</tr>
 				))}
-			</ul>
+				<Pager
+					slot="footer"
+					summary={data.later ? "Older users" : `The newest ${data.users.length}`}
+					firstHref={data.later ? "/admin/users" : null}
+					firstLabel="Newest"
+					nextHref={data.moreHref}
+					nextLabel="Older"
+				/>
+			</Table>
 		)
 	}
-
-	<p class="mt-6 flex gap-4">
-		{
-			data.later && (
-				<a class="btn btn-quiet" href="/admin/users">
-					Back to the newest
-				</a>
-			)
-		}
-		{
-			data.moreHref && (
-				<a class="btn btn-quiet" href={data.moreHref}>
-					Older users
-				</a>
-			)
-		}
-	</p>
 </Admin>

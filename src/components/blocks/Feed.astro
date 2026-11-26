@@ -1,0 +1,30 @@
+---
+import Icon, { type IconName } from "../ui/Icon.astro";
+
+/** What happened, newest first: one line each, with when. */
+interface Props {
+	items: { text: string; when: string; icon?: IconName }[];
+	[attribute: string]: unknown;
+}
+
+const { items, ...rest } = Astro.props;
+---
+
+<ol class="flex flex-col" {...rest}>
+	{
+		items.map((item, index) => (
+			<li class="relative flex gap-3 pb-5 last:pb-0">
+				{index < items.length - 1 && (
+					<span class="absolute top-8 bottom-0 left-4 w-px bg-border" aria-hidden="true" />
+				)}
+				<span class="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+					<Icon name={item.icon ?? "check"} />
+				</span>
+				<div class="min-w-0 pt-1">
+					<p>{item.text}</p>
+					<p class="text-muted-foreground text-sm">{item.when}</p>
+				</div>
+			</li>
+		))
+	}
+</ol>

@@ -1,0 +1,33 @@
+---
+import FormCard from "../../../../../components/blocks/FormCard.astro";
+import Notice from "../../../../../components/blocks/Notice.astro";
+import PageHeader from "../../../../../components/blocks/PageHeader.astro";
+import Button from "../../../../../components/ui/Button.astro";
+import Field from "../../../../../components/ui/Field.astro";
+import Admin from "../../../../../layouts/Admin.astro";
+import { modulePage } from "../../../../../lib/admin/content";
+
+const { response, data } = await modulePage(Astro);
+if (response) return response;
+const { course, values } = data;
+---
+
+<Admin title="Module" minutesLeft={data.minutesLeft}>
+	<Notice error={data.error} />
+	<PageHeader title="Module" trail={[{ href: "/admin/courses", label: "Courses" }, { href: course.href, label: course.title }]} />
+	<FormCard do="save-module">
+		<Field label="Module title" name="title" value={values.title} required maxlength="500" />
+		<Field
+			label="What it covers"
+			name="description"
+			as="textarea"
+			value={values.description}
+			optional
+			maxlength="5000"
+		/>
+		<Fragment slot="actions">
+			<Button href={course.href} variant="ghost">Cancel</Button>
+			<Button variant="primary" type="submit">Save module</Button>
+		</Fragment>
+	</FormCard>
+</Admin>

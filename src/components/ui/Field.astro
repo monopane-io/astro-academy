@@ -1,0 +1,101 @@
+---
+import { cx, fieldId } from "../../lib/ui";
+import Input from "./Input.astro";
+
+/**
+ * One thing to fill in: its label, the control, a line of help, and what is
+ * wrong with it if anything. Every form on the site is a stack of these, so
+ * labels, spacing and errors look and read the same everywhere.
+ *
+ * Give it the control's `name` and the kind of control; or put a control of
+ * your own in the slot and give it `id={fieldId(name)}`.
+ */
+interface Props {
+	label: string;
+	name: string;
+	/** Appended to the id when the same name appears twice on a page. */
+	scope?: string;
+	as?: "input" | "textarea" | "select" | "custom";
+	type?: string;
+	value?: string | number | null;
+	hint?: string;
+	error?: string;
+	required?: boolean;
+	optional?: boolean;
+	rows?: number;
+	/** Text set in a fixed-width face: a reading's source. */
+	code?: boolean;
+	/** A short field: a number, a percentage. */
+	narrow?: boolean;
+	class?: string;
+	[attribute: string]: unknown;
+}
+
+const {
+	label,
+	name,
+	scope,
+	as = "input",
+	type = "text",
+	value,
+	hint,
+	error,
+	required = false,
+	optional = false,
+	rows = 3,
+	code = false,
+	narrow = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const id = fieldId(name, scope);
+const describedBy = cx(hint && `${id}-hint`, error && `${id}-error`) || undefined;
+const control = {
+	id,
+	name,
+	required,
+	invalid: Boolean(error),
+	"aria-describedby": describedBy,
+	...rest,
+};
+---
+
+<div class={cx("flex flex-col gap-1.5", extra)}>
+	<label class="font-medium text-sm" for={id}>
+		{label}
+		{optional && <span class="font-normal text-muted-foreground"> (optional)</span>}
+	</label>
+	{
+		as === "input" && (
+			<Input type={type} value={value} code={code} narrow={narrow} {...control} />
+		)
+	}
+	{
+		as === "textarea" && (
+			<Input as="textarea" value={value} rows={rows} code={code} {...control} />
+		)
+	}
+	{
+		as === "select" && (
+			<Input as="select" narrow={narrow} {...control}>
+				<slot />
+			</Input>
+		)
+	}
+	{as === "custom" && <slot />}
+	{
+		hint && (
+			<p class="text-muted-foreground text-sm" id={`${id}-hint`}>
+				{hint}
+			</p>
+		)
+	}
+	{
+		error && (
+			<p class="font-medium text-destructive text-sm" id={`${id}-error`}>
+				{error}
+			</p>
+		)
+	}
+</div>

@@ -1,7 +1,8 @@
 /**
  * Turns the text of a reading into HTML. It understands a small, safe subset
  * of Markdown: headings, paragraphs, bulleted and numbered lists, **bold**,
- * *italic*, `code` and [links](https://...). Everything else is shown as
+ * *italic*, `code`, [links](https://...), a callout (lines starting with
+ * "> ") and a block of code between lines of three backticks. Everything else is shown as
  * written. All text is escaped, so content can never inject markup or script.
  *
  * Want full Markdown? Replace this function with a library of your choice.
@@ -28,9 +29,22 @@ function inline(value: string): string {
 }
 
 export function renderText(source: string): string {
-	const blocks = source.replace(/\r\n?/g, "\n").split(/\n{2,}/);
+	// Blocks of code are lifted out first: blank lines inside one belong to it.
+	const code: string[] = [];
+	const text = source
+		.replace(/\r\n?/g, "\n")
+		.replace(/^```[^\n]*\n([\s\S]*?)\n```[ \t]*$/gm, (_all, body: string) => {
+			code.push(`<pre><code>${escapeHtml(body)}</code></pre>`);
+			return `\n\n\uE000${code.length - 1}\uE000\n\n`;
+		});
+	const blocks = text.split(/\n{2,}/);
 	const html: string[] = [];
 	for (const block of blocks) {
+		const lifted = /^\uE000(\d+)\uE000$/.exec(block.trim());
+		if (lifted) {
+			html.push(code[Number(lifted[1])] ?? "");
+			continue;
+		}
 		const lines = block.split("\n").filter((line) => line.trim() !== "");
 		if (lines.length === 0) continue;
 
@@ -49,6 +63,11 @@ export function renderText(source: string): string {
 		if (lines.every((line) => /^\s*\d+[.)]\s+/.test(line))) {
 			const items = lines.map((line) => `<li>${inline(line.replace(/^\s*\d+[.)]\s+/, ""))}</li>`);
 			html.push(`<ol>${items.join("")}</ol>`);
+			continue;
+		}
+		if (lines.every((line) => /^\s*>/.test(line))) {
+			const said = lines.map((line) => inline(line.replace(/^\s*>\s?/, "")));
+			html.push(`<blockquote><p>${said.join("<br>")}</p></blockquote>`);
 			continue;
 		}
 		html.push(`<p>${lines.map(inline).join("<br>")}</p>`);

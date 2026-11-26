@@ -1,5 +1,7 @@
 ---
 import type { CourseCard } from "../lib/pages";
+import Badge from "./ui/Badge.astro";
+import Tag from "./ui/Tag.astro";
 
 interface Props {
 	course: CourseCard;
@@ -43,9 +45,9 @@ const { course } = Astro.props;
 			course.tags.length > 0 && (
 				<p class="relative z-10 mt-1 flex flex-wrap gap-1.5">
 					{course.tags.map((tag) => (
-						<a class="tag px-2.5 py-0.5" href={tag.href}>
+						<Tag size="sm" href={tag.href}>
 							{tag.name}
-						</a>
+						</Tag>
 					))}
 				</p>
 			)
@@ -58,8 +60,8 @@ const { course } = Astro.props;
 							{course.duration}
 						</span>
 					)}
-					{course.enrolled === "completed" && <span class="pill pill-done ml-auto">Completed</span>}
-					{course.enrolled === "active" && <span class="pill ml-auto">In progress</span>}
+					{course.enrolled === "completed" && <Badge variant="success" class="ml-auto">Completed</Badge>}
+					{course.enrolled === "active" && <Badge variant="neutral" class="ml-auto">In progress</Badge>}
 				</div>
 			)
 		}

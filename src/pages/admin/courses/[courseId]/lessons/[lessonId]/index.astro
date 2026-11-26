@@ -1,0 +1,84 @@
+---
+import Empty from "../../../../../../components/blocks/Empty.astro";
+import ItemList from "../../../../../../components/blocks/ItemList.astro";
+import ItemRow from "../../../../../../components/blocks/ItemRow.astro";
+import LessonHeader from "../../../../../../components/blocks/LessonHeader.astro";
+import Notice from "../../../../../../components/blocks/Notice.astro";
+import Section from "../../../../../../components/blocks/Section.astro";
+import Badge from "../../../../../../components/ui/Badge.astro";
+import Button from "../../../../../../components/ui/Button.astro";
+import Menu from "../../../../../../components/ui/Menu.astro";
+import MenuItem from "../../../../../../components/ui/MenuItem.astro";
+import Admin from "../../../../../../layouts/Admin.astro";
+import { lessonPage } from "../../../../../../lib/admin/content";
+
+const { response, data } = await lessonPage(Astro);
+if (response) return response;
+const { course, lesson } = data;
+---
+
+<Admin title={lesson.title} minutesLeft={data.minutesLeft}>
+	<Notice done={data.done} error={data.error} />
+	<LessonHeader course={course} lesson={lesson} tab="activities" />
+
+	<Section description="What a user does in this lesson, in this order.">
+		<Menu slot="actions" label="Add an activity" text="Add an activity">
+			{data.add.map((kind) => <MenuItem href={kind.href}>{kind.label}</MenuItem>)}
+		</Menu>
+		{
+			data.activities.length === 0 ? (
+				<Empty title="Nothing in this lesson yet" description="Add a reading, a video, a link or a quiz.">
+					{data.add.map((kind) => (
+						<Button href={kind.href} size="sm">
+							{kind.label}
+						</Button>
+					))}
+				</Empty>
+			) : (
+				<ItemList ordered>
+					{data.activities.map((activity) => (
+						<ItemRow
+							title={activity.title}
+							href={activity.href}
+							meta={activity.summary}
+							id={activity.id}
+							data-admin-activity={activity.typeLabel}
+						>
+							<Fragment slot="lead">{activity.typeLabel}</Fragment>
+							<Badge slot="status" variant={activity.published ? "success" : "neutral"} data-state>
+								{activity.published ? "Published" : "Draft"}
+							</Badge>
+							<Menu slot="actions" label={`Actions for ${activity.title}`}>
+								<MenuItem href={activity.href}>Edit</MenuItem>
+								<MenuItem
+									fields={{
+										do: "toggle-activity",
+										id: activity.id,
+										status: activity.published ? "published" : "draft",
+									}}
+								>
+									{activity.published ? "Unpublish" : "Publish"}
+								</MenuItem>
+								<MenuItem
+									fields={{ do: "move-activity", id: activity.id, direction: "up" }}
+									disabled={activity.first}
+								>
+									Move up
+								</MenuItem>
+								<MenuItem
+									fields={{ do: "move-activity", id: activity.id, direction: "down" }}
+									disabled={activity.last}
+								>
+									Move down
+								</MenuItem>
+								<MenuItem fields={{ do: "delete-activity", id: activity.id }} destructive>
+									Delete
+								</MenuItem>
+							</Menu>
+						</ItemRow>
+					))}
+				</ItemList>
+			)
+		}
+	</Section>
+</Admin>

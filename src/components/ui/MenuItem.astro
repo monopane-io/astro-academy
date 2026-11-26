@@ -1,0 +1,40 @@
+---
+import { cx } from "../../lib/ui";
+
+/**
+ * One line of a <Menu>. With `href` it is a link. Otherwise it is a button
+ * that sends a small form of its own: `fields` are the form's hidden values.
+ */
+interface Props {
+	href?: string;
+	fields?: Record<string, string>;
+	destructive?: boolean;
+	disabled?: boolean;
+	/** Keep the page where it is after the form is sent. */
+	stay?: boolean;
+}
+
+const { href, fields = {}, destructive = false, disabled = false, stay = true } = Astro.props;
+const item = cx(
+	"flex w-full cursor-pointer items-center rounded-md px-2.5 py-1.5 text-left text-sm hover:bg-muted disabled:cursor-default disabled:opacity-45 disabled:hover:bg-transparent",
+	"focus-visible:outline-2 focus-visible:outline-ring",
+	destructive && "text-destructive",
+);
+---
+
+{
+	href ? (
+		<a class={item} href={href}>
+			<slot />
+		</a>
+	) : (
+		<form method="post" data-stay={stay ? "" : undefined}>
+			{Object.entries(fields).map(([name, value]) => (
+				<input type="hidden" name={name} value={value} />
+			))}
+			<button class={item} type="submit" disabled={disabled}>
+				<slot />
+			</button>
+		</form>
+	)
+}

@@ -24,6 +24,7 @@ interface ApiEnrollment {
 interface ApiProgress {
 	activityId: string;
 	status: "not_started" | "in_progress" | "attempted" | "completed";
+	completedAt: string | null;
 }
 interface ApiCourse {
 	id: string;
@@ -35,6 +36,8 @@ interface Page<T> {
 	hasMore: boolean;
 }
 
+const dateAndTime = (iso: string) =>
+	`${new Date(iso).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short", timeZone: "UTC" })} UTC`;
 const longDate = (iso: string) =>
 	new Date(iso).toLocaleDateString("en-GB", { dateStyle: "long", timeZone: "UTC" });
 const minutesLeft = (expires: number) => Math.max(1, Math.floor((expires - Date.now()) / 60000));
@@ -98,8 +101,13 @@ export interface UserEnrollment {
 export interface UserData {
 	user: { name: string; email: string | null; reference: string; joinedOn: string };
 	enrollments: UserEnrollment[];
+	/** What the user has done, newest first. */
+	activity: { text: string; when: string; icon: "user-plus" | "book" | "check" | "award" }[];
 	minutesLeft: number;
 }
+
+/** How many lines of a user's activity their page shows. */
+const ACTIVITY_SHOWN = 12;
 
 const STATUS_LABELS = {
 	active: "In progress",
@@ -124,9 +132,26 @@ export function userPage(context: PageContext): Promise<PageResult<UserData>> {
 			api.all<ApiCourse>("/courses"),
 		]);
 		const titles = new Map(courses.map((course) => [course.id, course.title]));
+		const events: { at: string; text: string; icon: UserData["activity"][number]["icon"] }[] = [
+			{ at: user.createdAt, text: "Signed in for the first time", icon: "user-plus" },
+		];
 		const rows = await Promise.all(
 			enrollments.map(async (enrollment) => {
+				const course = titles.get(enrollment.courseId) ?? "a course that has been deleted";
+				events.push({ at: enrollment.enrolledAt, text: `Enrolled in ${course}`, icon: "book" });
+				if (enrollment.completedAt) {
+					events.push({ at: enrollment.completedAt, text: `Completed ${course}`, icon: "award" });
+				}
 				const progress = await api.all<ApiProgress>(`/enrollments/${enrollment.id}/progress`);
+				for (const record of progress) {
+					if (record.status === "completed" && record.completedAt) {
+						events.push({
+							at: record.completedAt,
+							text: `Finished an activity in ${course}`,
+							icon: "check",
+						});
+					}
+				}
 				return {
 					courseTitle: titles.get(enrollment.courseId) ?? "A course that has been deleted",
 					courseHref: `/admin/courses/${enrollment.courseId}`,
@@ -146,6 +171,10 @@ export function userPage(context: PageContext): Promise<PageResult<UserData>> {
 				joinedOn: longDate(user.createdAt),
 			},
 			enrollments: rows,
+			activity: events
+				.sort((a, b) => b.at.localeCompare(a.at))
+				.slice(0, ACTIVITY_SHOWN)
+				.map((event) => ({ text: event.text, when: dateAndTime(event.at), icon: event.icon })),
 			minutesLeft: minutesLeft(session.expires),
 		};
 	});

@@ -155,7 +155,10 @@ test("the user flow, from sign-in to a verified credential", async ({ page, brow
 	await expect(page.locator("[data-lesson-state=done]")).toHaveCount(1);
 
 	// --- My learning, part way through ---------------------------------------
-	await page.getByRole("link", { name: "My learning" }).click();
+	await page
+		.getByRole("navigation", { name: "Main" })
+		.getByRole("link", { name: "My learning" })
+		.click();
 	await expect(page).toHaveURL("/my-learning");
 	const inProgress = page.locator("[data-in-progress]");
 	await expect(inProgress).toContainText("A tour of this academy");
@@ -278,7 +281,7 @@ test("the user flow, from sign-in to a verified credential", async ({ page, brow
 
 	// --- Sign out ------------------------------------------------------------
 	await page.getByRole("button", { name: "Sign out" }).click();
-	await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+	await expect(page.getByRole("banner").getByRole("link", { name: "Sign in" })).toBeVisible();
 	await page.goto(`${COURSE}/complete`);
 	await expect(page).toHaveURL(/\/sign-in\?next=/);
 	await page.goto("/my-learning");

@@ -1,0 +1,24 @@
+---
+/** A box to tick, with its label beside it. */
+interface Props {
+	label: string;
+	name: string;
+	value?: string;
+	checked?: boolean;
+	required?: boolean;
+}
+
+const { label, name, value = "on", checked = false, required = false } = Astro.props;
+---
+
+<label class="flex cursor-pointer items-center gap-2.5">
+	<input
+		class="size-4 accent-primary"
+		type="checkbox"
+		name={name}
+		value={value}
+		checked={checked}
+		required={required}
+	/>
+	<span>{label}</span>
+</label>

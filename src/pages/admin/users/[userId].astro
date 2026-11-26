@@ -1,59 +1,57 @@
 ---
+import Empty from "../../../components/blocks/Empty.astro";
+import Facts from "../../../components/blocks/Facts.astro";
+import Feed from "../../../components/blocks/Feed.astro";
+import ItemList from "../../../components/blocks/ItemList.astro";
+import ItemRow from "../../../components/blocks/ItemRow.astro";
+import PageHeader from "../../../components/blocks/PageHeader.astro";
+import Section from "../../../components/blocks/Section.astro";
+import Split from "../../../components/blocks/Split.astro";
+import Badge from "../../../components/ui/Badge.astro";
 import Admin from "../../../layouts/Admin.astro";
 import { userPage } from "../../../lib/admin/users";
 
 const { response, data } = await userPage(Astro);
 if (response) return response;
 const { user } = data;
+const facts = [
+	{ name: "Email", value: user.email ?? "Not given" },
+	{ name: "Joined on", value: user.joinedOn },
+	{ name: "Reference", value: user.reference },
+];
 ---
 
 <Admin title={user.name} minutesLeft={data.minutesLeft}>
-	<p class="mb-6 text-sm">
-		<a class="text-muted-foreground hover:text-primary" href="/admin/users">All users</a>
-	</p>
-	<h1>{user.name}</h1>
-	<dl class="mt-6 max-w-prose divide-y divide-border rounded-xl border border-border bg-card" data-admin-user-facts>
-		{
-			[
-				["Email", user.email ?? "Not given"],
-				["Joined on", user.joinedOn],
-				["Reference", user.reference],
-			].map(([name, value]) => (
-				<div class="flex flex-wrap justify-between gap-x-6 gap-y-1 px-5 py-3.5">
-					<dt class="text-muted-foreground">{name}</dt>
-					<dd class="break-all font-medium">{value}</dd>
-				</div>
-			))
-		}
-	</dl>
+	<PageHeader title={user.name} trail={[{ href: "/admin/users", label: "Users" }]} />
 
-	<h2 class="mt-12 font-semibold text-2xl tracking-tight">Courses</h2>
-	{
-		data.enrollments.length === 0 ? (
-			<p class="note mt-6 max-w-prose">Not enrolled in anything yet.</p>
-		) : (
-			<ul class="mt-6 flex max-w-prose flex-col gap-3">
-				{data.enrollments.map((enrollment) => (
-					<li class="panel" data-admin-enrollment={enrollment.courseTitle}>
-						<div class="flex flex-wrap items-center justify-between gap-2">
-							<p class="font-semibold text-lg tracking-tight">
-								<a class="hover:text-primary" href={enrollment.courseHref}>
-									{enrollment.courseTitle}
-								</a>
-							</p>
-							<span class:list={["pill", { "pill-done": enrollment.completed }]} data-state>
+	<Split>
+		<Facts slot="aside" title="About" stacked items={facts} data-admin-user-facts />
+
+	<Section title="Courses" id="courses">
+		{
+			data.enrollments.length === 0 ? (
+				<Empty title="Not enrolled in anything yet" />
+			) : (
+				<ItemList>
+					{data.enrollments.map((enrollment) => (
+						<ItemRow
+							title={enrollment.courseTitle}
+							href={enrollment.courseHref}
+							meta={`${enrollment.activitiesDone} ${enrollment.activitiesDone === 1 ? "activity" : "activities"} done. Enrolled on ${enrollment.enrolledOn}${enrollment.completedOn ? `, completed on ${enrollment.completedOn}` : ""}.`}
+							data-admin-enrollment={enrollment.courseTitle}
+						>
+							<Badge slot="status" variant={enrollment.completed ? "success" : "neutral"} data-state>
 								{enrollment.status}
-							</span>
-						</div>
-						<p class="mt-2 text-muted-foreground text-sm">
-							{enrollment.activitiesDone}{" "}
-							{enrollment.activitiesDone === 1 ? "activity" : "activities"} done. Enrolled on{" "}
-							{enrollment.enrolledOn}
-							{enrollment.completedOn ? `, completed on ${enrollment.completedOn}` : ""}.
-						</p>
-					</li>
-				))}
-			</ul>
-		)
-	}
+							</Badge>
+						</ItemRow>
+					))}
+				</ItemList>
+			)
+		}
+	</Section>
+
+	<Section title="Activity" id="activity" description="The latest things this user did.">
+		<Feed items={data.activity} data-admin-activity-feed />
+	</Section>
+	</Split>
 </Admin>
