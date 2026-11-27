@@ -362,7 +362,10 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 	// --- From the user pages, an admin can go straight to editing --------------
 	await page.goto(`/courses/${slug}`);
 	await page.getByRole("link", { name: "Edit this course" }).click();
-	await expect(page).toHaveURL(courseUrl);
+	// The client router changes the address once the admin page is rendered,
+	// which asks the API for the course and its numbers: slower than the
+	// default wait on a busy machine.
+	await expect(page).toHaveURL(courseUrl, { timeout: 20_000 });
 	await expect(page.locator("[data-course-numbers]")).toHaveAttribute(
 		"data-course-numbers",
 		"1 enrolled, 0 completed",
