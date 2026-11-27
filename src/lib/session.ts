@@ -96,11 +96,25 @@ export async function openSession(
 	}
 }
 
+/** Stands for this site's own origin when checking where `next` leads. */
+const HERE = "https://this-site.invalid";
+
 /**
  * Where to send someone after signing in: a path on this site, never another
- * site. Anything else becomes the home page.
+ * site. Anything else becomes the home page. `next` is resolved the way a
+ * browser resolves it, which drops tabs and newlines (so `/<tab>/evil.example`
+ * is `//evil.example`), and only an address on this same origin is kept, as
+ * its path, query and fragment.
  */
 export function safeNext(next: string | null | undefined): string {
-	if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return "/";
-	return next;
+	if (!next || !next.startsWith("/") || next.includes("\\")) return "/";
+	let url: URL;
+	try {
+		url = new URL(next, HERE);
+	} catch {
+		return "/";
+	}
+	if (url.origin !== HERE) return "/";
+	const path = `${url.pathname}${url.search}${url.hash}`;
+	return path.startsWith("//") ? "/" : path;
 }

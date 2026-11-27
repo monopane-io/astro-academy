@@ -61,6 +61,11 @@ describe("safeNext", () => {
 			"//evil.example",
 			"/\\evil.example",
 			"javascript:alert(1)",
+			// Browsers drop tabs and newlines from an address: these are //evil.example.
+			"/\t/evil.example",
+			"/\n/evil.example",
+			"/\r\n/evil.example",
+			"\t//evil.example",
 		]) {
 			expect(safeNext(next)).toBe("/");
 		}
