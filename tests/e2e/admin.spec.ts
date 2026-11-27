@@ -94,6 +94,15 @@ test("an admin signs in with Monopane and sees every course, drafts included", a
 	// The sidebar says who is signed in.
 	await expect(page.locator("aside [data-admin-account]")).toContainText(EMAIL);
 
+	// Signing in again from this browser, while Monopane remembers it, asks for
+	// no password. This address was added by hand, so consent is asked for
+	// again: only a project's own address or domain is remembered.
+	await page.goto("/admin/sign-in?next=%2Fadmin%2Fcourses");
+	await expect(page.getByRole("button", { name: "Allow" })).toBeVisible();
+	await expect(page.getByLabel("Password")).toHaveCount(0);
+	await page.getByRole("button", { name: "Allow" }).click();
+	await expect(page).toHaveURL(/\/admin\/courses$/);
+
 	// --- What the browser holds -----------------------------------------------
 	const cookies = await context.cookies();
 	const admin = cookies.find((cookie) => /(^|-)admin$/.test(cookie.name));

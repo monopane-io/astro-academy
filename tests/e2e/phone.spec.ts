@@ -136,4 +136,14 @@ test("an admin's navigation on a phone is the same drawer", async ({ page }) => 
 	await openMenu(page);
 	await drawer(page).getByRole("button", { name: "Leave admin" }).click();
 	await expect(page).toHaveURL(/\/$/);
+
+	// After leaving, the next sign-in asks for the password again, even though
+	// Monopane still remembers this browser.
+	await page.goto("/admin");
+	await expect(page.getByLabel("Password")).toBeVisible();
+	await page.getByLabel("Email").fill(EMAIL);
+	await page.getByLabel("Password").fill(PASSWORD);
+	await page.getByRole("button", { name: "Sign in" }).click();
+	await page.getByRole("button", { name: "Allow" }).click();
+	await expect(page).toHaveURL(/\/admin$/);
 });

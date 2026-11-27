@@ -29,8 +29,9 @@ export async function signedIn<T>(
 	context: PageContext,
 	load: (api: AdminApi, session: AdminSession) => Promise<T | Response>,
 ): Promise<PageResult<T>> {
-	// After signing in again the admin comes back to the page, never to a form post.
-	const here = context.url.pathname;
+	// After signing in again the admin comes back to the page, never to a form
+	// post: a form is not sent again by itself, and the page says to send it.
+	const here = backTo(context.url, context.request.method);
 	const session = context.locals.admin;
 	if (!session) return respond(context.redirect(signInPath(here)));
 	try {
@@ -43,6 +44,29 @@ export async function signedIn<T>(
 		if (error instanceof AdminSignedOut) return respond(context.redirect(signInPath(here)));
 		throw error;
 	}
+}
+
+/** Set on the page an admin comes back to when a form they sent was not dealt with. */
+export const RESEND_PARAM = "resend";
+
+/**
+ * Where to bring the admin back to after signing in again: the page they
+ * were on, with its query. After a form post, the page the form was on, with
+ * a note that it was not sent.
+ */
+export function backTo(url: URL, method: string): string {
+	const search = new URLSearchParams(url.search);
+	search.delete(RESEND_PARAM);
+	if (method !== "GET" && method !== "HEAD") search.set(RESEND_PARAM, "1");
+	const query = search.toString();
+	return `${url.pathname}${query ? `?${query}` : ""}`;
+}
+
+/** What to tell an admin who came back after a form was not sent; null otherwise. */
+export function resendNotice(url: URL): string | null {
+	return url.searchParams.get(RESEND_PARAM) === "1"
+		? "Your sign-in ended before that change was sent, so nothing was changed. Send it again."
+		: null;
 }
 
 /**

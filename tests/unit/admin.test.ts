@@ -1,6 +1,12 @@
 import type { AstroCookies } from "astro";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fromThisSite, isAdminPath, protectAdminReply } from "../../src/lib/admin/pages";
+import {
+	backTo,
+	fromThisSite,
+	isAdminPath,
+	protectAdminReply,
+	resendNotice,
+} from "../../src/lib/admin/pages";
 import {
 	adminCookieNames,
 	adminCookieOptions,
@@ -210,6 +216,42 @@ describe("signing an admin in", () => {
 		const [url, init] = fetched.mock.calls[0] as unknown as [URL, RequestInit];
 		expect(String(url)).toBe("https://api.example.test/oauth/revoke");
 		expect((init.body as URLSearchParams).get("token")).toBe(TOKEN);
+	});
+});
+
+describe("coming back after signing in again", () => {
+	it("returns to the page the admin was on, with its query", async () => {
+		const { cookies, values } = jar();
+		await startSignIn(config, cookies, HTTPS, "/admin/users?q=ada&status=active");
+		expect((await openSignInStart(values.get("__Host-admin_start"), SECRET))?.next).toBe(
+			"/admin/users?q=ada&status=active",
+		);
+	});
+
+	it("after a form post, returns to the form's page and says the change was not sent", () => {
+		const page = new URL("https://academy.example.com/admin/courses/crs_1?done=Saved");
+		expect(backTo(page, "GET")).toBe("/admin/courses/crs_1?done=Saved");
+		const sent = backTo(page, "POST");
+		expect(sent).toBe("/admin/courses/crs_1?done=Saved&resend=1");
+		expect(resendNotice(new URL(sent, page))).toMatch(/nothing was changed\. Send it again/);
+		expect(resendNotice(page)).toBeNull();
+		// Not added twice.
+		expect(backTo(new URL(sent, page), "POST")).toBe(sent);
+	});
+
+	it("after Leave admin, the next sign-in asks Monopane for the password, once", async () => {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(async () => new Response("{}")),
+		);
+		const { cookies, values } = jar({ "__Host-admin": "x" });
+		await signOutAdmin(config, cookies, HTTPS, { token: TOKEN, expires: Date.now() + 1000 });
+		expect(values.get("__Host-admin_left")).toBe("1");
+
+		const first = new URL(await startSignIn(config, cookies, HTTPS, "/admin"));
+		expect(first.searchParams.get("prompt")).toBe("login");
+		const second = new URL(await startSignIn(config, cookies, HTTPS, "/admin"));
+		expect(second.searchParams.get("prompt")).toBeNull();
 	});
 });
 

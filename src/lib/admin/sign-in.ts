@@ -40,11 +40,20 @@ export const ADMIN_HOME = "/admin";
 /** This project's sign-in client at Monopane: worked out from the project ID, with nothing to set up. */
 const clientId = (config: Config) => `signin_${config.projectId}`;
 
-/** Where to go after signing in: somewhere in the admin area, or its front page. */
+/** Where to go after signing in: somewhere in the admin area (with its query), or its front page. */
 function adminNext(next: string | null | undefined): string {
 	const path = safeNext(next);
-	return path === ADMIN_HOME || path.startsWith(`${ADMIN_HOME}/`) ? path : ADMIN_HOME;
+	const pathname = path.split(/[?#]/)[0] ?? "";
+	return pathname === ADMIN_HOME || pathname.startsWith(`${ADMIN_HOME}/`) ? path : ADMIN_HOME;
 }
+
+/**
+ * Set by "Leave admin": the next sign-in from this browser asks Monopane for
+ * the password (`prompt=login`), even if Monopane still remembers who this is.
+ * It holds nothing secret.
+ */
+const leftAdminCookie = (url: URL) => `${url.protocol === "https:" ? "__Host-" : ""}admin_left`;
+const LEFT_ADMIN_MAX_AGE = 30 * 24 * 60 * 60;
 
 /** The address at Monopane to send the person to, having remembered what is needed to finish. */
 export async function startSignIn(
@@ -61,7 +70,7 @@ export async function startSignIn(
 		{ ...adminCookieOptions(url), maxAge: SIGN_IN_START_MAX_AGE },
 	);
 	const authorize = new URL("/oauth/authorize", config.apiUrl);
-	authorize.search = new URLSearchParams({
+	const query = new URLSearchParams({
 		response_type: "code",
 		client_id: clientId(config),
 		redirect_uri: `${url.origin}${CALLBACK_PATH}`,
@@ -69,7 +78,13 @@ export async function startSignIn(
 		state,
 		code_challenge: await pkceChallenge(verifier),
 		code_challenge_method: "S256",
-	}).toString();
+	});
+	// After "Leave admin", ask for the password once, whatever Monopane remembers.
+	if (cookies.get(leftAdminCookie(url))?.value) {
+		query.set("prompt", "login");
+		cookies.delete(leftAdminCookie(url), adminCookieOptions(url));
+	}
+	authorize.search = query.toString();
 	return authorize.toString();
 }
 
@@ -141,6 +156,10 @@ export async function signOutAdmin(
 	session: AdminSession | null,
 ): Promise<void> {
 	cookies.delete(adminCookieNames(url).session, adminCookieOptions(url));
+	cookies.set(leftAdminCookie(url), "1", {
+		...adminCookieOptions(url),
+		maxAge: LEFT_ADMIN_MAX_AGE,
+	});
 	if (!session) return;
 	// If Monopane cannot be reached the cookie is gone all the same, and the
 	// token runs out by itself within the hour.

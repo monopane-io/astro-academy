@@ -1,11 +1,13 @@
 ---
 import AdminNav from "../components/blocks/AdminNav.astro";
+import Notice from "../components/blocks/Notice.astro";
+import { resendNotice } from "../lib/admin/pages";
 import Document from "./Document.astro";
 
 /**
  * The frame of the admin area: its own navigation down the side (across the
  * top on a narrow screen), a way back to the site, and how long the sign-in
- * has left. It does not carry the site's header: this is a different place,
+ * has left, and, after signing in again, that a form was not sent. It does not carry the site's header: this is a different place,
  * for the people who run the academy.
  */
 interface Props {
@@ -15,11 +17,14 @@ interface Props {
 }
 
 const { title, minutesLeft } = Astro.props;
+// Back from signing in again after a form was not sent: say so, on every admin page.
+const resend = resendNotice(Astro.url);
 ---
 
 <Document title={`${title} (admin)`} class="min-h-dvh lg:grid lg:grid-cols-[17.5rem_minmax(0,1fr)]">
 	<AdminNav minutesLeft={minutesLeft} />
 	<main id="main" class="w-full max-w-5xl px-4 py-8 md:px-8 lg:py-10">
+		{resend && <Notice error={resend} />}
 		<slot />
 	</main>
 </Document>
