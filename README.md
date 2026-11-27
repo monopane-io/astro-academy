@@ -29,6 +29,16 @@ Monopane can host the academy for you. Connect GitHub in the Monopane console an
 
 The build runs in your repository with GitHub Actions (`.github/workflows/monopane.yml`), so Actions must be enabled for it (**Settings → Actions → General**). The workflow proves which repository and commit it builds with a token GitHub gives the job; no key or secret is stored in the repository. If the repository is not connected to a Monopane site, the workflow ends with a notice and deploys nothing. To turn it off, delete `.github/workflows/monopane.yml`.
 
+Preview and deployment addresses ask for a Monopane sign-in: only people who work on the project can open them. Your site's own address and your domains stay public. A project's owner can turn this off, or make a bypass secret for automated tests, in the project's deployment settings.
+
+### Cookies on `monopane.dev`
+
+Every site on `monopane.dev` shares that domain, so browsers treat them as one site for cookies until `monopane.dev` is on the Public Suffix List. Until then:
+
+- Use `__Host-` cookies (`Secure`, `Path=/`, no `Domain`), as this academy does for its sessions. Monopane drops any cookie a site on `monopane.dev` sets with a `Domain` attribute; a cookie set from JavaScript is not covered, so do not set one there.
+- Do not rely on `SameSite` to keep other `monopane.dev` sites out: to the browser they are the same site.
+- Use a domain of your own for production. The `monopane.dev` address is for trying things out and for previews.
+
 To host the academy yourself instead, on your own Cloudflare account, follow the steps below.
 
 ## From an invite to a deployed academy
