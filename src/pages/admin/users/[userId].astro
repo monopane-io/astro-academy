@@ -2,14 +2,15 @@
 import Empty from "../../../components/blocks/Empty.astro";
 import Facts from "../../../components/blocks/Facts.astro";
 import Feed from "../../../components/blocks/Feed.astro";
-import ItemList from "../../../components/blocks/ItemList.astro";
-import ItemRow from "../../../components/blocks/ItemRow.astro";
 import PageHeader from "../../../components/blocks/PageHeader.astro";
 import Section from "../../../components/blocks/Section.astro";
 import Split from "../../../components/blocks/Split.astro";
+import Table from "../../../components/blocks/Table.astro";
+import TableFilters from "../../../components/blocks/TableFilters.astro";
 import Badge from "../../../components/ui/Badge.astro";
+import Progress from "../../../components/ui/Progress.astro";
 import Admin from "../../../layouts/Admin.astro";
-import { userPage } from "../../../lib/admin/users";
+import { ENROLLMENT_STATES, userPage } from "../../../lib/admin/users";
 
 const { response, data } = await userPage(Astro);
 if (response) return response;
@@ -29,23 +30,52 @@ const facts = [
 
 	<Section title="Courses" id="courses">
 		{
-			data.enrollments.length === 0 ? (
+			data.enrollmentCount === 0 ? (
 				<Empty title="Not enrolled in anything yet" />
 			) : (
-				<ItemList>
+				<Table
+					label="Courses"
+					columns={[
+						{ label: "Course", sortHref: data.sort.course.href, sorted: data.sort.course.sorted },
+						{ label: "Status" },
+						{ label: "Progress", hide: true },
+						{ label: "Enrolled", align: "right", hide: true, sortHref: data.sort.enrolled.href, sorted: data.sort.enrolled.sorted },
+					]}
+				>
+					<TableFilters
+						slot="toolbar"
+						action="#courses"
+						filters={[{ name: "status", label: "Status", value: data.status, anyLabel: "Any status", options: ENROLLMENT_STATES }]}
+						keep={data.keep}
+						clearHref={data.clearHref}
+					/>
 					{data.enrollments.map((enrollment) => (
-						<ItemRow
-							title={enrollment.courseTitle}
-							href={enrollment.courseHref}
-							meta={`${enrollment.activitiesDone} ${enrollment.activitiesDone === 1 ? "activity" : "activities"} done. Enrolled on ${enrollment.enrolledOn}${enrollment.completedOn ? `, completed on ${enrollment.completedOn}` : ""}.`}
-							data-admin-enrollment={enrollment.courseTitle}
-						>
-							<Badge slot="status" variant={enrollment.completed ? "success" : "neutral"} data-state>
-								{enrollment.status}
-							</Badge>
-						</ItemRow>
+						<tr data-admin-enrollment={enrollment.courseTitle}>
+							<td>
+								<a class="font-medium hover:text-primary" href={enrollment.courseHref}>{enrollment.courseTitle}</a>
+								<span class="block text-muted-foreground text-xs md:hidden">{enrollment.progressLabel}</span>
+							</td>
+							<td>
+								<Badge variant={enrollment.completed ? "success" : "neutral"} data-state>{enrollment.status}</Badge>
+							</td>
+							<td class="hidden md:table-cell">
+								<span class="flex items-center gap-3">
+									{enrollment.activitiesTotal !== null && (
+										<Progress class="w-20" value={enrollment.activitiesDone} max={enrollment.activitiesTotal} aria-label={`Progress in ${enrollment.courseTitle}`} />
+									)}
+									<span class="whitespace-nowrap text-muted-foreground tabular-nums">{enrollment.progressLabel}</span>
+								</span>
+							</td>
+							<td class="hidden whitespace-nowrap text-right text-muted-foreground md:table-cell">
+								{enrollment.enrolledOn}
+								{enrollment.completedOn && <span class="block text-xs">Completed {enrollment.completedOn}</span>}
+							</td>
+						</tr>
 					))}
-				</ItemList>
+					{data.enrollments.length === 0 && (
+						<Empty slot="empty" bare icon="book" title="No course in this state" description="Choose another status, or clear the filter." />
+					)}
+				</Table>
 			)
 		}
 	</Section>

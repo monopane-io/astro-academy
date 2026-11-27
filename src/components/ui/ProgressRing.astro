@@ -1,18 +1,21 @@
 ---
 import { cx } from "../../lib/ui";
 
-/** How far along something is, as a ring with the percentage in the middle. */
+/**
+ * How far along something is, as a ring with the percentage in the middle.
+ * `xs` is a small ring without the number, to sit before a line that says it.
+ */
 interface Props {
 	value: number;
 	max: number;
-	size?: "sm" | "md" | "lg";
+	size?: "xs" | "sm" | "md" | "lg";
 	class?: string;
 }
 
 const { value, max, size = "md", class: extra } = Astro.props;
 const share = max > 0 ? Math.min(Math.max(value / max, 0), 1) : 0;
 const percent = Math.round(share * 100);
-const sizes = { sm: "size-12 text-xs", md: "size-16 text-sm", lg: "size-20 text-lg" };
+const sizes = { xs: "size-5", sm: "size-12 text-xs", md: "size-16 text-sm", lg: "size-20 text-lg" };
 ---
 
 <span
@@ -41,5 +44,5 @@ const sizes = { sm: "size-12 text-xs", md: "size-16 text-sm", lg: "size-20 text-
 			)
 		}
 	</svg>
-	<span aria-hidden="true">{percent}%</span>
+	{size !== "xs" && <span aria-hidden="true">{percent}%</span>}
 </span>

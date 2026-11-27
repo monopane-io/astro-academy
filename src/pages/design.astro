@@ -3,6 +3,7 @@ import Banner from "../components/blocks/Banner.astro";
 import Breadcrumbs from "../components/blocks/Breadcrumbs.astro";
 import Certificate from "../components/blocks/Certificate.astro";
 import Checklist from "../components/blocks/Checklist.astro";
+import CourseGrid from "../components/blocks/CourseGrid.astro";
 import CoursePath from "../components/blocks/CoursePath.astro";
 import Empty from "../components/blocks/Empty.astro";
 import Facts from "../components/blocks/Facts.astro";
@@ -13,6 +14,7 @@ import Pager from "../components/blocks/Pager.astro";
 import Section from "../components/blocks/Section.astro";
 import Stats from "../components/blocks/Stats.astro";
 import Table from "../components/blocks/Table.astro";
+import TableFilters from "../components/blocks/TableFilters.astro";
 import Alert from "../components/ui/Alert.astro";
 import Avatar from "../components/ui/Avatar.astro";
 import AvatarLabel from "../components/ui/AvatarLabel.astro";
@@ -37,6 +39,7 @@ import TextLink from "../components/ui/TextLink.astro";
 import Toggle from "../components/ui/Toggle.astro";
 import Tooltip from "../components/ui/Tooltip.astro";
 import Document from "../layouts/Document.astro";
+import type { CourseCard } from "../lib/pages";
 
 // Every component in every variant, on one page, to look the system over.
 // It exists only while developing (npm run dev); a built site answers 404.
@@ -45,6 +48,26 @@ if (!import.meta.env.DEV) return new Response(null, { status: 404 });
 const variants = ["primary", "secondary", "ghost", "destructive"] as const;
 const sizes = ["sm", "md", "lg"] as const;
 const row = "flex flex-wrap items-center gap-3";
+const tile = (
+	title: string,
+	enrolled: CourseCard["enrolled"],
+	progress: CourseCard["progress"],
+): CourseCard => ({
+	slug: title,
+	title,
+	description: "A line about the course, from its description.",
+	href: "#",
+	imageUrl: null,
+	tags: [],
+	duration: "45 min",
+	enrolled,
+	progress,
+});
+const tiles = [
+	tile("Not enrolled", null, null),
+	tile("In progress", "active", { done: 3, total: 8 }),
+	tile("Completed", "completed", { done: 8, total: 8 }),
+];
 ---
 
 <Document title="Design" class="mx-auto max-w-4xl px-4 py-10 sm:px-8">
@@ -137,6 +160,7 @@ const row = "flex flex-wrap items-center gap-3";
 			<Alert variant="error">That did not work, and here is why.</Alert>
 			<Progress value={3} max={8} />
 			<div class={row}>
+				<ProgressRing value={2} max={6} size="xs" />
 				<ProgressRing value={1} max={6} />
 				<ProgressRing value={5} max={6} size="lg" />
 			</div>
@@ -214,7 +238,23 @@ const row = "flex flex-wrap items-center gap-3";
 			label="Example"
 			columns={[{ label: "Course" }, { label: "Status" }, { label: "Enrolled", align: "right" }]}
 		>
-			<Input slot="toolbar" aria-label="Search" type="search" icon="search" placeholder="Search" class="max-w-xs" />
+			<TableFilters
+				slot="toolbar"
+				search={{ name: "q", value: "", label: "Search", placeholder: "Search" }}
+				filters={[
+					{
+						name: "status",
+						label: "Status",
+						value: "published",
+						anyLabel: "Any status",
+						options: [
+							{ value: "published", label: "Published" },
+							{ value: "draft", label: "Draft" },
+						],
+					},
+				]}
+				clearHref="#"
+			/>
 			<tr>
 				<td class="font-medium">A tour of this academy</td>
 				<td><Badge variant="success">Published</Badge></td>
@@ -227,6 +267,10 @@ const row = "flex flex-wrap items-center gap-3";
 			</tr>
 			<Pager slot="footer" summary="The newest 2" firstHref="#" firstLabel="Newest" nextHref="#" nextLabel="Older" />
 		</Table>
+	</Section>
+
+	<Section title="Course tiles" description="Reference: HyperUI article card. Not enrolled, in progress (a ring and the count), completed.">
+		<CourseGrid courses={tiles} />
 	</Section>
 
 	<Section title="Card with a header, checklist and feed" description="References: shadcn/ui card; Flowbite timeline (Feed); the checklist is on our track.">

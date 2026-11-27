@@ -3,11 +3,10 @@ import Empty from "../../../components/blocks/Empty.astro";
 import PageHeader from "../../../components/blocks/PageHeader.astro";
 import Pager from "../../../components/blocks/Pager.astro";
 import Table from "../../../components/blocks/Table.astro";
+import TableFilters from "../../../components/blocks/TableFilters.astro";
 import Avatar from "../../../components/ui/Avatar.astro";
-import Button from "../../../components/ui/Button.astro";
-import Input from "../../../components/ui/Input.astro";
 import Admin from "../../../layouts/Admin.astro";
-import { usersPage } from "../../../lib/admin/users";
+import { ENROLLMENT_STATES, usersPage } from "../../../lib/admin/users";
 
 const { response, data } = await usersPage(Astro);
 if (response) return response;
@@ -27,19 +26,16 @@ if (response) return response;
 			{ label: "Joined", align: "right", sortHref: data.sort.joined.href, sorted: data.sort.joined.sorted },
 		]}
 	>
-		<form slot="toolbar" class="flex w-full flex-wrap items-center gap-2" method="get" role="search">
-			<Input
-				class="max-w-xs flex-1"
-				type="search"
-				name="q"
-				icon="search"
-				value={data.search}
-				placeholder="Name, email or reference"
-				aria-label="Search users"
-			/>
-			<Button type="submit">Search</Button>
-			{data.search && <Button href={data.clearHref} variant="ghost">Clear</Button>}
-		</form>
+		<TableFilters
+			slot="toolbar"
+			search={{ name: "q", value: data.search, label: "Search users", placeholder: "Name, email or reference" }}
+			filters={[
+				{ name: "course", label: "Course", value: data.course, anyLabel: "Any course", options: data.courses },
+				{ name: "status", label: "Enrolment", value: data.status, anyLabel: "Any enrolment", options: ENROLLMENT_STATES },
+			]}
+			keep={data.keep}
+			clearHref={data.clearHref}
+		/>
 		{
 			data.users.map((user) => (
 				<tr data-admin-user={user.email ?? user.name}>
@@ -60,10 +56,16 @@ if (response) return response;
 					slot="empty"
 					icon="users"
 					bare
-					title={data.search ? `Nobody matches "${data.search}"` : "Nobody has signed in yet"}
-					description={
+					title={
 						data.search
-							? "Try part of a name, an email address or a reference."
+							? `Nobody matches "${data.search}"`
+							: data.narrowed
+								? "Nobody matches these filters"
+								: "Nobody has signed in yet"
+					}
+					description={
+						data.narrowed
+							? "Try part of a name, an email address or a reference, or clear the filters."
 							: "People appear here the first time they sign in to the academy."
 					}
 				/>

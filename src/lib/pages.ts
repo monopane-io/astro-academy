@@ -17,6 +17,7 @@ import {
 	type Course,
 	type Credential,
 	type Enrollment,
+	type EnrollmentProgress,
 	type Lesson,
 	type OutlineSection,
 	type Progress,
@@ -78,6 +79,8 @@ export interface CourseCard {
 	duration: string | null;
 	/** The signed-in user's standing in the course, if enrolled. */
 	enrolled: "active" | "completed" | null;
+	/** Activities done and to do, for an enrolled user, when known. */
+	progress: LessonState | null;
 }
 
 export interface OutlineLesson {
@@ -100,7 +103,11 @@ export interface Outline {
 
 const tagHref = (tag: string) => `/?tag=${encodeURIComponent(tag)}`;
 
-function courseCard(course: Course, enrolled?: Enrollment["status"]): CourseCard {
+function courseCard(
+	course: Course,
+	enrolled?: Enrollment["status"],
+	progress?: EnrollmentProgress,
+): CourseCard {
 	return {
 		slug: course.slug,
 		title: course.title,
@@ -110,6 +117,10 @@ function courseCard(course: Course, enrolled?: Enrollment["status"]): CourseCard
 		tags: course.tags.map((name) => ({ name, href: tagHref(name) })),
 		duration: course.estimatedMinutes ? formatMinutes(course.estimatedMinutes) : null,
 		enrolled: enrolled === "active" || enrolled === "completed" ? enrolled : null,
+		progress:
+			progress && (enrolled === "active" || enrolled === "completed")
+				? { done: progress.completed, total: progress.total }
+				: null,
 	};
 }
 
@@ -185,9 +196,11 @@ export async function homePage(context: PageContext): Promise<PageResult<HomePag
 	const tag = wanted && tags.includes(wanted) ? wanted : null;
 	const courses = await listPublishedCourses(tag ?? undefined);
 	const enrolled = new Map(
-		user ? (await listEnrollments(user.userId)).map((e) => [e.courseId, e.status]) : [],
+		user ? (await listEnrollments(user.userId)).map((e) => [e.courseId, e]) : [],
 	);
-	const cards = courses.map((course) => courseCard(course, enrolled.get(course.id)));
+	const cards = courses.map((course) =>
+		courseCard(course, enrolled.get(course.id)?.status, enrolled.get(course.id)?.progress),
+	);
 	const featured =
 		tag === null
 			? (cards.find((card) => card.tags.some((t) => t.name.toLowerCase() === FEATURED_TOPIC)) ??
@@ -546,6 +559,8 @@ export async function myLearningPage(context: PageContext): Promise<PageResult<M
 export interface CompletePage {
 	course: { title: string; href: string };
 	userName: string;
+	/** Activities done and to do, until the course is completed, when known. */
+	progress: LessonState | null;
 	/** Null until the course is completed. */
 	certificate: { code: string; issuedOn: string; verifyPath: string; verifyUrl: string } | null;
 }
@@ -569,6 +584,9 @@ export async function completePage(context: PageContext): Promise<PageResult<Com
 	return page({
 		course: { title: course.title, href: coursePath },
 		userName: user.name,
+		progress: enrollment.progress
+			? { done: enrollment.progress.completed, total: enrollment.progress.total }
+			: null,
 		certificate: credential
 			? {
 					code: credential.code,
@@ -679,9 +697,12 @@ export async function verifyLinkPage(context: PageContext): Promise<PageResult<V
 	return page({ token, failed: token === "" });
 }
 
+/** Where signing out lands: a page that says so, on the same block as 404 and 500. */
+export const SIGNED_OUT_PATH = "/signed-out";
+
 export function signOutResponse(
 	context: Pick<APIContext, "cookies" | "redirect" | "url">,
 ): Response {
 	signOut(context.cookies, context.url);
-	return context.redirect("/", 303);
+	return context.redirect(SIGNED_OUT_PATH, 303);
 }

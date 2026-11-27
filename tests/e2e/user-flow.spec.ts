@@ -169,6 +169,12 @@ test("the user flow, from sign-in to a verified credential", async ({ page, brow
 	await expect(inProgress).toContainText("A tour of this academy");
 	await expect(inProgress).toContainText("3 of 6 activities done");
 	await expect(page.locator("[data-completed]")).toHaveCount(0);
+	// The course's tile on the home page says the same, with a ring.
+	await page.goto("/");
+	const tourTile = page.locator("[data-course-tile]").filter({ hasText: "A tour of this academy" });
+	await expect(tourTile.locator("[data-course-progress]")).toHaveText("3 of 6 done");
+	await expect(tourTile.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "50");
+	await page.goto("/my-learning");
 	// "Continue" goes to the first lesson that is not finished.
 	await inProgress.getByRole("link", { name: "Continue" }).click();
 	await expect(page.getByRole("heading", { level: 1 })).toHaveText("Quizzes");
@@ -288,6 +294,13 @@ test("the user flow, from sign-in to a verified credential", async ({ page, brow
 	// Signing out is in the account menu, behind the avatar.
 	await page.getByLabel(/^Account: /).click();
 	await page.getByRole("button", { name: "Sign out" }).click();
+	// It says so, on the same block as "not found", and offers a way back in.
+	await expect(page).toHaveURL(/\/signed-out$/);
+	await expect(page.locator("[data-signed-out]")).toContainText("You are signed out");
+	await expect(page.getByRole("link", { name: "Sign in again" })).toHaveAttribute(
+		"href",
+		"/sign-in",
+	);
 	await expect(page.getByRole("banner").getByRole("link", { name: "Sign in" })).toBeVisible();
 	await page.goto(`${COURSE}/complete`);
 	await expect(page).toHaveURL(/\/sign-in\?next=/);

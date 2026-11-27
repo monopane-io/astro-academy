@@ -3,22 +3,32 @@ import Icon, { type IconName } from "../ui/Icon.astro";
 
 /**
  * A page that says one thing and offers a way on: not found, something went
- * wrong, not finished yet. Buttons go in the slot.
+ * wrong, signed out, not finished yet. Buttons go in the slot; `lead`
+ * takes the place of the icon (a progress ring).
  */
 interface Props {
 	title: string;
 	text?: string;
 	icon?: IconName;
+	[attribute: string]: unknown;
 }
 
-const { title, text, icon = "info" } = Astro.props;
+const { title, text, icon = "info", ...rest } = Astro.props;
 ---
 
-<div class="flex min-w-0 flex-col items-center justify-center gap-6 text-balance py-6 text-center md:py-12">
+<div class="flex min-w-0 flex-col items-center justify-center gap-6 text-balance py-6 text-center md:py-12" {...rest}>
 	<div class="flex max-w-sm flex-col items-center gap-2">
-		<span class="mb-2 flex size-10 items-center justify-center rounded-lg bg-muted text-foreground">
-			<Icon name={icon} class="size-6" />
-		</span>
+		{
+			Astro.slots.has("lead") ? (
+				<span class="mb-2 flex">
+					<slot name="lead" />
+				</span>
+			) : (
+				<span class="mb-2 flex size-10 items-center justify-center rounded-lg bg-muted text-foreground">
+					<Icon name={icon} class="size-6" />
+				</span>
+			)
+		}
 		<h1 class="text-heading">{title}</h1>
 		{text && <p class="text-muted-foreground text-sm/relaxed">{text}</p>}
 	</div>

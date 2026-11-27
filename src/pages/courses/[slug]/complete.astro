@@ -3,6 +3,7 @@ import Certificate from "../../../components/blocks/Certificate.astro";
 import Message from "../../../components/blocks/Message.astro";
 import PageIntro from "../../../components/blocks/PageIntro.astro";
 import Button from "../../../components/ui/Button.astro";
+import ProgressRing from "../../../components/ui/ProgressRing.astro";
 import TextLink from "../../../components/ui/TextLink.astro";
 import Base from "../../../layouts/Base.astro";
 import { completePage } from "../../../lib/pages";
@@ -44,8 +45,12 @@ const { course, certificate } = data;
 		) : (
 			<Message
 				title="Not finished yet"
-				text={`You get a certificate when every activity in ${course.title} is done and every quiz is passed.`}
+				text={`${data.progress && data.progress.total > 0 ? `${data.progress.done} of ${data.progress.total} activities done. ` : ""}You get a certificate when every activity in ${course.title} is done and every quiz is passed.`}
+				data-not-finished
 			>
+				{data.progress && data.progress.total > 0 && (
+					<ProgressRing slot="lead" size="lg" value={data.progress.done} max={data.progress.total} />
+				)}
 				<Button variant="primary" size="lg" href={course.href}>
 					Go back to the course
 				</Button>

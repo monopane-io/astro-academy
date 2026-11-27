@@ -323,20 +323,39 @@ export async function findOrCreateUser(
 // --- Enrollment and progress ------------------------------------------------
 
 /** Everything the user is enrolled in, newest first. Dropped enrollments are left out. */
-export async function listEnrollments(userId: string): Promise<Enrollment[]> {
+/** How far a user is through an enrollment's course: activities completed of those to complete. */
+export interface EnrollmentProgress {
+	completed: number;
+	total: number;
+}
+
+/** An enrollment, with its progress when the API gives it. */
+export type EnrollmentWithProgress = Enrollment & { progress?: EnrollmentProgress };
+
+/**
+ * The user's enrollments, each with its progress. Progress is asked for
+ * with `include=progress`; an API too old to know it leaves it out, and the
+ * pages then show no numbers rather than wrong ones.
+ */
+export async function listEnrollments(userId: string): Promise<EnrollmentWithProgress[]> {
 	const enrollments = await all(async (cursor) => {
+		// Passed as a variable: `include` is newer than some versions of the SDK's types.
+		const query = { limit: 100, cursor, include: "progress" };
 		const { data } = await listUserEnrollments({
 			throwOnError: true,
 			path: { projectId: project(), userId },
-			query: { limit: 100, cursor },
+			query,
 		});
-		return data;
+		return data as { data: EnrollmentWithProgress[]; nextCursor: string | null; hasMore: boolean };
 	});
 	return enrollments.filter((enrollment) => enrollment.status !== "dropped");
 }
 
 /** The user's enrollment in a course, or null. Dropped enrollments do not count. */
-export async function findEnrollment(userId: string, courseId: string): Promise<Enrollment | null> {
+export async function findEnrollment(
+	userId: string,
+	courseId: string,
+): Promise<EnrollmentWithProgress | null> {
 	return (await listEnrollments(userId)).find((e) => e.courseId === courseId) ?? null;
 }
 

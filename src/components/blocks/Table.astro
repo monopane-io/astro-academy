@@ -30,6 +30,9 @@ interface Props {
 }
 
 const { label, title, description, columns, ...rest } = Astro.props;
+// A slot given only `false` (an <Empty> shown when there are no rows) still
+// counts as given; render it, and draw its row only when it holds something.
+const empty = Astro.slots.has("empty") ? (await Astro.slots.render("empty")).trim() : "";
 ---
 
 <div class={`overflow-hidden ${surface}`} {...rest}>
@@ -95,11 +98,9 @@ const { label, title, description, columns, ...rest } = Astro.props;
 			<tbody>
 				<slot />
 				{
-					Astro.slots.has("empty") && (
+					empty && (
 						<tr class="hover:bg-transparent!">
-							<td class="p-0!" colspan={columns.length}>
-								<slot name="empty" />
-							</td>
+							<td class="p-0!" colspan={columns.length} set:html={empty} />
 						</tr>
 					)
 				}

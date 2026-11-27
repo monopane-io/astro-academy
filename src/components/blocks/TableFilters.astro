@@ -1,0 +1,65 @@
+---
+import Button from "../ui/Button.astro";
+import Input from "../ui/Input.astro";
+
+/**
+ * The toolbar of a <Table>: an optional search box and filters, each a
+ * choice from a list, sent together as one GET form. It works without
+ * script: "Apply" sends the form, "Clear" goes back to the whole list. Put
+ * it in the table's `toolbar` slot.
+ *
+ * `keep` carries values the form does not show (the order of the table) so
+ * that filtering keeps them.
+ */
+interface Props {
+	search?: { name: string; value: string; label: string; placeholder?: string };
+	filters?: {
+		name: string;
+		/** Read out as the control's name: "Course", "Status". */
+		label: string;
+		value: string;
+		/** The first option, for no filter: "All courses". */
+		anyLabel: string;
+		options: { value: string; label: string }[];
+	}[];
+	keep?: Record<string, string>;
+	/** The list with no search and no filter; shown when one is in use. */
+	clearHref?: string | null;
+	[attribute: string]: unknown;
+}
+
+const { search, filters = [], keep = {}, clearHref, ...rest } = Astro.props;
+---
+
+<form class="flex w-full flex-wrap items-center gap-2" method="get" role="search" {...rest}>
+	{Object.entries(keep).map(([name, value]) => <input type="hidden" name={name} value={value} />)}
+	{
+		search && (
+			<Input
+				class="min-w-48 max-w-xs flex-1"
+				type="search"
+				name={search.name}
+				icon="search"
+				value={search.value}
+				placeholder={search.placeholder}
+				aria-label={search.label}
+			/>
+		)
+	}
+	{
+		filters.map((filter) => (
+			<Input as="select" name={filter.name} aria-label={filter.label} data-table-filter={filter.name}>
+				<option value="" selected={filter.value === ""}>
+					{filter.anyLabel}
+				</option>
+				{filter.options.map((option) => (
+					<option value={option.value} selected={option.value === filter.value}>
+						{option.label}
+					</option>
+				))}
+			</Input>
+		))
+	}
+	<Button type="submit">{search ? "Search" : "Apply"}</Button>
+	{clearHref && <Button href={clearHref} variant="ghost">Clear</Button>}
+</form>

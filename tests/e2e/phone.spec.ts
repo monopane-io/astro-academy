@@ -69,7 +69,8 @@ test("a user's header on a phone is one menu button and a drawer", async ({ page
 	// Signing out is in the drawer.
 	await openMenu(page);
 	await drawer(page).getByRole("button", { name: "Sign out" }).click();
-	await expect(page).toHaveURL(/\/$/);
+	await expect(page).toHaveURL(/\/signed-out$/);
+	await expect(page.getByRole("heading", { level: 1 })).toHaveText("You are signed out");
 	await openMenu(page);
 	await expect(drawer(page).getByRole("link", { name: "Sign in" })).toBeVisible();
 	await expect(bar.getByRole("link", { name: "My learning" })).toHaveCount(0);

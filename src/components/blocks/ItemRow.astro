@@ -33,7 +33,7 @@ const { title, href, meta, id, ...rest } = Astro.props;
 		<p class="truncate font-medium leading-snug">
 			{href ? <a class="outline-none after:absolute after:inset-0 focus-visible:ring-0" href={href} data-row-link>{title}</a> : title}
 		</p>
-		{meta && <p class="line-clamp-2 text-muted-foreground leading-normal">{meta}</p>}
+		{meta && <p class="line-clamp-2 wrap-anywhere text-muted-foreground leading-normal">{meta}</p>}
 	</div>
 	<div class="flex shrink-0 items-center gap-2">
 		<slot name="status" />

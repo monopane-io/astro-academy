@@ -2,9 +2,14 @@
 import type { CourseCard } from "../../lib/pages";
 import { surface } from "../../lib/ui";
 import Badge from "../ui/Badge.astro";
+import ProgressRing from "../ui/ProgressRing.astro";
 import Tag from "../ui/Tag.astro";
 
-/** One course in the catalogue: its cover, name, a line about it, and where the user stands. */
+/**
+ * One course in the catalogue: its cover, name, a line about it, and where
+ * the user stands: a ring and "3 of 8 done" while in progress, a badge once
+ * completed.
+ */
 interface Props {
 	course: CourseCard;
 }
@@ -65,7 +70,15 @@ const { course } = Astro.props;
 						</span>
 					)}
 					{course.enrolled === "completed" && <Badge variant="success" class="ml-auto">Completed</Badge>}
-					{course.enrolled === "active" && <Badge variant="neutral" class="ml-auto">In progress</Badge>}
+					{course.enrolled === "active" && course.progress && course.progress.total > 0 && (
+						<span class="ml-auto flex items-center gap-2 text-muted-foreground tabular-nums" data-course-progress>
+							<ProgressRing size="xs" value={course.progress.done} max={course.progress.total} />
+							{course.progress.done} of {course.progress.total} done
+						</span>
+					)}
+					{course.enrolled === "active" && !(course.progress && course.progress.total > 0) && (
+						<Badge variant="neutral" class="ml-auto">In progress</Badge>
+					)}
 				</div>
 			)
 		}

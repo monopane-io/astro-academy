@@ -1,0 +1,17 @@
+---
+import Message from "../components/blocks/Message.astro";
+import Button from "../components/ui/Button.astro";
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Signed out">
+	<Message
+		icon="log-out"
+		title="You are signed out"
+		text="Your progress is saved. Sign in again with the same address to carry on where you left off."
+		data-signed-out
+	>
+		<Button variant="primary" size="lg" href="/">See all courses</Button>
+		<Button size="lg" href="/sign-in">Sign in again</Button>
+	</Message>
+</Base>

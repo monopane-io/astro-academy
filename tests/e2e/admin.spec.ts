@@ -350,14 +350,31 @@ test("an admin builds a course in the editor, and a user takes it", async ({ pag
 		"aria-sort",
 		"descending",
 	);
+	// Filters narrow the list to a course and an enrolment state, and keep the order.
+	await page.getByLabel("Course", { exact: true }).selectOption({ label: title });
+	await page.getByLabel("Search users").fill("");
+	await page.getByRole("button", { name: "Search", exact: true }).click();
+	await expect(page).toHaveURL(/course=crs_/);
+	await expect(page.locator("[data-admin-user]").first()).toContainText("Grace Hopper");
+	await page.getByLabel("Enrolment", { exact: true }).selectOption({ label: "Completed" });
+	await page.getByRole("button", { name: "Search", exact: true }).click();
+	await expect(page.getByText("Nobody matches these filters")).toBeVisible();
+	await page.getByRole("link", { name: "Clear", exact: true }).click();
+	await expect(page.locator("[data-admin-user]").first()).toContainText("Grace Hopper");
 	await page.getByRole("link", { name: "Grace Hopper" }).first().click();
 	await expect(heading).toHaveText("Grace Hopper");
 	const enrollment = page.locator(`[data-admin-enrollment="${title}"]`);
 	await expect(enrollment.locator("[data-state]")).toHaveText("In progress");
-	await expect(enrollment).toContainText("1 activity done");
+	await expect(enrollment).toContainText(/1 of \d+/);
 	await expect(page.locator("[data-admin-activity-feed]")).toContainText(`Enrolled in ${title}`);
-	// Reading only: nothing on the page can be sent.
-	await expect(page.locator("main form")).toHaveCount(0);
+	// The enrolments table can be narrowed to a state.
+	await page.getByLabel("Status", { exact: true }).selectOption({ label: "Completed" });
+	await page.getByRole("button", { name: "Apply", exact: true }).click();
+	await expect(page.getByText("No course in this state")).toBeVisible();
+	await page.getByRole("link", { name: "Clear", exact: true }).click();
+	await expect(enrollment).toBeVisible();
+	// Reading only: nothing on the page is sent to be changed.
+	await expect(page.locator('main form[method="post"]')).toHaveCount(0);
 
 	// --- From the user pages, an admin can go straight to editing --------------
 	await page.goto(`/courses/${slug}`);

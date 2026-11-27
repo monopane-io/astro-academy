@@ -98,11 +98,11 @@ Pick from these. Do not invent a new one until none fits.
 | The page is about | Use |
 | --- | --- |
 | Things to open and act on, in an order (lessons, activities) | `Section` holding an `ItemList` of `ItemRow`s |
-| Rows to compare by column (users, courses) | `Table`, with search in its toolbar and a `Pager` when long |
+| Rows to compare by column (users, courses, a user's enrolments) | `Table`, with `TableFilters` in its toolbar and a `Pager` when long |
 | Creating or editing one thing | `FormCard`, fields no wider than `max-w-form` |
 | One thing with facts beside it (a course, a user) | `Split`: content in two thirds, `Facts` in one third |
 | How things stand at a glance | `Stats`, then the tables people open next |
-| Saying one thing (not found, signed out, finished) | `Message` |
+| Saying one thing (not found, something went wrong, signed out) | `Message` |
 | A course's lessons, for a user | `CourseOutline` on the track |
 | Reading and doing a lesson | the `Lesson` layout: contents beside one reading column |
 
@@ -232,7 +232,8 @@ layer and add it here and on `/design`.
   `Checkbox`, `RadioGroup`, `Toggle`.
 - **Showing things:** `Card` (`title`, `description`, an `actions` slot, a
   `footer` slot; `flush` when what it holds brings its own edges), `Badge`
-  (a state), `Avatar` and `AvatarLabel`, `Icon`, `Progress`, `ProgressRing`,
+  (a state), `Avatar` and `AvatarLabel`, `Icon`, `Progress`, `ProgressRing`
+  (`xs` is a ring without the number, before a line that says "3 of 8 done"),
   `Skeleton`.
 - **Telling people things:** `Alert` (stays on the page), `Toast` (a change
   that worked), `Tooltip`.
@@ -247,6 +248,9 @@ layer and add it here and on `/design`.
   link as a whole; its actions sit above the link.
 - `Table`, `Pager`: rows to compare. Columns can sort (`sortHref`, `sorted`)
   and hide on a narrow screen; `toolbar`, `footer` and `empty` slots.
+- `TableFilters`: the table's toolbar. A search box and filters, each a
+  choice from a list, sent as one form that works without script; "Clear"
+  goes back to the whole list. Filtering keeps the table's order (`keep`).
 - `Empty`: nothing here yet, and the action that makes the first.
 - `Message`: a page that says one thing.
 - `Notice`: the result of the last change, from `done` or `error`.

@@ -10,7 +10,7 @@ interface Props {
 const { items, ...rest } = Astro.props;
 ---
 
-<dl class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" {...rest}>
+<dl class="grid grid-cols-2 gap-4 xl:grid-cols-4" {...rest}>
 	{
 		items.map((item) => (
 			<div
