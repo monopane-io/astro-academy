@@ -64,7 +64,9 @@ describe("the admin cookie", () => {
 
 	it("is refused when altered, expired, or made for something else", async () => {
 		const value = await sealAdminSession({ token: TOKEN, expires: Date.now() + 60_000 }, SECRET);
-		const flipped = `${value.slice(0, -2)}${value.endsWith("A") ? "B" : "A"}${value.slice(-1)}`;
+		// Change one character of the sealed value (the second to last).
+		const flipped = `${value.slice(0, -2)}${value.at(-2) === "A" ? "B" : "A"}${value.slice(-1)}`;
+		expect(flipped).not.toBe(value);
 		expect(await openAdminSession(flipped, SECRET)).toBeNull();
 		expect(await openAdminSession(value, SECRET, Date.now() + 61_000)).toBeNull();
 		expect(await openAdminSession(undefined, SECRET)).toBeNull();
