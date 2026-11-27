@@ -297,6 +297,11 @@ There are four layers, and a page only uses the one above it:
 - **Layouts** in `src/layouts`: `Base` for the user pages, `Lesson` for a
   lesson, `Auth` for signing in and `Admin` for the admin area.
 
+[`DESIGN.md`](DESIGN.md) is the guide to building a page from these: who the
+pages are for, which shape fits which content, the pieces by name, and the
+habits to refuse. Give it to a coding agent before asking it for a page, and
+read it yourself before adding one.
+
 `npm run dev` and open `/design` to see every component in every variant on
 one page. A built site does not have that page.
 
